@@ -1,0 +1,446 @@
+// Chaml App i18n Translation Dictionary
+
+export const LANGUAGES = {
+  fr: { label: "Français", dir: "ltr" },
+  ar: { label: "العربية", dir: "rtl" },
+  en: { label: "English", dir: "ltr" }
+};
+
+export const TRANSLATIONS = {
+  fr: {
+    // Brand
+    brand_tagline: "Réunir votre famille, sans frontières",
+    
+    // Login
+    login_title: "Portail de Connexion",
+    login_subtitle: "Accédez à votre dossier de regroupement familial Chaml",
+    email_label: "Adresse Email",
+    password_label: "Mot de passe",
+    btn_login: "Se Connecter",
+    login_error: "Identifiants incorrects. Veuillez réessayer.",
+    login_help_title: "Aide à la connexion :",
+    login_help_desc: "1. Connectez-vous avec les identifiants créés lors de l'inscription.",
+    
+    // Navigation
+    nav_dashboard: "Tableau de Bord",
+    nav_simulators: "Simulateurs",
+    nav_guide: "Guide des Étapes",
+    nav_admin: "Administration",
+    nav_logout: "Déconnexion",
+    nav_welcome: "Bienvenue",
+    nav_partner: "Conjoint(e) :",
+    
+    // Common / Status
+    status_draft: "Brouillon",
+    status_submitted: "Déposé à l'OFII / Préfecture",
+    status_approved: "Accepté",
+    status_rejected: "Refusé / Rejeté",
+    status_pending: "En attente",
+    status_approved_doc: "Validé par l'Admin",
+    status_rejected_doc: "Rejeté - A refaire",
+    status_under_review: "En cours de vérification",
+    btn_save: "Enregistrer",
+    btn_cancel: "Annuler",
+    btn_upload: "Télécharger un document",
+    btn_delete: "Supprimer",
+    btn_edit: "Modifier",
+    btn_close: "Fermer",
+    
+    // Simulators
+    sim_title: "Simulateurs de Conformité Officielle",
+    sim_desc: "Vérifiez instantanément si vos conditions de ressources et de logement correspondent aux exigences du CESEDA.",
+    sim_tab_housing: "Logement (Surface)",
+    sim_tab_resources: "Ressources (SMIC)",
+    
+    sim_house_title: "Simulateur de Surface Habitable",
+    sim_house_desc: "Le logement doit disposer d'une surface minimale décente selon sa zone géographique.",
+    sim_lbl_zone: "Zone Géographique (France)",
+    sim_lbl_zone_help: "Zone A: Paris/Région Parisienne, Côte d'Azur. Zone B1/B2: Métropoles de plus de 150 000 hab. Zone C: Reste du territoire.",
+    sim_lbl_family: "Nombre total de personnes (Ménage + famille arrivante)",
+    sim_lbl_surface: "Surface de votre logement actuel (en m²)",
+    sim_res_required: "Surface minimale requise :",
+    sim_res_current: "Surface déclarée :",
+    sim_status_success: "Conforme aux exigences de la préfecture !",
+    sim_status_failed: "Attention : Surface insuffisante pour cette zone.",
+    
+    sim_res_title: "Simulateur de Suffisance de Ressources",
+    sim_res_desc: "Vos ressources nettes moyennes sur les 12 derniers mois doivent être supérieures ou égales au SMIC net. (Les aides sociales APL/RSA sont exclues).",
+    sim_lbl_salary: "Salaire net perçu pour le mois",
+    sim_res_average: "Moyenne mensuelle calculée (12 mois) :",
+    sim_res_threshold: "Seuil requis (SMIC ajusté à la taille de la famille) :",
+    sim_res_status_success: "Ressources suffisantes et stables !",
+    sim_res_status_failed: "Attention : Vos revenus sont en dessous du seuil exigé.",
+    
+    // Dashboard
+    dash_title: "Dossier de Regroupement Familial",
+    dash_subtitle: "Espace partagé pour rassembler vos pièces justificatives.",
+    dash_progress: "Progression du dossier :",
+    dash_applicant_section: "Partie Demandeur (En France) - Gérée par",
+    dash_beneficiary_section: "Partie Bénéficiaire (Au Maroc) - Gérée par",
+    dash_doc_name: "Nom du Document",
+    dash_doc_status: "Statut",
+    dash_doc_actions: "Actions",
+    dash_doc_feedback: "Notes de l'administration",
+    dash_upload_success: "Fichier mis en ligne avec succès !",
+    dash_no_file: "Aucun fichier déposé",
+    dash_dossier_status_label: "Statut global du dossier :",
+    dash_btn_submit_dossier: "Soumettre à l'Administration (OFII / ANEF)",
+    dash_submit_confirm: "Êtes-vous sûr de vouloir envoyer votre dossier complet à l'administration française (OFII / ANEF) ? Cela démarrera le délai légal de 6 mois pour obtenir une réponse.",
+    dash_submitted_on: "Soumis le :",
+    
+    // Alert / Contestation
+    alert_title: "Alerte de Contestation (Délai de 6 mois dépassé)",
+    alert_body: "Votre dossier a été soumis le {date} (il y a plus de 6 mois) et aucune décision préfectorale ne vous a été notifiée. La loi considère ce silence comme un refus implicite. Vous disposez de 2 mois pour contester cette décision.",
+    alert_action_btn: "Générer un Recours Légal",
+    alert_recours_title: "Modèles de Recours Administratifs",
+    alert_recours_desc: "Téléchargez des modèles pré-remplis de lettres de recours pour contester le refus implicite.",
+    alert_recours_gracieux: "Recours Gracieux (Adressé au Préfet)",
+    alert_recours_hierarchique: "Recours Hiérarchique (Adressé au Ministre de l'Intérieur)",
+    alert_recours_contentieux: "Recours Contentieux (Devant le Tribunal Administratif)",
+    btn_copy_letter: "Copier la lettre dans le presse-papier",
+    letter_copied: "Lettre copiée !",
+    
+    // Steps Guide
+    guide_title: "Parcours de Regroupement Familial pas à pas",
+    guide_desc: "Comprendre toutes les étapes administratives en France et au Maroc pour ramener votre conjoint(e).",
+    guide_france_tab: "Étapes en France (OFII & Préfecture)",
+    guide_morocco_tab: "Étapes au Maroc (Consulat & OFII Casablanca)",
+    
+    // Documents keys
+    doc_fr_identity: "Titre de Séjour valide du demandeur (recto-verso)",
+    doc_fr_cerfa: "Formulaire officiel CERFA n° 11436*05 rempli et signé",
+    doc_fr_marriage: "Acte de mariage marocain transcrit à l'état civil français",
+    doc_fr_income: "12 derniers bulletins de salaire",
+    doc_fr_tax: "Dernier avis d'imposition sur le revenu",
+    doc_fr_housing: "Bail de location de plus de 1 an + quittance de loyer récente",
+    doc_fr_surface: "Attestation de mesurage/diagnostic de surface (si demandé)",
+    
+    doc_ma_identity: "Passeport en cours de validité du conjoint bénéficiaire",
+    doc_ma_birth: "Copie intégrale de l'acte de naissance du conjoint",
+    doc_ma_marriage: "Acte de mariage marocain original (en arabe)",
+    doc_ma_translation: "Traduction certifiée conforme de l'acte de mariage par traducteur assermenté",
+    doc_ma_cin: "Carte Nationale d'Identité Électronique (CNIE) du conjoint",
+
+    // Admin
+    admin_title: "Portail d'Administration Chaml",
+    admin_users_tab: "Gestion des Comptes",
+    admin_dossiers_tab: "Instruction des Dossiers",
+    admin_settings_tab: "Configuration Système",
+    admin_user_list: "Liste des couples enregistrés",
+    admin_col_couple: "Couple",
+    admin_col_role: "Rôle / Email",
+    admin_col_status: "Statut Dossier",
+    admin_edit_user: "Modifier l'utilisateur",
+    admin_inspect_docs: "Documents soumis par ce couple",
+    admin_approve_doc: "Approuver le document",
+    admin_reject_doc: "Rejeter le document",
+    admin_reason_placeholder: "Indiquez la raison du rejet ou du complément...",
+    admin_save_changes: "Enregistrer les modifications",
+    admin_settings_title: "Configuration Générale de l'application SaaS",
+    admin_set_appname: "Nom du site / Marque (Brand)",
+    admin_set_logo: "Emoji / Logo",
+    admin_set_smic: "Montant du SMIC Brut mensuel (€)",
+    admin_set_surface: "Surfaces minimales requises (m²)",
+    admin_surface_a: "Zone A (Couple)",
+    admin_surface_b: "Zone B (Couple)",
+    admin_surface_c: "Zone C (Couple)",
+    admin_settings_saved: "Paramètres enregistrés avec succès !",
+    admin_change_date_help: "Pour tester l'alerte de contestation après 6 mois, changez la date de soumission du dossier ci-dessous :",
+    admin_submission_date: "Date de soumission du dossier"
+  },
+  
+  ar: {
+    // Brand
+    brand_tagline: "لم شمل عائلتكم، بدون حدود",
+    
+    // Login
+    login_title: "بوابة تسجيل الدخول",
+    login_subtitle: "الولوج إلى ملف لم الشمل العائلي الخاص بكم عبر شمل",
+    email_label: "البريد الإلكتروني",
+    password_label: "كلمة المرور",
+    btn_login: "تسجيل الدخول",
+    login_error: "بيانات الدخول غير صحيحة. يرجى المحاولة مجددًا.",
+    login_help_title: "مساعدة تسجيل الدخول:",
+    login_help_desc: "1. يرجى تسجيل الدخول بالبيانات التي استخدمتموها عند التسجيل.\n2. المشرف: admin@chaml.fr (يتم عرض كلمة المرور المؤقتة في سجلات الخادم عند التشغيل الأول).",
+    
+    // Navigation
+    nav_dashboard: "لوحة التحكم",
+    nav_simulators: "المحاكيات",
+    nav_guide: "دليل المراحل",
+    nav_admin: "الإدارة",
+    nav_logout: "تسجيل الخروج",
+    nav_welcome: "مرحبًا",
+    nav_partner: "الزوج(ة):",
+    
+    // Common / Status
+    status_draft: "مسودة",
+    status_submitted: "تم إيداعه لدى OFII / المحافظة",
+    status_approved: "مقبول",
+    status_rejected: "مرفوض",
+    status_pending: "في الانتظار",
+    status_approved_doc: "مقبول من الإدارة",
+    status_rejected_doc: "مرفوض - يجب إعادته",
+    status_under_review: "قيد المراجعة",
+    btn_save: "حفظ",
+    btn_cancel: "إلغاء",
+    btn_upload: "تحميل وثيقة",
+    btn_delete: "حذف",
+    btn_edit: "تعديل",
+    btn_close: "إغلاق",
+    
+    // Simulators
+    sim_title: "محاكيات المطابقة الرسمية",
+    sim_desc: "تحقق فورًا من مطابقة شروط السكن والدخل الخاصة بك مع متطلبات قانون دخول وإقامة الأجانب ولجوئهم (CESEDA).",
+    sim_tab_housing: "السكن (المساحة)",
+    sim_tab_resources: "الموارد المادية (الحد الأدنى للأجور)",
+    
+    sim_house_title: "محاكي المساحة السكنية",
+    sim_house_desc: "يجب أن يتوفر السكن على حد أدنى من المساحة اللائقة حسب المنطقة الجغرافية المتواجد بها.",
+    sim_lbl_zone: "المنطقة الجغرافية (فرنسا)",
+    sim_lbl_zone_help: "المنطقة A: باريس وضواحيها، الكوت دازور. المنطقة B1/B2: الحواضر الكبرى (أكثر من 150 ألف نسمة). المنطقة C: باقي التراب الفرنسي.",
+    sim_lbl_family: "العدد الإجمالي لأفراد الأسرة (صاحب الطلب + العائلة الملتحقة)",
+    sim_lbl_surface: "مساحة سكنك الحالي (بالمتر المربع)",
+    sim_res_required: "المساحة الدنيا المطلوبة:",
+    sim_res_current: "المساحة المصرح بها:",
+    sim_status_success: "مطابق تمامًا لمتطلبات المحافظة!",
+    sim_status_failed: "تنبيه: المساحة غير كافية بالنسبة لهذه المنطقة.",
+    
+    sim_res_title: "محاكي كفاية الموارد المادية",
+    sim_res_desc: "يجب أن يكون متوسط دخلك الصافي خلال الـ12 شهرًا الماضية مساويًا أو أكبر من الحد الأدنى للأجور (SMIC). (تُستثنى المساعدات الاجتماعية مثل APL وRSA).",
+    sim_lbl_salary: "الراتب الصافي لشهر",
+    sim_res_average: "المعدل الشهري المحتسب (12 شهرًا):",
+    sim_res_threshold: "الحد الأدنى المطلوب (معدل حسب حجم الأسرة):",
+    sim_res_status_success: "الموارد المادية كافية ومستقرة!",
+    sim_res_status_failed: "تنبيه: دخلك الشهري أقل من الحد المطلوب.",
+    
+    // Dashboard
+    dash_title: "ملف لم الشمل العائلي",
+    dash_subtitle: "فضاء مشترك لجمع الوثائق الإثباتية الخاصة بكم.",
+    dash_progress: "نسبة تقدم الملف:",
+    dash_applicant_section: "جانب صاحب الطلب (في فرنسا) - يسيره",
+    dash_beneficiary_section: "جانب الشريك المستفيد (في المغرب) - تسيره",
+    dash_doc_name: "اسم الوثيقة",
+    dash_doc_status: "الحالة",
+    dash_doc_actions: "العمليات",
+    dash_doc_feedback: "ملاحظات الإدارة",
+    dash_upload_success: "تم تحميل الملف بنجاح!",
+    dash_no_file: "لم يتم تحميل أي ملف",
+    dash_dossier_status_label: "الحالة العامة للملف:",
+    dash_btn_submit_dossier: "إرسال الملف إلى الإدارة الفرنسية (OFII / ANEF)",
+    dash_submit_confirm: "هل أنت متأكد من إرسال ملفك الكامل إلى الإدارة الفرنسية (OFII / ANEF)؟ سيبدأ احتساب مهلة الـ 6 أشهر للرد القانونi.",
+    dash_submitted_on: "تاريخ الإيداع:",
+    
+    // Alert / Contestation
+    alert_title: "تنبيه الطعن والاعتراض (تجاوز مهلة 6 أشهر)",
+    alert_body: "تم إرسال ملفكم بتاريخ {date} (منذ أكثر من 6 أشهر) ولم تتلقوا أي رد من المحافظة. يعتبر القانون هذا الصمت بمثابة رفض ضمني للملف. لديكم مهلة شهرين لتقديم طعن إداري.",
+    alert_action_btn: "إنشاء طعن قانوني",
+    alert_recours_title: "نماذج الطعون الإدارية",
+    alert_recours_desc: "قم بتنزيل نماذج طعن معبأة مسبقًا للاعتراض على الرفض الضمني لطلبكم.",
+    alert_recours_gracieux: "طعن استعطافي (موجه إلى المحافظ)",
+    alert_recours_hierarchique: "طعن رئاسي (موجه إلى وزير الداخلية)",
+    alert_recours_contentieux: "طعن قضائي (أمام المحكمة الإدارية)",
+    btn_copy_letter: "نسخ الرسالة إلى الحافظة",
+    letter_copied: "تم نسخ الرسالة بنجاح!",
+    
+    // Steps Guide
+    guide_title: "خطوات لم الشمل خطوة بخطوة",
+    guide_desc: "فهم شامل لجميع المراحل الإدارية في فرنسا والمغرب للالتحاق بزوجكم.",
+    guide_france_tab: "المراحل في فرنسا (OFII والمحافظة)",
+    guide_morocco_tab: "المراحل في المغرب (القنصلية وOFII بالدار البيضاء)",
+    
+    // Documents keys
+    doc_fr_identity: "بطاقة الإقامة الخاصة بصاحب الطلب (الوجه والظهر)",
+    doc_fr_cerfa: "استمارة CERFA الرسمية رقم 11436*05 معبأة وموقعة",
+    doc_fr_marriage: "عقد الزواج المغربي المسجل في سجلات الحالة المدنية الفرنسية",
+    doc_fr_income: "آخر 12 كشف راتب شهري",
+    doc_fr_tax: "آخر إشعار بالضريبة على الدخل",
+    doc_fr_housing: "عقد كراء لأكثر من سنة + كشف أداء الكراء الأخير",
+    doc_fr_surface: "شهادة قياس ومساحة السكن (عند الطلب)",
+    
+    doc_ma_identity: "جواز سفر ساري المفعول للزوج(ة) المستفيد(ة)",
+    doc_ma_birth: "نسخة كاملة من رسم الولادة للزوج(ة)",
+    doc_ma_marriage: "عقد الزواج المغربي الأصلي (باللغة العربية)",
+    doc_ma_translation: "ترجمة معتمدة لعقد الزواج من طرف ترجمان محلف في فرنسا",
+    doc_ma_cin: "بطاقة التعريف الوطنية الإلكترونية للزوج(ة)",
+
+    // Admin
+    admin_title: "لوحة التحكم لمشرف شمل",
+    admin_users_tab: "إدارة الحسابات",
+    admin_dossiers_tab: "مراجعة ومعالجة الملفات",
+    admin_settings_tab: "إعدادات النظام",
+    admin_user_list: "قائمة الأزواج المسجلين بالمنصة",
+    admin_col_couple: "الزوجين",
+    admin_col_role: "الدور / البريد الإلكتروني",
+    admin_col_status: "حالة الملف",
+    admin_edit_user: "تعديل حساب المستخدم",
+    admin_inspect_docs: "الوثائق المقدمة من طرف هذا الزوج",
+    admin_approve_doc: "الموافقة على الوثيقة",
+    admin_reject_doc: "رفض الوثيقة",
+    admin_reason_placeholder: "اكتب سبب الرفض أو الملاحظة الإدارية هنا...",
+    admin_save_changes: "حفظ التغييرات الإدارية",
+    admin_settings_title: "الإعدادات العامة لتطبيق SaaS شمل",
+    admin_set_appname: "اسم الموقع / العلامة التجارية",
+    admin_set_logo: "أيقونة / شعار الموقع",
+    admin_set_smic: "الحد الأدنى للأجور الشهري (€)",
+    admin_set_surface: "المساحة الدنيا المطلوبة بالمتر المربع",
+    admin_surface_a: "المنطقة A (لشخصين)",
+    admin_surface_b: "المنطقة B (لشخصين)",
+    admin_surface_c: "المنطقة C (لشخصين)",
+    admin_settings_saved: "تم حفظ الإعدادات بنجاح!",
+    admin_change_date_help: "لاختبار تنبيه الـ6 أشهر، غير تاريخ إرسال الملف أسفله:",
+    admin_submission_date: "تاريخ إرسال الملف"
+  },
+  
+  en: {
+    // Brand
+    brand_tagline: "Reuniting your family, without borders",
+    
+    // Login
+    login_title: "Login Portal",
+    login_subtitle: "Access your Chaml family reunification file",
+    email_label: "Email Address",
+    password_label: "Password",
+    btn_login: "Login",
+    login_error: "Invalid credentials. Please try again.",
+    login_help_title: "Login Help:",
+    login_help_desc: "1. Log in with the credentials you created during sign up.\n2. Administrator: admin@chaml.fr (Temporary password is printed in the server console logs during first run).",
+    
+    // Navigation
+    nav_dashboard: "Dashboard",
+    nav_simulators: "Simulators",
+    nav_guide: "Step Guide",
+    nav_admin: "Administration",
+    nav_logout: "Logout",
+    nav_welcome: "Welcome",
+    nav_partner: "Spouse:",
+    
+    // Common / Status
+    status_draft: "Draft",
+    status_submitted: "Submitted to OFII / Prefecture",
+    status_approved: "Approved",
+    status_rejected: "Rejected",
+    status_pending: "Pending",
+    status_approved_doc: "Validated by Admin",
+    status_rejected_doc: "Rejected - Redo",
+    status_under_review: "Under Review",
+    btn_save: "Save",
+    btn_cancel: "Cancel",
+    btn_upload: "Upload Document",
+    btn_delete: "Delete",
+    btn_edit: "Edit",
+    btn_close: "Close",
+    
+    // Simulators
+    sim_title: "Official Compliance Simulators",
+    sim_desc: "Instantly check if your income and housing conditions match the official requirements of the CESEDA.",
+    sim_tab_housing: "Housing (Surface)",
+    sim_tab_resources: "Resources (SMIC)",
+    
+    sim_house_title: "Living Surface Simulator",
+    sim_house_desc: "The dwelling must have a minimum decent size depending on its geographical zone in France.",
+    sim_lbl_zone: "Geographical Zone (France)",
+    sim_lbl_zone_help: "Zone A: Paris & surrounding region, French Riviera. Zone B1/B2: Cities with >150k pop. Zone C: Rest of France.",
+    sim_lbl_family: "Total family size (Applicant + joining family members)",
+    sim_lbl_surface: "Surface area of your current flat (in m²)",
+    sim_res_required: "Minimum surface required:",
+    sim_res_current: "Declared surface area:",
+    sim_status_success: "Complies with prefectural requirements!",
+    sim_status_failed: "Warning: Insufficient surface area for this zone.",
+    
+    sim_res_title: "Resource Sufficiency Simulator",
+    sim_res_desc: "Your average net income over the past 12 months must be equal to or greater than the French SMIC. (Social benefits like APL/RSA are excluded).",
+    sim_lbl_salary: "Net salary received for",
+    sim_res_average: "Calculated monthly average (12 months):",
+    sim_res_threshold: "Required threshold (SMIC adjusted for family size):",
+    sim_res_status_success: "Sufficient and stable resources!",
+    sim_res_status_failed: "Warning: Your income is below the required threshold.",
+    
+    // Dashboard
+    dash_title: "Family Reunification File",
+    dash_subtitle: "Shared workspace to gather all required documents.",
+    dash_progress: "Dossier progress:",
+    dash_applicant_section: "Applicant Side (In France) - Managed by",
+    dash_beneficiary_section: "Beneficiary Side (In Morocco) - Managed by",
+    dash_doc_name: "Document Name",
+    dash_doc_status: "Status",
+    dash_doc_actions: "Actions",
+    dash_doc_feedback: "Admin comments",
+    dash_upload_success: "File uploaded successfully!",
+    dash_no_file: "No file uploaded",
+    dash_dossier_status_label: "Overall file status:",
+    dash_btn_submit_dossier: "Submit to French Administration (OFII / ANEF)",
+    dash_submit_confirm: "Are you sure you want to send your completed application file to the French administration (OFII / ANEF)? This will start the legal 6-month response timer.",
+    dash_submitted_on: "Submitted on:",
+    
+    // Alert / Contestation
+    alert_title: "Contestation Alert (6-Month Deadline Exceeded)",
+    alert_body: "Your file was submitted on {date} (over 6 months ago) and no decision has been notified to you. By French law, this silence is treated as an implicit rejection. You have 2 months to appeal.",
+    alert_action_btn: "Generate Legal Appeal",
+    alert_recours_title: "Administrative Appeal Templates",
+    alert_recours_desc: "Download pre-filled appeal letters to contest the implicit refusal of your file.",
+    alert_recours_gracieux: "Recours Gracieux (To the Prefect)",
+    alert_recours_hierarchique: "Recours Hiérarchique (To the Minister of Interior)",
+    alert_recours_contentieux: "Recours Contentieux (Before the Administrative Court)",
+    btn_copy_letter: "Copy letter to clipboard",
+    letter_copied: "Letter copied!",
+    
+    // Steps Guide
+    guide_title: "Step-by-Step Reunification Journey",
+    guide_desc: "Understand the administrative process in France and Morocco to bring your spouse.",
+    guide_france_tab: "Steps in France (OFII & Prefecture)",
+    guide_morocco_tab: "Steps in Morocco (Consulate & OFII Casablanca)",
+    
+    // Documents keys
+    doc_fr_identity: "Valid French Residence Permit (recto-verso)",
+    doc_fr_cerfa: "Official CERFA form n° 11436*05 filled and signed",
+    doc_fr_marriage: "Moroccan marriage certificate transcribed into French civil status",
+    doc_fr_income: "12 latest payslips",
+    doc_fr_tax: "Latest income tax statement",
+    doc_fr_housing: "Rental lease agreement (> 1 year) + recent rent receipt",
+    doc_fr_surface: "Official surface area measurement certificate (if requested)",
+    
+    doc_ma_identity: "Valid passport of the beneficiary spouse",
+    doc_ma_birth: "Full birth certificate (copie intégrale) of the spouse",
+    doc_ma_marriage: "Original Moroccan marriage certificate (in Arabic)",
+    doc_ma_translation: "Certified translation of the marriage certificate by a sworn translator",
+    doc_ma_cin: "National electronic ID card (CNIE) of the spouse",
+
+    // Admin
+    admin_title: "Chaml Admin Portal",
+    admin_users_tab: "Account Management",
+    admin_dossiers_tab: "Dossier Review",
+    admin_settings_tab: "System Settings",
+    admin_user_list: "List of couples registered on the platform",
+    admin_col_couple: "Couple",
+    admin_col_role: "Role / Email",
+    admin_col_status: "Dossier Status",
+    admin_edit_user: "Modify user details",
+    admin_inspect_docs: "Documents submitted by this couple",
+    admin_approve_doc: "Approve document",
+    admin_reject_doc: "Reject document",
+    admin_reason_placeholder: "Type the reason for rejection or administrative note...",
+    admin_save_changes: "Save administrative changes",
+    admin_settings_title: "SaaS App General Settings",
+    admin_set_appname: "Website Name / Brand Name",
+    admin_set_logo: "Emoji / Logo",
+    admin_set_smic: "Monthly gross SMIC (€)",
+    admin_set_surface: "Minimum required surface areas (m²)",
+    admin_surface_a: "Zone A (Couple)",
+    admin_surface_b: "Zone B (Couple)",
+    admin_surface_c: "Zone C (Couple)",
+    admin_settings_saved: "Settings successfully saved!",
+    admin_change_date_help: "To test the 6-month contestation alert, modify the submission date below:",
+    admin_submission_date: "Dossier submission date"
+  }
+};
+
+export const getTranslation = (lang, key, replacements = {}) => {
+  const dict = TRANSLATIONS[lang] || TRANSLATIONS.fr;
+  let text = dict[key] || TRANSLATIONS.fr[key] || key;
+  
+  Object.keys(replacements).forEach(placeholder => {
+    text = text.replace(`{${placeholder}}`, replacements[placeholder]);
+  });
+  
+  return text;
+};

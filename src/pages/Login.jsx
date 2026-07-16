@@ -1,0 +1,529 @@
+import React, { useState, useEffect } from "react";
+import { getTranslation } from "../utils/i18n";
+import { loginUser, registerApplicant, verifyEmail, acceptInvite } from "../utils/api";
+import { FranceFlag, MoroccoFlag } from "../components/Flag";
+import { searchAddress, getZoneFromPostcode } from "../utils/address";
+
+export default function Login({ 
+  lang, 
+  onLoginSuccess, 
+  config,
+  initialView = "login",
+  onBackToLanding
+}) {
+  const [view, setView] = useState(initialView); // 'login' | 'register' | 'unverified' | 'unapproved' | 'accept_invite'
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  // Accept Invitation State
+  const [invitePassword, setInvitePassword] = useState("");
+  const [inviteSuccess, setInviteSuccess] = useState("");
+
+  // Registration Form State
+  const [frEmail, setFrEmail] = useState("");
+  const [frPassword, setFrPassword] = useState("");
+  const [frFirstName, setFrFirstName] = useState("");
+  const [frLastName, setFrLastName] = useState("");
+  const [frPhone, setFrPhone] = useState("");
+  const [frCity, setFrCity] = useState("");
+  const [frDep, setFrDep] = useState("");
+  const [frZone, setFrZone] = useState("A");
+  const [frSurface, setFrSurface] = useState("30");
+
+  // Address autocomplete state
+  const [frAddress, setFrAddress] = useState("");
+  const [addressSuggestions, setAddressSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  const handleAddressChange = (val) => {
+    setFrAddress(val);
+    if (val.length >= 3) {
+      searchAddress(val)
+        .then(res => {
+          setAddressSuggestions(res);
+          setShowSuggestions(true);
+        })
+        .catch(err => console.error("Search address error:", err));
+    } else {
+      setAddressSuggestions([]);
+      setShowSuggestions(false);
+    }
+  };
+
+  const handleSelectAddress = (suggestion) => {
+    const props = suggestion.properties;
+    setFrAddress(props.label || "");
+    setFrCity(props.city || "");
+    setFrDep(props.postcode ? props.postcode.slice(0, 2) : "");
+    const zone = getZoneFromPostcode(props.postcode);
+    setFrZone(zone);
+    setShowSuggestions(false);
+    setAddressSuggestions([]);
+  };
+
+  const [maEmail, setMaEmail] = useState("");
+  const [maPassword, setMaPassword] = useState("");
+  const [maFirstName, setMaFirstName] = useState("");
+  const [maLastName, setMaLastName] = useState("");
+  const [maPhone, setMaPhone] = useState("");
+  const [maCity, setMaCity] = useState("");
+
+  // Storage data during simulated verification triggers
+  const [pendingEmail, setPendingEmail] = useState("");
+  const [pendingCoupleId, setPendingCoupleId] = useState("");
+  const [pendingSide, setPendingSide] = useState("");
+
+  // Check for invitation parameters on mount
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const inviteCoupleId = params.get("inviteCoupleId");
+    const inviteEmail = params.get("inviteEmail");
+    if (inviteCoupleId && inviteEmail) {
+      setView("accept_invite");
+      setFrEmail(inviteEmail);
+      setPendingCoupleId(inviteCoupleId);
+    }
+  }, []);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    loginUser(email, password)
+      .then(res => {
+        if (res.success) {
+          setError("");
+          onLoginSuccess(res.user);
+        }
+      })
+      .catch(err => {
+        const msg = err.message;
+        if (msg === "frozen") {
+          setError(lang === "ar" ? "هذا الحساب معطل مؤقتًا. يرجى الاتصال بالإدارة." : lang === "en" ? "This account is suspended. Please contact admin." : "Ce compte est suspendu. Veuillez contacter l'administration.");
+        } else if (msg === "unverified") {
+          setPendingEmail(email);
+          setPendingCoupleId(err.payload?.coupleId || "");
+          setView("unverified");
+        } else if (msg === "unapproved") {
+          setPendingEmail(email);
+          setView("unapproved");
+        } else {
+          setError(getTranslation(lang, "login_error"));
+        }
+      });
+  };
+
+  const handleRegister = (e) => {
+    e.preventDefault();
+    if (!frEmail || !frFirstName || !frLastName) {
+      setError("Veuillez remplir tous les champs obligatoires (*).");
+      return;
+    }
+
+    const data = {
+      email: frEmail,
+      password: frPassword,
+      firstName: frFirstName,
+      lastName: frLastName,
+      phone: frPhone,
+      city: frCity,
+      department: frDep,
+      zone: frZone,
+      livingSurface: frSurface
+    };
+
+    registerApplicant(data)
+      .then(res => {
+        if (res.success) {
+          setError("");
+          setPendingEmail(frEmail);
+          setPendingCoupleId(res.coupleId);
+          setView("unverified");
+        }
+      })
+      .catch(err => {
+        setError(err.message || "Registration failed.");
+      });
+  };
+
+  const handleAcceptInvite = (e) => {
+    e.preventDefault();
+    if (!invitePassword) {
+      setError("Veuillez saisir votre mot de passe.");
+      return;
+    }
+    acceptInvite(pendingCoupleId, frEmail, invitePassword)
+      .then(() => {
+        setError("");
+        setInviteSuccess("Votre mot de passe conjoint a été créé avec succès ! redirection...");
+        window.history.replaceState({}, document.title, window.location.pathname);
+        setTimeout(() => {
+          setInviteSuccess("");
+          setView("login");
+          setEmail(frEmail);
+        }, 2500);
+      })
+      .catch(err => {
+        setError(err.message || "Erreur lors de l'activation de l'invitation.");
+      });
+  };
+
+  const handleSimulateEmailVerify = () => {
+    verifyEmail(pendingCoupleId)
+      .then(() => {
+        setView("unapproved");
+      })
+      .catch(err => {
+        setError(err.message || "Verification failed.");
+      });
+  };
+
+  return (
+    <div style={{
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      minHeight: "80vh",
+      padding: "2rem 1rem"
+    }}>
+      <div className="glass-card fade-in" style={{ width: "100%", maxWidth: view === "register" ? "850px" : "480px" }}>
+        
+        {/* Brand Logo Header */}
+        <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
+          <span style={{ fontSize: "3rem" }}>{config.appLogo || "🕌"}</span>
+          <h1 style={{ fontSize: "2rem", marginTop: "0.5rem", fontWeight: 800 }}>
+            {config.appName || "Chaml"}
+          </h1>
+          <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", marginTop: "0.25rem" }}>
+            {getTranslation(lang, "brand_tagline")}
+          </p>
+        </div>
+
+        {error && (
+          <div style={{
+            background: "var(--danger-bg)",
+            color: "var(--danger)",
+            padding: "0.75rem 1rem",
+            borderRadius: "0.5rem",
+            marginBottom: "1rem",
+            fontSize: "0.85rem",
+            fontWeight: 600,
+            border: "1px solid rgba(220, 38, 38, 0.2)"
+          }}>
+            {error}
+          </div>
+        )}
+
+        {view === "login" && (
+          <>
+            <h2 style={{ fontSize: "1.25rem", marginBottom: "0.5rem" }}>
+              {getTranslation(lang, "login_title")}
+            </h2>
+            <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", marginBottom: "1.5rem" }}>
+              {getTranslation(lang, "login_subtitle")}
+            </p>
+
+            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+              <div className="form-group">
+                <label className="form-label">{getTranslation(lang, "email_label")}</label>
+                <input
+                  className="input-field"
+                  type="email"
+                  required
+                  placeholder="anass@chaml.fr"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">{getTranslation(lang, "password_label")}</label>
+                <input
+                  className="input-field"
+                  type="password"
+                  required
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </div>
+
+              <button type="submit" className="btn btn-primary" style={{ width: "100%", padding: "0.8rem" }}>
+                🔑 {getTranslation(lang, "btn_login")}
+              </button>
+            </form>
+
+            <div style={{ textAlign: "center", marginTop: "1.5rem", fontSize: "0.85rem", display: "flex", flexDirection: "column", gap: "0.75rem", alignItems: "center" }}>
+              <div>
+                Pas encore de compte ?{" "}
+                <button 
+                  onClick={() => { setView("register"); setError(""); }} 
+                  style={{ background: "none", border: "none", color: "var(--primary)", fontWeight: "bold", cursor: "pointer", textDecoration: "underline" }}
+                >
+                  Créer un compte (Sign Up)
+                </button>
+              </div>
+              <button 
+                type="button"
+                onClick={onBackToLanding}
+                style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: "0.82rem", cursor: "pointer", textDecoration: "underline" }}
+              >
+                ← Retour à l'accueil
+              </button>
+            </div>
+
+            {/* Demo Credentials Help Box */}
+            <div style={{
+              marginTop: "2rem",
+              padding: "1rem",
+              background: "rgba(255, 255, 255, 0.02)",
+              borderRadius: "0.75rem",
+              border: "1px solid var(--border-card)",
+              fontSize: "0.8rem"
+            }}>
+              <h4 style={{ fontWeight: 700, marginBottom: "0.5rem", color: "var(--accent)" }}>
+                {getTranslation(lang, "login_help_title")}
+              </h4>
+              <p style={{ whiteSpace: "pre-line", color: "var(--text-muted)", lineHeight: "1.4" }}>
+                {getTranslation(lang, "login_help_desc")}
+              </p>
+            </div>
+          </>
+        )}
+
+        {view === "register" && (
+          <form onSubmit={handleRegister} className="fade-in" style={{ display: "flex", flexDirection: "column", gap: "1.5rem", maxWidth: "500px", margin: "0 auto" }}>
+            <h2 style={{ fontSize: "1.3rem" }}>📝 Inscription / Subscription (SaaS)</h2>
+            <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", marginTop: "-1rem" }}>
+              Créez votre dossier de regroupement familial. L'adresse email sera vérifiée et le dossier devra être approuvé par l'admin.
+            </p>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+              <h3 style={{ color: "var(--primary)", fontSize: "1.05rem", borderBottom: "1px solid var(--border-card)", paddingBottom: "0.25rem", display: "flex", alignItems: "center", gap: "0.35rem" }}>
+                <FranceFlag size={16} /> Conjoint(e) en France (Demandeur)
+              </h3>
+              
+              <div className="form-group">
+                <label className="form-label">Email*</label>
+                <input className="input-field" type="email" placeholder="conjoint@chaml.fr" value={frEmail} onChange={e => setFrEmail(e.target.value)} required />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Mot de passe*</label>
+                <input className="input-field" type="password" value={frPassword} onChange={e => setFrPassword(e.target.value)} required />
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
+                <div className="form-group">
+                  <label className="form-label">Prénom*</label>
+                  <input className="input-field" type="text" value={frFirstName} onChange={e => setFrFirstName(e.target.value)} required />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Nom*</label>
+                  <input className="input-field" type="text" value={frLastName} onChange={e => setFrLastName(e.target.value)} required />
+                </div>
+              </div>
+              <div className="form-group" style={{ position: "relative" }}>
+                <label className="form-label">Adresse complète en France*</label>
+                <input 
+                  className="input-field" 
+                  type="text" 
+                  placeholder="Saisissez votre adresse (ex: 10 Rue de Paris...)" 
+                  value={frAddress} 
+                  onChange={e => handleAddressChange(e.target.value)} 
+                  required 
+                />
+                {showSuggestions && addressSuggestions.length > 0 && (
+                  <ul style={{
+                    position: "absolute",
+                    top: "100%",
+                    left: 0,
+                    right: 0,
+                    background: "#1e293b",
+                    border: "1px solid var(--border-card)",
+                    borderRadius: "0.5rem",
+                    zIndex: 10,
+                    listStyle: "none",
+                    padding: 0,
+                    margin: "0.25rem 0 0 0",
+                    maxHeight: "200px",
+                    overflowY: "auto",
+                    boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.5)"
+                  }}>
+                    {addressSuggestions.map((s, idx) => (
+                      <li 
+                        key={idx} 
+                        onClick={() => handleSelectAddress(s)}
+                        style={{
+                          padding: "0.6rem 1rem",
+                          cursor: "pointer",
+                          fontSize: "0.85rem",
+                          borderBottom: "1px solid rgba(255,255,255,0.05)",
+                          transition: "background 0.2s"
+                        }}
+                        onMouseEnter={e => e.target.style.background = "rgba(255,255,255,0.05)"}
+                        onMouseLeave={e => e.target.style.background = "none"}
+                      >
+                        {s.properties.label}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Téléphone</label>
+                <input className="input-field" type="text" placeholder="+33 6..." value={frPhone} onChange={e => setFrPhone(e.target.value)} />
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "0.5rem" }}>
+                <div className="form-group">
+                  <label className="form-label">Ville</label>
+                  <input className="input-field" type="text" placeholder="Paris" value={frCity} onChange={e => setFrCity(e.target.value)} />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Département</label>
+                  <input className="input-field" type="text" placeholder="75" value={frDep} onChange={e => setFrDep(e.target.value)} />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Zone</label>
+                  <select className="select-dropdown" style={{ padding: "0.7rem" }} value={frZone} onChange={e => setFrZone(e.target.value)}>
+                    <option value="A">Zone A</option>
+                    <option value="B">Zone B</option>
+                    <option value="C">Zone C</option>
+                  </select>
+                </div>
+              </div>
+              <div className="form-group">
+                <label className="form-label">Surface Habitable (m²)</label>
+                <input className="input-field" type="number" value={frSurface} onChange={e => setFrSurface(e.target.value)} />
+              </div>
+            </div>
+
+            <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
+              <button type="submit" className="btn btn-primary" style={{ padding: "0.8rem 1.5rem" }}>
+                ✓ S'inscrire & envoyer le lien email
+              </button>
+              <button type="button" className="btn btn-secondary" onClick={() => { setView("login"); setError(""); }}>
+                Retour à la connexion
+              </button>
+              <button type="button" className="btn btn-secondary" onClick={onBackToLanding}>
+                ← Accueil
+              </button>
+            </div>
+          </form>
+        )}
+
+        {view === "unverified" && (
+          <div className="fade-in" style={{ textAlign: "center", padding: "1rem" }}>
+            <span style={{ fontSize: "3rem", display: "block", marginBottom: "1rem" }}>📧</span>
+            <h2 style={{ fontSize: "1.4rem", marginBottom: "0.5rem" }}>Vérification de l'adresse email</h2>
+            <p style={{ color: "var(--text-muted)", fontSize: "0.9rem", lineHeight: "1.5", marginBottom: "1.5rem" }}>
+              Un lien de vérification a été envoyé à l'adresse <strong>{pendingEmail}</strong>. Veuillez valider votre e-mail avant de continuer.
+            </p>
+
+            <div style={{
+              background: "rgba(217, 119, 6, 0.08)",
+              border: "1px solid rgba(217, 119, 6, 0.2)",
+              padding: "1rem",
+              borderRadius: "0.75rem",
+              marginBottom: "1.5rem",
+              fontSize: "0.85rem",
+              textAlign: "left"
+            }}>
+              💡 <strong>Simulation de boîte de réception :</strong><br />
+              Pour tester le parcours sans serveur d'email réel, cliquez sur le bouton ci-dessous pour simuler l'ouverture du lien d'activation reçu dans votre boîte de réception.
+            </div>
+
+            <button 
+              className="btn btn-primary" 
+              onClick={handleSimulateEmailVerify}
+              style={{ width: "100%", padding: "0.8rem", marginBottom: "1rem" }}
+            >
+              🔗 Simuler le clic sur le lien d'activation email
+            </button>
+
+            <button 
+              className="btn btn-secondary" 
+              onClick={() => setView("login")}
+              style={{ width: "100%", padding: "0.8rem" }}
+            >
+              Retour à la connexion
+            </button>
+          </div>
+        )}
+
+        {view === "accept_invite" && (
+          <form onSubmit={handleAcceptInvite} className="fade-in" style={{ display: "flex", flexDirection: "column", gap: "1.5rem", maxWidth: "450px", margin: "0 auto" }}>
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "0.75rem", marginBottom: "0.5rem" }}>
+              <MoroccoFlag size={36} />
+              <span style={{ fontSize: "2rem" }}>🤝</span>
+              <FranceFlag size={36} />
+            </div>
+            <h2 style={{ fontSize: "1.3rem", textAlign: "center" }}>Créer votre mot de passe conjoint</h2>
+            <p style={{ color: "var(--text-muted)", fontSize: "0.88rem", textAlign: "center", lineHeight: "1.5" }}>
+              Bienvenue sur Chaml.fr ! Votre conjoint(e) vous a invité(e) à rejoindre son dossier de regroupement familial partagé.
+            </p>
+
+            {inviteSuccess && (
+              <div style={{ background: "var(--success-bg)", color: "var(--success)", padding: "0.75rem 1rem", borderRadius: "0.5rem", fontWeight: 600 }}>
+                ✓ {inviteSuccess}
+              </div>
+            )}
+
+            <div className="form-group">
+              <label className="form-label">Adresse E-mail (Conjoint invité)</label>
+              <input className="input-field" type="email" value={frEmail} disabled />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Choisissez votre mot de passe*</label>
+              <input 
+                className="input-field" 
+                type="password" 
+                required 
+                value={invitePassword} 
+                onChange={e => setInvitePassword(e.target.value)} 
+              />
+            </div>
+
+            <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
+              <button type="submit" className="btn btn-primary" style={{ width: "100%", padding: "0.8rem" }}>
+                ✓ Activer mon compte & se connecter
+              </button>
+            </div>
+          </form>
+        )}
+
+        {view === "unapproved" && (
+          <div className="fade-in" style={{ textAlign: "center", padding: "1rem" }}>
+            <span style={{ fontSize: "3.5rem", display: "block", marginBottom: "1rem", animation: "pulse 2s infinite" }}>⏳</span>
+            <h2 style={{ fontSize: "1.4rem", marginBottom: "0.5rem" }}>Compte en attente d'approbation</h2>
+            <p style={{ color: "var(--text-muted)", fontSize: "0.95rem", lineHeight: "1.5", marginBottom: "1.5rem" }}>
+              Votre adresse e-mail a été vérifiée avec succès. Un administrateur de la plateforme <strong>{config.appName}</strong> doit maintenant valider votre compte.
+            </p>
+
+            <div style={{
+              background: "rgba(13, 148, 136, 0.08)",
+              border: "1px solid rgba(13, 148, 136, 0.2)",
+              padding: "1.2rem",
+              borderRadius: "0.75rem",
+              marginBottom: "2rem",
+              fontSize: "0.85rem",
+              textAlign: "left",
+              color: "var(--text-muted)"
+            }}>
+              ⚙️ <strong>Note administrative :</strong><br />
+              Connectez-vous en tant qu'administrateur avec le compte <strong>admin@chaml.fr</strong> (mot de passe temporaire s'affiche dans les logs de la console du serveur) pour approuver ce nouveau dossier dans l'onglet "Gestion des Comptes".
+            </div>
+
+            <button 
+              className="btn btn-secondary" 
+              onClick={() => setView("login")}
+              style={{ width: "100%", padding: "0.8rem" }}
+            >
+              Retour à la connexion
+            </button>
+          </div>
+        )}
+
+      </div>
+    </div>
+  );
+}
