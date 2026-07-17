@@ -227,7 +227,7 @@ export default function Landing({ lang, onNavigate }) {
           aspectRatio: "16/10"
         }}>
           <img 
-            src="/hero.jpg" 
+            src={lang === "ar" ? "/hero-ar.jpg" : lang === "en" ? "/hero-en.jpg" : "/hero-fr.jpg"} 
             alt="Family Reunion Chaml" 
             style={{
               width: "100%",
