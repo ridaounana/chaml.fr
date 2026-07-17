@@ -33,7 +33,7 @@ app.use(cors({
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "sk_test_mock_stripe_secret_key_chaml_2026");
 
 // Webhook route needs raw body for signature verification - MUST be defined before global express.json() parser
-app.post("/api/payment/webhook", express.raw({ type: "application/json" }), async (req, res) => {
+app.post("/api/payment/webhook", express.raw({ type: "*/*" }), async (req, res) => {
   const sig = req.headers["stripe-signature"];
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
   let event;
