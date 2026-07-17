@@ -336,7 +336,9 @@ export default function Login({
                     top: "100%",
                     left: 0,
                     right: 0,
-                    background: "#1e293b",
+                    background: "var(--bg-card)",
+                    backdropFilter: "blur(12px)",
+                    color: "var(--text-main)",
                     border: "1px solid var(--border-card)",
                     borderRadius: "0.5rem",
                     zIndex: 10,
@@ -345,7 +347,7 @@ export default function Login({
                     margin: "0.25rem 0 0 0",
                     maxHeight: "200px",
                     overflowY: "auto",
-                    boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.5)"
+                    boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.3)"
                   }}>
                     {addressSuggestions.map((s, idx) => (
                       <li 
@@ -355,10 +357,11 @@ export default function Login({
                           padding: "0.6rem 1rem",
                           cursor: "pointer",
                           fontSize: "0.85rem",
-                          borderBottom: "1px solid rgba(255,255,255,0.05)",
-                          transition: "background 0.2s"
+                          borderBottom: "1px solid var(--border-card)",
+                          transition: "background 0.2s",
+                          color: "var(--text-main)"
                         }}
-                        onMouseEnter={e => e.target.style.background = "rgba(255,255,255,0.05)"}
+                        onMouseEnter={e => e.target.style.background = "rgba(13, 148, 136, 0.15)"}
                         onMouseLeave={e => e.target.style.background = "none"}
                       >
                         {s.properties.label}
