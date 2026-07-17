@@ -67,6 +67,8 @@ export default function Simulators({ lang, config, user }) {
   const [salaries, setSalaries] = useState([]);
   const [resAverage, setResAverage] = useState(smicValue);
   const [resThreshold, setResThreshold] = useState(smicValue);
+  const [resourceMethod, setResourceMethod] = useState("monthly"); // "monthly" or "annual"
+  const [annualSalary, setAnnualSalary] = useState(smicValue * 12);
 
   // Initialize salaries when smicValue changes
   useEffect(() => {
@@ -114,11 +116,15 @@ export default function Simulators({ lang, config, user }) {
 
     setResThreshold(Math.round(smicValue * multiplier));
 
-    if (salaries.length > 0) {
-      const total = salaries.reduce((acc, curr) => acc + (parseFloat(curr.val) || 0), 0);
-      setResAverage(Math.round(total / 12));
+    if (resourceMethod === "monthly") {
+      if (salaries.length > 0) {
+        const total = salaries.reduce((acc, curr) => acc + (parseFloat(curr.val) || 0), 0);
+        setResAverage(Math.round(total / 12));
+      }
+    } else {
+      setResAverage(Math.round(annualSalary / 12));
     }
-  }, [salaries, familySize, smicValue]);
+  }, [salaries, familySize, smicValue, resourceMethod, annualSalary]);
 
   const handleSalaryChange = (index, value) => {
     const updated = [...salaries];
@@ -284,28 +290,66 @@ export default function Simulators({ lang, config, user }) {
             {getTranslation(lang, "sim_res_desc")}
           </p>
 
-          {/* Grid inputs for 12 months */}
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
-            gap: "1rem",
-            marginTop: "1.5rem"
-          }}>
-            {salaries.map((s, idx) => (
-              <div key={s.month} className="form-group" style={{ background: "rgba(255,255,255,0.02)", padding: "0.75rem", borderRadius: "0.5rem", border: "1px solid var(--border-card)" }}>
-                <label className="form-label" style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
-                  {getTranslation(lang, "sim_lbl_salary")} M-{12 - idx} (€)
-                </label>
-                <input
-                  className="input-field"
-                  type="number"
-                  style={{ padding: "0.5rem" }}
-                  value={s.val}
-                  onChange={(e) => handleSalaryChange(idx, e.target.value)}
-                />
-              </div>
-            ))}
+          {/* Resource Method Selector */}
+          <div style={{ display: "flex", gap: "1.5rem", margin: "1rem 0 1.5rem", flexWrap: "wrap" }}>
+            <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.9rem", cursor: "pointer", color: "var(--text-main)", fontWeight: "500" }}>
+              <input 
+                type="radio" 
+                name="resourceMethod" 
+                value="monthly" 
+                checked={resourceMethod === "monthly"} 
+                onChange={() => setResourceMethod("monthly")} 
+              />
+              Saisie mensuelle (12 derniers mois)
+            </label>
+            <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.9rem", cursor: "pointer", color: "var(--text-main)", fontWeight: "500" }}>
+              <input 
+                type="radio" 
+                name="resourceMethod" 
+                value="annual" 
+                checked={resourceMethod === "annual"} 
+                onChange={() => setResourceMethod("annual")} 
+              />
+              Saisie annuelle globale
+            </label>
           </div>
+
+          {resourceMethod === "monthly" ? (
+            /* Grid inputs for 12 months */
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
+              gap: "1rem",
+              marginTop: "1.5rem"
+            }}>
+              {salaries.map((s, idx) => (
+                <div key={s.month} className="form-group" style={{ background: "rgba(255,255,255,0.02)", padding: "0.75rem", borderRadius: "0.5rem", border: "1px solid var(--border-card)" }}>
+                  <label className="form-label" style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
+                    {getTranslation(lang, "sim_lbl_salary")} M-{12 - idx} (€)
+                  </label>
+                  <input
+                    className="input-field"
+                    type="number"
+                    style={{ padding: "0.5rem" }}
+                    value={s.val}
+                    onChange={(e) => handleSalaryChange(idx, e.target.value)}
+                  />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="form-group" style={{ maxWidth: "320px", marginTop: "1.5rem" }}>
+              <label className="form-label">Cumul de vos revenus sur les 12 derniers mois (€)</label>
+              <input
+                className="input-field"
+                type="number"
+                min="0"
+                value={annualSalary}
+                onChange={(e) => setAnnualSalary(Math.max(0, parseFloat(e.target.value) || 0))}
+              />
+              <span className="form-help">Saisissez votre revenu fiscal de référence ou le cumul de vos bulletins de paie.</span>
+            </div>
+          )}
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem", marginTop: "1.5rem" }}>
             <div className="form-group">
