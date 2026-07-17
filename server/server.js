@@ -10,6 +10,8 @@ import fs from "fs";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 import nodemailer from "nodemailer";
+import Stripe from "stripe";
+import cron from "node-cron";
 import { query, initializeDatabase } from "./db.js";
 
 dotenv.config();
@@ -28,6 +30,50 @@ app.use(cors({
   origin: true, // Allow request origin
   credentials: true
 }));
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "sk_test_mock_stripe_secret_key_chaml_2026");
+
+// Webhook route needs raw body for signature verification - MUST be defined before global express.json() parser
+app.post("/api/payment/webhook", express.raw({ type: "application/json" }), async (req, res) => {
+  const sig = req.headers["stripe-signature"];
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  let event;
+
+  try {
+    if (webhookSecret && sig) {
+      event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
+    } else {
+      console.warn("⚠️ Stripe webhook secret not configured or signature missing. Parsing unverified payload.");
+      event = JSON.parse(req.body.toString());
+    }
+  } catch (err) {
+    console.error(`❌ Webhook signature verification failed:`, err.message);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  if (event.type === "checkout.session.completed") {
+    const session = event.data.object;
+    const coupleId = session.metadata?.coupleId;
+    const userEmail = session.metadata?.userEmail || "system@chaml.fr";
+
+    if (coupleId) {
+      try {
+        await query("UPDATE couples SET is_premium = true WHERE id = $1", [coupleId]);
+        console.log(`🎉 Couple ${coupleId} successfully upgraded to Premium!`);
+        
+        await query(
+          "INSERT INTO audit_logs (action, details, user_email) VALUES ($1, $2, $3)",
+          ["Premium Upgraded", `Couple ${coupleId} upgraded to Premium via Stripe checkout session.`, userEmail]
+        );
+      } catch (dbErr) {
+        console.error("❌ Failed to update premium status in database:", dbErr.message);
+        return res.status(500).json({ error: "Database update failed" });
+      }
+    }
+  }
+
+  res.json({ received: true });
+});
+
 app.use(express.json());
 app.use(cookieParser(process.env.COOKIE_SECRET || "chaml_secret_cookie_vault"));
 
@@ -193,6 +239,45 @@ const seedDatabase = async () => {
     console.error("Seeding error:", err.message);
   }
 };
+
+// ----------------------------------------------------
+// STRIPE PAYMENT API ROUTES
+// ----------------------------------------------------
+app.post("/api/payment/create-checkout-session", authenticateUser, async (req, res) => {
+  try {
+    const coupleId = req.user.coupleId;
+    const userEmail = req.user.email;
+
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      line_items: [
+        {
+          price_data: {
+            currency: "eur",
+            product_data: {
+              name: "Chaml Premium - Accès à vie",
+              description: "Débloquez l'invitation conjoint, le téléversement de documents chiffrés de bout en bout et la suppression automatique sécurisée sous 30 jours.",
+            },
+            unit_amount: 1900, // 19.00 EUR
+          },
+          quantity: 1,
+        },
+      ],
+      mode: "payment",
+      success_url: `${process.env.CLIENT_URL || "http://localhost:5173"}/dashboard?payment=success`,
+      cancel_url: `${process.env.CLIENT_URL || "http://localhost:5173"}/dashboard?payment=cancel`,
+      metadata: {
+        coupleId: coupleId,
+        userEmail: userEmail,
+      },
+    });
+
+    res.json({ url: session.url });
+  } catch (err) {
+    console.error("❌ Failed to create Stripe session:", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // ----------------------------------------------------
 // AUTHENTICATION API ROUTES
@@ -521,6 +606,7 @@ app.get("/api/dossier", authenticateUser, async (req, res) => {
       partnerName,
       couple: {
         id: coupleRes.rows[0].id,
+        isPremium: coupleRes.rows[0].is_premium,
         demandeur: {
           firstName: demandeur.first_name,
           lastName: demandeur.last_name,
@@ -554,6 +640,14 @@ app.post("/api/dossier/upload", authenticateUser, upload.single("file"), async (
   const coupleId = req.user.coupleId;
 
   try {
+    const coupleRes = await query("SELECT is_premium FROM couples WHERE id = $1", [coupleId]);
+    if (!coupleRes.rows[0]?.is_premium) {
+      if (req.file && fs.existsSync(req.file.path)) {
+        fs.unlinkSync(req.file.path);
+      }
+      return res.status(402).json({ error: "premium_required", message: "Le statut Premium est requis pour téléverser des documents." });
+    }
+
     await query(`
       UPDATE documents
       SET uploaded = true, file_name = $1, file_path = $2, uploaded_at = CURRENT_TIMESTAMP, status = 'under_review', comment = NULL
@@ -745,7 +839,11 @@ app.post("/api/admin/couples/approve", authenticateUser, requireAdmin, async (re
   const { coupleId } = req.body;
   if (!coupleId) return res.status(400).json({ error: "Missing coupleId parameter." });
   try {
-    await query("UPDATE couples SET is_approved = true WHERE id = $1", [coupleId]);
+    await query(`
+      UPDATE couples 
+      SET is_approved = true, dossier_status = 'approved', dossier_completed_at = CURRENT_TIMESTAMP 
+      WHERE id = $1
+    `, [coupleId]);
     await query("UPDATE users SET is_approved = true WHERE couple_id = $1", [coupleId]);
     await logAction("Account Approved", `Approved couple accounts for ID: ${coupleId}`, req.user.email);
     res.json({ success: true });
@@ -894,6 +992,11 @@ app.post("/api/dossier/invite-spouse", authenticateUser, async (req, res) => {
   }
 
   try {
+    const coupleRes = await query("SELECT is_premium FROM couples WHERE id = $1", [req.user.coupleId]);
+    if (!coupleRes.rows[0]?.is_premium) {
+      return res.status(402).json({ error: "premium_required", message: "Le statut Premium est requis pour inviter votre conjoint." });
+    }
+
     // Check if couple already has a spouse
     const partnerCheck = await query("SELECT id FROM users WHERE couple_id = $1 AND role = 'beneficiaire'", [req.user.coupleId]);
     if (partnerCheck.rows.length > 0) {
@@ -993,10 +1096,68 @@ app.post("/api/auth/accept-invite", async (req, res) => {
   }
 });
 
+// ----------------------------------------------------
+// AUTO-DESTRUCT CRON JOB (Daily at 2:00 AM)
+// ----------------------------------------------------
+const startAutoDestructCron = () => {
+  cron.schedule("0 2 * * *", async () => {
+    console.log("⏰ Daily Auto-Destruct Cron: Purging files of completed dossiers older than 30 days...");
+    try {
+      const res = await query(`
+        SELECT id FROM couples 
+        WHERE dossier_status = 'approved' 
+          AND dossier_completed_at IS NOT NULL 
+          AND dossier_completed_at <= NOW() - INTERVAL '30 days'
+      `);
+      
+      for (const row of res.rows) {
+        const coupleId = row.id;
+        
+        const docRes = await query(
+          "SELECT id, file_path, file_name FROM documents WHERE couple_id = $1 AND uploaded = true",
+          [coupleId]
+        );
+        
+        let deletedCount = 0;
+        for (const doc of docRes.rows) {
+          if (doc.file_path) {
+            try {
+              if (fs.existsSync(doc.file_path)) {
+                fs.unlinkSync(doc.file_path);
+                deletedCount++;
+              }
+            } catch (fileErr) {
+              console.error(`Failed to physically delete file ${doc.file_path}:`, fileErr.message);
+            }
+          }
+        }
+        
+        if (deletedCount > 0 || docRes.rows.length > 0) {
+          await query(`
+            UPDATE documents
+            SET uploaded = false, file_name = NULL, file_path = NULL, uploaded_at = NULL, status = 'pending', comment = 'Fichier supprimé automatiquement (Purge 30 jours)'
+            WHERE couple_id = $1 AND uploaded = true
+          `, [coupleId]);
+          
+          await query(
+            "INSERT INTO audit_logs (action, details, user_email) VALUES ($1, $2, $3)",
+            ["Auto-Destruct Purge", `Auto-deleted ${deletedCount} files for completed couple ${coupleId} (30 days threshold)`, "system-cron@chaml.fr"]
+          );
+          console.log(`🗑️ Purged ${deletedCount} files for completed couple ${coupleId}`);
+        }
+      }
+    } catch (err) {
+      console.error("❌ Auto-Destruct Cron failed:", err.message);
+    }
+  });
+  console.log("⏰ Auto-Destruct Cron scheduled daily at 2:00 AM.");
+};
+
 // Start Express Server
 initializeDatabase().then(() => {
   seedDatabase().then(() => {
     checkSMTP().then(() => {
+      startAutoDestructCron();
       app.listen(PORT, () => {
         console.log(`Chaml backend running on http://localhost:${PORT}`);
       });

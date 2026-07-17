@@ -7,6 +7,9 @@ L'application intègre :
 2. **🗺️ Autocomplétion d'adresses & Détection de Zone** : Connexion à l'API Adresse officielle française pour la saisie automatique et le calcul automatique de la zone géographique réglementaire (Zone A, B ou C) requise par l'OFII.
 3. **👥 Onboarding collaboratif** : Inscription mono-compte pour le conjoint en France (demandeur) et envoi sécurisé d'un lien d'invitation par e-mail au conjoint au Maroc (bénéficiaire) pour configurer son mot de passe et synchroniser les checklists en temps réel.
 4. **📊 Modération administrative** : Outil complet permettant à l'administrateur de valider les comptes, de suivre l'avancement des pièces justificatives et de soumettre des commentaires sans jamais avoir accès aux fichiers confidentiels.
+5. **💳 Formule Freemium & Paiement Stripe** : Paywall bloquant l'invitation du conjoint et les téléversements sur la formule gratuite, déverrouillable via Stripe pour un paiement unique à vie de 19€.
+6. **🗑️ Auto-Destruction Sécurisée (Cron)** : Un cron job quotidien supprime automatiquement et définitivement tous les fichiers cryptés des serveurs 30 jours après l'approbation du dossier pour respecter la vie privée.
+7. **🗄️ Migrations PostgreSQL (Knex.js)** : Gestion et versionnage complet du schéma de la base de données avec Knex.js, exécutés automatiquement au démarrage.
 
 ---
 
@@ -46,7 +49,7 @@ cd server
 npm install
 npm run dev
 ```
-*Le serveur démarrera sur `http://localhost:5000`. Il créera automatiquement les tables de données et un compte administrateur par défaut `admin@chaml.fr` (le mot de passe temporaire unique de première connexion s'affichera dans la console).*
+*Le serveur démarrera sur `http://localhost:5000`. Il appliquera automatiquement les migrations Knex.js pour initialiser les tables et créera un compte administrateur par défaut `admin@chaml.fr` (le mot de passe temporaire unique de première connexion s'affichera dans la console).*
 
 ### Étape 3 : Lancer l'Application Client (Frontend React)
 Dans le dossier racine du projet :

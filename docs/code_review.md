@@ -68,10 +68,15 @@ This document reviews the codebase of the Chaml application, analyzing security 
 
 ---
 
+### C. Database Migration Management (Completed)
+- **Implementation**: Replaced startup `schema.sql` execution script with programmatic **Knex.js migrations**. The Knex schema builder tracks, version-controls, and upgrades tables (including the `site_config`, `couples`, `users`, `documents`, and `audit_logs`) on server start.
+
+---
+
 ## 4. Production Roadmap: Key Recommendations
 
 ### 📦 1. Transition Upload Storage to Amazon S3
 * Multer is currently writing directly to local disk. For cloud horizontal scaling, pipe the encrypted binary stream directly to a private AWS S3 bucket.
 
-### 🗄️ 2. Database Migration Management
-* Use Knex.js migrations to track changes to the PostgreSQL schema instead of executing raw commands via `schema.sql` on startup.
+### 🛡️ 2. Webhook Security and Stripe Keys rotation
+* In production, always ensure that `STRIPE_WEBHOOK_SECRET` is configured to enforce cryptographic signature checks on checkout event processing.

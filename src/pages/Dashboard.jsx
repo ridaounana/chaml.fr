@@ -26,8 +26,41 @@ export default function Dashboard({ lang, user }) {
   const [inviteError, setInviteError] = useState("");
   const [inviteSuccess, setInviteSuccess] = useState("");
 
+  // Premium upgrade states
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [upgradeLoading, setUpgradeLoading] = useState(false);
+
+  const handleUpgradeToPremium = () => {
+    setUpgradeLoading(true);
+    fetch("/api/payment/create-checkout-session", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then(res => {
+        if (!res.ok) throw new Error("Échec de la création de la session de paiement.");
+        return res.json();
+      })
+      .then(data => {
+        if (data.url) {
+          window.location.href = data.url;
+        } else {
+          throw new Error("URL de paiement Stripe manquante.");
+        }
+      })
+      .catch(err => {
+        alert(err.message);
+        setUpgradeLoading(false);
+      });
+  };
+
   const handleInviteSpouseSubmit = (e) => {
     e.preventDefault();
+    if (couple && !couple.isPremium) {
+      setShowUpgradeModal(true);
+      return;
+    }
     if (!inviteEmail || !inviteFirstName || !inviteLastName) {
       setInviteError("Veuillez remplir les champs obligatoires (*).");
       return;
@@ -292,6 +325,10 @@ export default function Dashboard({ lang, user }) {
                         className="btn btn-primary" 
                         style={{ padding: "0.4rem 0.8rem", fontSize: "0.8rem" }}
                         onClick={() => {
+                          if (couple && !couple.isPremium) {
+                            setShowUpgradeModal(true);
+                            return;
+                          }
                           if (!e2eeKey) {
                             alert("Veuillez d'abord configurer et valider votre clé de chiffrement en haut de la page.");
                             return;
@@ -392,6 +429,25 @@ export default function Dashboard({ lang, user }) {
           </div>
           
           <div style={{ display: "flex", alignItems: "center", gap: "1.5rem" }}>
+            <div style={{ textAlign: "right" }}>
+              <span style={{ fontSize: "0.85rem", color: "var(--text-muted)", display: "block" }}>
+                Formule
+              </span>
+              {couple?.isPremium ? (
+                <span className="badge badge-approved" style={{ fontSize: "0.9rem", padding: "0.4rem 0.85rem", background: "linear-gradient(135deg, #0d9488 0%, #10b981 100%)", color: "white", display: "inline-flex", alignItems: "center", gap: "0.25rem" }}>
+                  🌟 Premium
+                </span>
+              ) : (
+                <button
+                  onClick={() => setShowUpgradeModal(true)}
+                  className="badge badge-pending"
+                  style={{ fontSize: "0.9rem", padding: "0.4rem 0.85rem", background: "linear-gradient(135deg, #ef4444 0%, #f59e0b 100%)", color: "white", border: "none", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: "0.25rem", fontWeight: "bold" }}
+                >
+                  🚀 Activer Premium
+                </button>
+              )}
+            </div>
+
             <div style={{ textAlign: "right" }}>
               <span style={{ fontSize: "0.85rem", color: "var(--text-muted)", display: "block" }}>
                 {getTranslation(lang, "dash_dossier_status_label")}
@@ -521,6 +577,118 @@ export default function Dashboard({ lang, user }) {
           )
         )}
       </div>
+
+      {/* 🌟 Premium Upgrade Modal (Glassmorphism design) */}
+      {showUpgradeModal && (
+        <div style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: "rgba(15, 23, 42, 0.8)", // Dark backdrop
+          backdropFilter: "blur(8px)",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          zIndex: 1000,
+          padding: "1rem",
+        }}>
+          <div className="glass-card" style={{
+            maxWidth: "500px",
+            width: "100%",
+            padding: "2.25rem",
+            position: "relative",
+            display: "flex",
+            flexDirection: "column",
+            gap: "1.5rem",
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+            boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.5), 0 8px 10px -6px rgb(0 0 0 / 0.5)"
+          }}>
+            <button 
+              onClick={() => setShowUpgradeModal(false)}
+              style={{
+                position: "absolute",
+                top: "1.25rem",
+                right: "1.25rem",
+                background: "rgba(255,255,255,0.05)",
+                border: "1px solid var(--border-card)",
+                borderRadius: "50%",
+                width: "2.2rem",
+                height: "2.2rem",
+                color: "var(--text-main)",
+                fontSize: "1.2rem",
+                cursor: "pointer",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center"
+              }}
+            >
+              ×
+            </button>
+
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontSize: "3rem", marginBottom: "0.5rem" }}>🕌</div>
+              <h2 style={{ fontSize: "1.6rem", color: "var(--primary)", margin: 0 }}>Chaml Premium 🌟</h2>
+              <p style={{ color: "var(--text-muted)", fontSize: "0.88rem", marginTop: "0.5rem" }}>
+                Débloquez l'onboarding collaboratif et protégez vos fichiers sensibles.
+              </p>
+            </div>
+
+            <hr style={{ border: "none", borderTop: "1px solid var(--border-card)", margin: 0 }} />
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "1rem", fontSize: "0.88rem", color: "var(--text-muted)" }}>
+              <div style={{ display: "flex", gap: "0.75rem", alignItems: "flex-start" }}>
+                <span style={{ fontSize: "1.2rem" }}>🤝</span>
+                <div>
+                  <strong style={{ color: "var(--text-main)", display: "block" }}>Invitation & Onboarding Conjoint</strong>
+                  <span>Invitez votre conjoint(e) au Maroc pour collaborer sur le même dossier en temps réel.</span>
+                </div>
+              </div>
+
+              <div style={{ display: "flex", gap: "0.75rem", alignItems: "flex-start" }}>
+                <span style={{ fontSize: "1.2rem" }}>🔒</span>
+                <div>
+                  <strong style={{ color: "var(--text-main)", display: "block" }}>Chiffrement E2EE de bout en bout</strong>
+                  <span>Téléversez des fichiers de manière 100% cryptée (AES-GCM-256) sur votre machine. Même l'admin ne peut pas les lire.</span>
+                </div>
+              </div>
+
+              <div style={{ display: "flex", gap: "0.75rem", alignItems: "flex-start" }}>
+                <span style={{ fontSize: "1.2rem" }}>🗑️</span>
+                <div>
+                  <strong style={{ color: "var(--text-main)", display: "block" }}>Destruction Auto (Purge 30j)</strong>
+                  <span>Garantie de vie privée : tous vos documents cryptés sont définitivement supprimés 30 jours après approbation.</span>
+                </div>
+              </div>
+            </div>
+
+            <hr style={{ border: "none", borderTop: "1px solid var(--border-card)", margin: 0 }} />
+
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontSize: "1.75rem", fontWeight: "bold", color: "var(--text-main)" }}>19 €</div>
+              <span style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>Paiement unique à vie • Pas d'abonnement</span>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+              <button 
+                className="btn btn-primary"
+                onClick={handleUpgradeToPremium}
+                disabled={upgradeLoading}
+                style={{ padding: "0.85rem", fontSize: "0.95rem", fontWeight: "bold", width: "100%", background: "linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%)", border: "none" }}
+              >
+                {upgradeLoading ? "Redirection vers Stripe..." : "🚀 Passer au Premium (19€)"}
+              </button>
+              <button 
+                onClick={() => setShowUpgradeModal(false)}
+                style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: "0.8rem", cursor: "pointer", textDecoration: "underline", padding: "0.5rem 0" }}
+              >
+                Peut-être plus tard
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

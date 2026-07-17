@@ -1,15 +1,11 @@
 import pg from "pg";
 import dotenv from "dotenv";
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
+import knex from "knex";
+import knexConfig from "./knexfile.js";
 
 dotenv.config();
 
 const { Pool } = pg;
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const pool = new Pool({
   host: process.env.DB_HOST || "localhost",
@@ -19,10 +15,10 @@ const pool = new Pool({
   password: process.env.DB_PASSWORD || "postgres",
 });
 
-// Database query wrapper
+// Database query wrapper used throughout backend
 export const query = (text, params) => pool.query(text, params);
 
-// Auto-run schema.sql on startup
+// Runs database migrations on server start
 export const initializeDatabase = async () => {
   try {
     console.log("Connecting to PostgreSQL database...");
@@ -30,15 +26,14 @@ export const initializeDatabase = async () => {
     await pool.query("SELECT 1");
     console.log("PostgreSQL connection verified.");
 
-    const schemaPath = path.join(__dirname, "schema.sql");
-    if (fs.existsSync(schemaPath)) {
-      console.log("Running database schema script schema.sql...");
-      const schemaSql = fs.readFileSync(schemaPath, "utf-8");
-      await pool.query(schemaSql);
-      console.log("Database schema applied successfully.");
-    }
+    console.log("Running Knex database migrations...");
+    const environment = process.env.NODE_ENV || "development";
+    const db = knex(knexConfig[environment]);
+    await db.migrate.latest();
+    console.log("Database migrations applied successfully.");
+    await db.destroy(); // Free the knex instance connection pool
   } catch (err) {
-    console.error("Database connection or schema execution failed:", err.message);
+    console.error("Database connection or schema migration failed:", err.message);
     console.warn("Please make sure PostgreSQL is running, and the database 'chaml_db' is created.");
   }
 };

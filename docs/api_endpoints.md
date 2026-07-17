@@ -120,6 +120,7 @@ Returns active couple's document checklists and partner name.
     "partnerName": "Salma",
     "couple": {
       "id": "couple_001",
+      "isPremium": false,
       "demandeur": { "firstName": "Anass", "lastName": "El Amrani", "city": "Paris", "department": "75" },
       "beneficiaire": { "firstName": "Salma", "lastName": "Bennani" }
     },
@@ -232,3 +233,24 @@ Updates global SaaS brand configurations and SMTP details.
 ### GET `/api/admin/logs`
 Fetches all database daily audit logs.
 * **Response**: `HTTP 200 { "logs": { "2026-07-16": [...] } }`
+
+---
+
+## 4. Stripe Payment Endpoints
+
+### POST `/api/payment/create-checkout-session`
+Initiates a Stripe Checkout session for a one-time upgrade payment of 19.00 EUR.
+* **Headers**: Required `Cookie: chaml_token`
+* **Response**:
+  ```json
+  {
+    "url": "https://checkout.stripe.com/c/pay/cs_test_..."
+  }
+  ```
+
+---
+
+### POST `/api/payment/webhook`
+Consumes checkout events directly from Stripe to toggle couples' `is_premium` status.
+* **Payload**: Raw Stripe event request body with signature header.
+* **Response**: `HTTP 200 { "received": true }`

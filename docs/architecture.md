@@ -44,6 +44,8 @@ erDiagram
         boolean is_approved
         timestamp submitted_at
         varchar dossier_status "draft|submitted|approved|rejected"
+        boolean is_premium
+        timestamp dossier_completed_at
     }
     users {
         varchar id PK
@@ -153,3 +155,5 @@ sequenceDiagram
 1. **Zero Server Visibility**: Since file keys are not sent to the server, data compromises on the VPS do not leak sensitive documents.
 2. **Access Control**: Sessions require a matching cookie token to query any file descriptors, preventing enumeration.
 3. **Audit Trails**: Actions (upload, delete, review) write immutable lines to the `audit_logs` table for administrative tracking.
+4. **Stripe Billing Verification (Webhook)**: Payment transactions are processed outside our servers. Subscriptions upgrade via Stripe webhook (`checkout.session.completed`) events, verifying signatures with our webhook secret.
+5. **Auto-Destruct Routine**: A Daily Cron job unlinks physical files and updates database records 30 days after `dossier_completed_at` is set, ensuring Zero-Knowledge E2EE documents do not persist indefinitely in production.

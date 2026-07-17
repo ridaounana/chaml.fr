@@ -39,7 +39,7 @@ npm install
    cd server
    npm run dev
    ```
-   *The server starts on `http://localhost:5000`. It will automatically query `schema.sql` to create tables and seed default data (admin account and initial couple Anass & Salma) if the database is blank.*
+   *The server starts on `http://localhost:5000`. It will automatically run the Knex.js database migrations (creating tables, index constraints, and audit logs) and seed default data (admin account) if the database is blank.*
 
 2. **Launch the Vite React Frontend**:
    Navigate to the root directory and run:
