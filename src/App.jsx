@@ -16,6 +16,7 @@ export default function App() {
   const [config, setConfigState] = useState({});
   const [activePage, setActivePage] = useState("dashboard");
   const [authView, setAuthView] = useState("landing"); // "landing" | "login" | "register"
+  const [paymentStatus, setPaymentStatus] = useState(null);
 
   // Load Configuration and Session from API on mount
   useEffect(() => {
@@ -26,6 +27,13 @@ export default function App() {
     const params = new URLSearchParams(window.location.search);
     const inviteCoupleId = params.get("inviteCoupleId");
     const inviteEmail = params.get("inviteEmail");
+    const pay = params.get("payment");
+
+    if (pay) {
+      setPaymentStatus(pay);
+      // Clean URL parameters so they are removed from the browser bar
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
 
     if (inviteCoupleId && inviteEmail) {
       logoutUser()
@@ -125,6 +133,61 @@ export default function App() {
 
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+      {/* Stripe Payment Callback Toasts */}
+      {paymentStatus === "success" && (
+        <div style={{
+          position: "fixed",
+          top: "80px",
+          right: "20px",
+          backgroundColor: "#0d9488",
+          color: "white",
+          padding: "1rem 1.5rem",
+          borderRadius: "0.5rem",
+          boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.3)",
+          zIndex: 1000,
+          display: "flex",
+          alignItems: "center",
+          gap: "0.75rem",
+          fontWeight: "500",
+          border: "1px solid rgba(255,255,255,0.1)"
+        }}>
+          <span>🎉 <strong>Paiement réussi !</strong> Votre compte Chaml est Premium à vie.</span>
+          <button 
+            onClick={() => setPaymentStatus(null)} 
+            style={{ background: "none", border: "none", color: "white", cursor: "pointer", fontWeight: "bold", fontSize: "1.2rem", padding: 0 }}
+          >
+            ×
+          </button>
+        </div>
+      )}
+
+      {paymentStatus === "cancel" && (
+        <div style={{
+          position: "fixed",
+          top: "80px",
+          right: "20px",
+          backgroundColor: "#ef4444",
+          color: "white",
+          padding: "1rem 1.5rem",
+          borderRadius: "0.5rem",
+          boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.3)",
+          zIndex: 1000,
+          display: "flex",
+          alignItems: "center",
+          gap: "0.75rem",
+          fontWeight: "500",
+          border: "1px solid rgba(255,255,255,0.1)"
+        }}>
+          <span>❌ <strong>Paiement annulé.</strong> Si vous rencontrez un problème, écrivez-nous.</span>
+          <button 
+            onClick={() => setPaymentStatus(null)} 
+            style={{ background: "none", border: "none", color: "white", cursor: "pointer", fontWeight: "bold", fontSize: "1.2rem", padding: 0 }}
+          >
+            ×
+          </button>
+        </div>
+      )}
+
       <Navbar
         user={session}
         role={session ? session.role : null}

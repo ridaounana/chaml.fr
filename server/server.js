@@ -301,8 +301,8 @@ app.post("/api/payment/create-checkout-session", authenticateUser, async (req, r
         },
       ],
       mode: "payment",
-      success_url: `${process.env.CLIENT_URL || "http://localhost:5173"}/dashboard?payment=success`,
-      cancel_url: `${process.env.CLIENT_URL || "http://localhost:5173"}/dashboard?payment=cancel`,
+      success_url: `${process.env.CLIENT_URL || "http://localhost:5173"}/?payment=success`,
+      cancel_url: `${process.env.CLIENT_URL || "http://localhost:5173"}/?payment=cancel`,
       metadata: {
         coupleId: coupleId,
         userEmail: userEmail,
