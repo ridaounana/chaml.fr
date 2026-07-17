@@ -104,7 +104,7 @@ export default function App() {
           />
         );
       case "simulators":
-        return <Simulators lang={lang} config={config} />;
+        return <Simulators lang={lang} config={config} user={session} />;
       case "guide":
         return <StepsGuide lang={lang} />;
       case "admin":

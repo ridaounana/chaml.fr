@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { getTranslation } from "../utils/i18n";
+import { searchAddress, getZoneFromPostcode } from "../utils/address";
 
-export default function Simulators({ lang, config }) {
+export default function Simulators({ lang, config, user }) {
   const [activeTab, setActiveTab] = useState("housing");
 
   // Housing Simulator State
@@ -9,6 +10,47 @@ export default function Simulators({ lang, config }) {
   const [familySize, setFamilySize] = useState(2);
   const [livingSurface, setLivingSurface] = useState(24);
   const [requiredSurface, setRequiredSurface] = useState(22);
+
+  // Address Suggestions State
+  const [addressInput, setAddressInput] = useState("");
+  const [addressSuggestions, setAddressSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  // Initialize from user if logged in
+  useEffect(() => {
+    if (user) {
+      if (user.zone) setZone(user.zone);
+      if (user.familySize) setFamilySize(Number(user.familySize));
+      if (user.livingSurface) setLivingSurface(Number(user.livingSurface));
+      if (user.address) setAddressInput(user.address);
+    }
+  }, [user]);
+
+  const handleAddressChange = (val) => {
+    setAddressInput(val);
+    if (val.length >= 3) {
+      searchAddress(val)
+        .then(res => {
+          setAddressSuggestions(res);
+          setShowSuggestions(true);
+        })
+        .catch(err => console.error("Search address error:", err));
+    } else {
+      setAddressSuggestions([]);
+      setShowSuggestions(false);
+    }
+  };
+
+  const handleSelectAddress = (suggestion) => {
+    const props = suggestion.properties;
+    setAddressInput(props.label || "");
+    setShowSuggestions(false);
+    setAddressSuggestions([]);
+
+    const postcode = props.postcode || "";
+    const detectedZone = getZoneFromPostcode(postcode);
+    setZone(detectedZone);
+  };
 
   const smicValue = config?.smicValue || 1823;
   const surfaceZoneA = config?.surfaceZoneA || 22;
@@ -122,6 +164,56 @@ export default function Simulators({ lang, config }) {
           </p>
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem", marginTop: "1rem" }}>
+            <div className="form-group" style={{ position: "relative", gridColumn: "span 2" }}>
+              <label className="form-label">Adresse complète en France</label>
+              <input 
+                className="input-field" 
+                type="text" 
+                placeholder="Saisissez votre adresse pour détecter automatiquement votre Zone..." 
+                value={addressInput} 
+                onChange={e => handleAddressChange(e.target.value)} 
+              />
+              {showSuggestions && addressSuggestions.length > 0 && (
+                <ul style={{
+                  position: "absolute",
+                  top: "100%",
+                  left: 0,
+                  right: 0,
+                  background: "var(--bg-card)",
+                  backdropFilter: "blur(12px)",
+                  color: "var(--text-main)",
+                  border: "1px solid var(--border-card)",
+                  borderRadius: "0.5rem",
+                  zIndex: 10,
+                  listStyle: "none",
+                  padding: 0,
+                  margin: "0.25rem 0 0 0",
+                  maxHeight: "200px",
+                  overflowY: "auto",
+                  boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.3)"
+                }}>
+                  {addressSuggestions.map((s, idx) => (
+                    <li 
+                      key={idx} 
+                      onClick={() => handleSelectAddress(s)}
+                      style={{
+                        padding: "0.6rem 1rem",
+                        cursor: "pointer",
+                        fontSize: "0.85rem",
+                        borderBottom: "1px solid var(--border-card)",
+                        transition: "background 0.2s",
+                        color: "var(--text-main)"
+                      }}
+                      onMouseEnter={e => e.target.style.background = "rgba(13, 148, 136, 0.15)"}
+                      onMouseLeave={e => e.target.style.background = "none"}
+                    >
+                      {s.properties.label}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
             <div className="form-group">
               <label className="form-label">{getTranslation(lang, "sim_lbl_zone")}</label>
               <select
@@ -134,7 +226,9 @@ export default function Simulators({ lang, config }) {
                 <option value="B">Zone B1 / B2 (Grandes métropoles, Lyon, Marseille, Lille)</option>
                 <option value="C">Zone C (Autres communes, Communes rurales)</option>
               </select>
-              <span className="form-help">{getTranslation(lang, "sim_zone_help")}</span>
+              <span className="form-help" style={{ color: "var(--primary)", fontWeight: "bold" }}>
+                Zone sélectionnée/détectée : Zone {zone}
+              </span>
             </div>
 
             <div className="form-group">

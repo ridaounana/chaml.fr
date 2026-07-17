@@ -45,6 +45,7 @@ export const up = async (knex) => {
       table.string("first_name", 50).notNullable();
       table.string("last_name", 50).notNullable();
       table.string("phone", 30);
+      table.string("address", 255);
       table.string("city", 50);
       table.string("department", 10);
       table.string("zone", 5);
@@ -55,6 +56,13 @@ export const up = async (knex) => {
       table.boolean("is_email_verified").defaultTo(false);
       table.timestamp("created_at", { useTz: true }).defaultTo(knex.fn.now());
     });
+  } else {
+    const hasAddress = await knex.schema.hasColumn("users", "address");
+    if (!hasAddress) {
+      await knex.schema.alterTable("users", (table) => {
+        table.string("address", 255);
+      });
+    }
   }
 
   // Table: documents

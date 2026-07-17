@@ -307,6 +307,12 @@ app.get("/api/auth/me", async (req, res) => {
         coupleId: user.couple_id,
         firstName: user.first_name,
         lastName: user.last_name,
+        address: user.address,
+        city: user.city,
+        department: user.department,
+        zone: user.zone,
+        livingSurface: Number(user.living_surface || 0),
+        familySize: Number(user.family_size || 2),
         isEmailVerified: user.is_email_verified,
         isApproved: user.is_approved
       }
@@ -353,7 +359,7 @@ app.post("/api/auth/register", async (req, res) => {
     return res.status(503).json({ error: "Les inscriptions sont temporairement suspendues car le serveur de messagerie (SMTP) n'est pas disponible ou est mal configuré. Veuillez contacter l'administrateur." });
   }
 
-  const { email, password, firstName, lastName, phone, city, department, zone, livingSurface, familySize } = req.body;
+  const { email, password, firstName, lastName, phone, address, city, department, zone, livingSurface, familySize } = req.body;
   if (!email || !password || !firstName || !lastName) {
     return res.status(400).json({ error: "Missing required registration parameters." });
   }
@@ -376,9 +382,9 @@ app.post("/api/auth/register", async (req, res) => {
 
     // 2. Create Spouse in France (Applicant)
     await query(`
-      INSERT INTO users (id, email, password_hash, role, couple_id, first_name, last_name, phone, city, department, zone, living_surface, family_size, is_approved, is_email_verified)
-      VALUES ($1, $2, $3, 'demandeur', $4, $5, $6, $7, $8, $9, $10, $11, $12, false, false)
-    `, [userId, email, passwordHash, coupleId, firstName, lastName, phone, city, department, zone || "A", Number(livingSurface || 0), Number(familySize || 2)]);
+      INSERT INTO users (id, email, password_hash, role, couple_id, first_name, last_name, phone, address, city, department, zone, living_surface, family_size, is_approved, is_email_verified)
+      VALUES ($1, $2, $3, 'demandeur', $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, false, false)
+    `, [userId, email, passwordHash, coupleId, firstName, lastName, phone, address || "", city, department, zone || "A", Number(livingSurface || 0), Number(familySize || 2)]);
 
     // 3. Seed documents checklist
     const initialDocs = [
