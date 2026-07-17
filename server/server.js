@@ -336,6 +336,12 @@ app.get("/api/auth/me", async (req, res) => {
       return res.status(403).json({ error: "frozen" });
     }
 
+    // Check if user is email verified and approved
+    if (user.role !== "admin" && (!user.is_email_verified || !user.is_approved)) {
+      res.clearCookie("chaml_token");
+      return res.json({ user: null });
+    }
+
     res.json({
       user: {
         id: user.id,
@@ -578,8 +584,10 @@ app.get("/api/auth/verify-email", async (req, res) => {
   const { coupleId } = req.query;
   if (!coupleId) return res.status(400).send("Lien d'activation invalide.");
   try {
-    await query("UPDATE users SET is_email_verified = true WHERE couple_id = $1", [coupleId]);
-    await logAction("Email Verified", `Verified email via link click for couple: ${coupleId}`, "System");
+    // Set both email verified and approved automatically upon email confirmation
+    await query("UPDATE users SET is_email_verified = true, is_approved = true WHERE couple_id = $1", [coupleId]);
+    await query("UPDATE couples SET is_approved = true WHERE id = $1", [coupleId]);
+    await logAction("Email Verified", `Verified email and activated account via link click for couple: ${coupleId}`, "System");
     res.redirect("/?verified=true");
   } catch (err) {
     res.status(500).send("Erreur lors de la validation de l'e-mail: " + err.message);
@@ -591,9 +599,10 @@ app.post("/api/auth/verify-email", async (req, res) => {
   const { coupleId } = req.body;
   if (!coupleId) return res.status(400).json({ error: "Missing couple ID." });
   try {
-    // Set is_email_verified = true for both users in couple
-    await query("UPDATE users SET is_email_verified = true WHERE couple_id = $1", [coupleId]);
-    await logAction("Email Verified", `Verified email simulation for couple: ${coupleId}`, "System");
+    // Set both email verified and approved automatically upon email confirmation
+    await query("UPDATE users SET is_email_verified = true, is_approved = true WHERE couple_id = $1", [coupleId]);
+    await query("UPDATE couples SET is_approved = true WHERE id = $1", [coupleId]);
+    await logAction("Email Verified", `Verified email and activated account simulation for couple: ${coupleId}`, "System");
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
