@@ -121,6 +121,42 @@ const decryptSMTPPassword = (cipherText) => {
   }
 };
 
+const sendSystemEmail = async (to, subject, text, html) => {
+  try {
+    const configRes = await query("SELECT * FROM site_config WHERE id = 1");
+    if (configRes.rows.length === 0) {
+      throw new Error("Configuration missing inside database.");
+    }
+    const c = configRes.rows[0];
+    const decryptedPassword = decryptSMTPPassword(c.smtp_password);
+    const secure = c.smtp_protocol === "SSL";
+
+    const transporter = nodemailer.createTransport({
+      host: c.smtp_host,
+      port: Number(c.smtp_port),
+      secure: secure,
+      auth: {
+        user: c.smtp_user,
+        pass: decryptedPassword
+      }
+    });
+
+    const mailOptions = {
+      from: `"${c.smtp_sender_name}" <${c.smtp_sender_email}>`,
+      to,
+      subject,
+      text,
+      html
+    };
+
+    await transporter.sendMail(mailOptions);
+    return true;
+  } catch (err) {
+    console.error("❌ sendSystemEmail helper failed:", err.message);
+    throw err;
+  }
+};
+
 const checkSMTP = async () => {
   try {
     const configRes = await query("SELECT * FROM site_config WHERE id = 1");
@@ -852,6 +888,37 @@ app.post("/api/admin/couples/approve", authenticateUser, requireAdmin, async (re
     `, [coupleId]);
     await query("UPDATE users SET is_approved = true WHERE couple_id = $1", [coupleId]);
     await logAction("Account Approved", `Approved couple accounts for ID: ${coupleId}`, req.user.email);
+
+    // Send confirmation email to applicant
+    const userRes = await query("SELECT email, first_name FROM users WHERE couple_id = $1 AND role = 'demandeur'", [coupleId]);
+    if (userRes.rows.length > 0) {
+      const { email, first_name } = userRes.rows[0];
+      try {
+        await sendSystemEmail(
+          email,
+          "Chaml.fr - Votre dossier de regroupement familial a été validé ! 🎉",
+          `Bonjour ${first_name},\n\nExcellente nouvelle ! Votre dossier de regroupement familial a été validé par notre équipe.\n\nNotez que pour des raisons de confidentialité et de sécurité RGPD, toutes vos pièces justificatives cryptées seront définitivement supprimées de nos serveurs 30 jours après cette approbation.\n\nL'équipe Chaml.fr`,
+          `
+            <div style="font-family: Arial, sans-serif; line-height: 1.6; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
+              <h2 style="color: #0d9488; text-align: center;">🎉 Dossier Validé !</h2>
+              <p>Bonjour <strong>${first_name}</strong>,</p>
+              <p>Nous avons le plaisir de vous informer que votre dossier de regroupement familial partagé a été validé et approuvé avec succès par notre équipe.</p>
+              <p>Vous pouvez dès maintenant télécharger votre dossier complet et le soumettre à l'OFII.</p>
+              <div style="background-color: #f8fafc; border-left: 4px solid #ef4444; padding: 12px; margin: 20px 0; border-radius: 4px;">
+                <strong style="color: #ef4444; display: block; margin-bottom: 0.25rem;">⚠️ Avis de confidentialité (RGPD) :</strong>
+                Pour garantir la sécurité absolue de vos données, <strong>toutes vos pièces justificatives cryptées seront définitivement détruites</strong> de nos serveurs dans un délai de 30 jours. Pensez à conserver vos copies locales.
+              </div>
+              <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;"/>
+              <p style="font-size: 0.85rem; text-align: center; color: #94a3b8;">L'équipe Chaml.fr - Reuniting your family, without borders</p>
+            </div>
+          `
+        );
+        console.log(`✉️ Approval email sent successfully to ${email}`);
+      } catch (mailErr) {
+        console.error("Failed to send approval email. Details:", mailErr.message);
+      }
+    }
+
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -1107,16 +1174,59 @@ app.post("/api/auth/accept-invite", async (req, res) => {
 // ----------------------------------------------------
 const startAutoDestructCron = () => {
   cron.schedule("0 2 * * *", async () => {
-    console.log("⏰ Daily Auto-Destruct Cron: Purging files of completed dossiers older than 30 days...");
+    console.log("⏰ Daily Auto-Destruct Cron starting...");
     try {
-      const res = await query(`
+      // 1. Process Day 25 Warning Alerts
+      const alertRes = await query(`
+        SELECT c.id, u.email, u.first_name 
+        FROM couples c
+        JOIN users u ON u.couple_id = c.id
+        WHERE c.dossier_status = 'approved'
+          AND c.dossier_completed_at IS NOT NULL
+          AND c.dossier_completed_at <= NOW() - INTERVAL '25 days'
+          AND c.deletion_alert_sent = false
+          AND u.role = 'demandeur'
+      `);
+
+      for (const row of alertRes.rows) {
+        const { id, email, first_name } = row;
+        try {
+          await sendSystemEmail(
+            email,
+            "Chaml.fr - Alerte de suppression définitive de vos pièces justificatives",
+            `Bonjour ${first_name},\n\nConformément à nos engagements de confidentialité, toutes vos pièces justificatives cryptées associées à votre dossier seront définitivement supprimées de nos serveurs dans 5 jours.\n\nSi vous ne les avez pas sauvegardées localement, veuillez vous connecter et le faire dès maintenant.\n\nL'équipe Chaml.fr`,
+            `
+              <div style="font-family: Arial, sans-serif; line-height: 1.6; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                <h2 style="color: #ef4444; text-align: center;">⚠️ Alerte de Suppression (RGPD)</h2>
+                <p>Bonjour <strong>${first_name}</strong>,</p>
+                <p>Conformément à notre engagement de confidentialité et à la réglementation RGPD, nous vous rappelons que votre dossier de regroupement familial a été validé il y a 25 jours.</p>
+                <p>Par conséquent, <strong>tous vos documents justificatifs cryptés téléversés sur Chaml.fr seront définitivement supprimés dans 5 jours</strong>.</p>
+                <p>Si vous n'avez pas encore téléchargé et enregistré les copies décryptées de vos fichiers sur votre ordinateur, nous vous invitons à le faire dès maintenant.</p>
+                <div style="text-align: center; margin: 30px 0;">
+                  <a href="https://chaml.fr/dashboard" style="background-color: #ef4444; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Accéder à mon espace</a>
+                </div>
+                <p style="font-size: 0.82rem; color: #64748b; font-style: italic;">Après suppression, ces fichiers seront irrécupérables car nous ne stockons aucun historique ni sauvegarde en clair.</p>
+                <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;"/>
+                <p style="font-size: 0.85rem; text-align: center; color: #94a3b8;">L'équipe Chaml.fr - Reuniting your family, without borders</p>
+              </div>
+            `
+          );
+          await query("UPDATE couples SET deletion_alert_sent = true WHERE id = $1", [id]);
+          console.log(`✉️ Deletion alert email sent successfully to ${email}`);
+        } catch (alertErr) {
+          console.error(`Failed to send deletion alert for couple ${id}:`, alertErr.message);
+        }
+      }
+
+      // 2. Process Day 30 Purge and Auto-Destruct
+      const purgeRes = await query(`
         SELECT id FROM couples 
         WHERE dossier_status = 'approved' 
           AND dossier_completed_at IS NOT NULL 
           AND dossier_completed_at <= NOW() - INTERVAL '30 days'
       `);
       
-      for (const row of res.rows) {
+      for (const row of purgeRes.rows) {
         const coupleId = row.id;
         
         const docRes = await query(
