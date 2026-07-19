@@ -31,6 +31,7 @@ export default function App() {
     const pay = params.get("payment");
     const sessionId = params.get("session_id");
     const isVerified = params.get("verified");
+    const googleRegister = params.get("google_register");
 
     if (pay) {
       setPaymentStatus(pay);
@@ -76,6 +77,8 @@ export default function App() {
             // If they just verified their email but have no session cookie, show the login form
             if (isVerified === "true") {
               setAuthView("login");
+            } else if (googleRegister === "true") {
+              setAuthView("register");
             }
           }
         })
@@ -83,12 +86,16 @@ export default function App() {
           console.error("Error loading session:", err);
           if (isVerified === "true") {
             setAuthView("login");
+          } else if (googleRegister === "true") {
+            setAuthView("register");
           }
         })
         .finally(() => {
-          if (pay || isVerified) {
-            // Clean URL parameters so they are removed from the browser bar
-            window.history.replaceState({}, document.title, window.location.pathname);
+          if (pay || isVerified || googleRegister) {
+            // Clean URL parameters so they are removed from the browser bar (managed inside Login.jsx for Google register)
+            if (!googleRegister) {
+              window.history.replaceState({}, document.title, window.location.pathname);
+            }
           }
         });
     }

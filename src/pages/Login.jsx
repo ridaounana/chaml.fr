@@ -21,6 +21,7 @@ export default function Login({
   const [inviteSuccess, setInviteSuccess] = useState("");
 
   // Registration Form State
+  const [isGoogleSignup, setIsGoogleSignup] = useState(false);
   const [frEmail, setFrEmail] = useState("");
   const [frPassword, setFrPassword] = useState("");
   const [frFirstName, setFrFirstName] = useState("");
@@ -74,15 +75,29 @@ export default function Login({
   const [pendingCoupleId, setPendingCoupleId] = useState("");
   const [pendingSide, setPendingSide] = useState("");
 
-  // Check for invitation parameters on mount
+  // Check for invitation and Google registration parameters on mount
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const inviteCoupleId = params.get("inviteCoupleId");
     const inviteEmail = params.get("inviteEmail");
+    const googleRegister = params.get("google_register");
+
     if (inviteCoupleId && inviteEmail) {
       setView("accept_invite");
       setFrEmail(inviteEmail);
       setPendingCoupleId(inviteCoupleId);
+    } else if (googleRegister === "true") {
+      setView("register");
+      setIsGoogleSignup(true);
+      const gEmail = params.get("email");
+      const gFirstName = params.get("firstName");
+      const gLastName = params.get("lastName");
+      if (gEmail) setFrEmail(gEmail);
+      if (gFirstName) setFrFirstName(gFirstName);
+      if (gLastName) setFrLastName(gLastName);
+      
+      // Clean query parameters so they don't persist on refresh
+      window.history.replaceState({}, document.title, window.location.pathname);
     }
   }, []);
 
@@ -118,6 +133,10 @@ export default function Login({
       setError("Veuillez remplir tous les champs obligatoires (*).");
       return;
     }
+    if (!isGoogleSignup && !frPassword) {
+      setError("Veuillez saisir un mot de passe.");
+      return;
+    }
 
     const data = {
       email: frEmail,
@@ -128,16 +147,22 @@ export default function Login({
       city: frCity,
       department: frDep,
       zone: frZone,
-      livingSurface: frSurface
+      livingSurface: frSurface,
+      isGoogle: isGoogleSignup
     };
 
     registerApplicant(data)
       .then(res => {
         if (res.success) {
           setError("");
-          setPendingEmail(frEmail);
-          setPendingCoupleId(res.coupleId);
-          setView("unverified");
+          if (res.autoLogin) {
+            // Auto login succeeded, reload page to load session state fresh from cookies
+            window.location.reload();
+          } else {
+            setPendingEmail(frEmail);
+            setPendingCoupleId(res.coupleId);
+            setView("unverified");
+          }
         }
       })
       .catch(err => {
@@ -296,21 +321,50 @@ export default function Login({
               </div>
             </div>
 
-            {/* Demo Credentials Help Box */}
-            <div style={{
-              marginTop: "2rem",
-              padding: "1rem",
-              background: "rgba(255, 255, 255, 0.02)",
-              borderRadius: "0.75rem",
-              border: "1px solid var(--border-card)",
-              fontSize: "0.8rem"
-            }}>
-              <h4 style={{ fontWeight: 700, marginBottom: "0.5rem", color: "var(--accent)" }}>
-                {getTranslation(lang, "login_help_title")}
-              </h4>
-              <p style={{ whiteSpace: "pre-line", color: "var(--text-muted)", lineHeight: "1.4" }}>
-                {getTranslation(lang, "login_help_desc")}
-              </p>
+            {/* Google Authentication Section */}
+            <div style={{ marginTop: "1.5rem", display: "flex", flexDirection: "column", gap: "1rem", alignItems: "center" }}>
+              <div style={{ display: "flex", alignItems: "center", width: "100%", gap: "1rem" }}>
+                <hr style={{ flex: 1, border: "none", borderTop: "1px solid var(--border-card)" }} />
+                <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>ou</span>
+                <hr style={{ flex: 1, border: "none", borderTop: "1px solid var(--border-card)" }} />
+              </div>
+
+              <a
+                href="/api/auth/google"
+                className="btn btn-secondary"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "0.75rem",
+                  width: "100%",
+                  padding: "0.75rem",
+                  fontSize: "0.9rem",
+                  fontWeight: "600",
+                  textDecoration: "none",
+                  border: "1px solid var(--border-card)",
+                  borderRadius: "0.5rem",
+                  backgroundColor: "rgba(255,255,255,0.02)",
+                  color: "var(--text-main)",
+                  cursor: "pointer",
+                  transition: "all 0.2s"
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.06)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.02)";
+                }}
+              >
+                {/* SVG Google Logo */}
+                <svg width="18" height="18" viewBox="0 0 18 18">
+                  <path fill="#4285F4" d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.47h4.84a4.14 4.14 0 0 1-1.8 2.71v2.26h2.91c1.7-1.56 2.69-3.86 2.69-6.6z"/>
+                  <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.2l-2.91-2.26c-.8.54-1.83.86-3.05.86-2.34 0-4.32-1.58-5.03-3.7H.95v2.32A9 9 0 0 0 9 18z"/>
+                  <path fill="#FBBC05" d="M3.97 10.7a5.4 5.4 0 0 1 0-3.4V4.98H.95a9 9 0 0 0 0 8.04l3.02-2.32z"/>
+                  <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35L15 2.1A9 9 0 0 0 .95 4.98l3.02 2.32C4.68 5.16 6.66 3.58 9 3.58z"/>
+                </svg>
+                Se connecter avec Gmail
+              </a>
             </div>
           </>
         )}
@@ -329,12 +383,23 @@ export default function Login({
               
               <div className="form-group">
                 <label className="form-label">Email*</label>
-                <input className="input-field" type="email" placeholder="conjoint@chaml.fr" value={frEmail} onChange={e => setFrEmail(e.target.value)} required />
+                <input 
+                  className="input-field" 
+                  type="email" 
+                  placeholder="conjoint@chaml.fr" 
+                  value={frEmail} 
+                  onChange={e => setFrEmail(e.target.value)} 
+                  required 
+                  readOnly={isGoogleSignup}
+                  style={isGoogleSignup ? { opacity: 0.75, cursor: "not-allowed" } : {}}
+                />
               </div>
-              <div className="form-group">
-                <label className="form-label">Mot de passe*</label>
-                <input className="input-field" type="password" value={frPassword} onChange={e => setFrPassword(e.target.value)} required />
-              </div>
+              {!isGoogleSignup && (
+                <div className="form-group">
+                  <label className="form-label">Mot de passe*</label>
+                  <input className="input-field" type="password" value={frPassword} onChange={e => setFrPassword(e.target.value)} required />
+                </div>
+              )}
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
                 <div className="form-group">
                   <label className="form-label">Prénom*</label>

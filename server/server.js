@@ -346,9 +346,90 @@ app.post("/api/payment/verify-session", authenticateUser, async (req, res) => {
   }
 });
 
-// ----------------------------------------------------
-// AUTHENTICATION API ROUTES
-// ----------------------------------------------------
+// Google OAuth Authentication Routes
+app.get("/api/auth/google", (req, res) => {
+  const clientUrl = process.env.CLIENT_URL || "https://chaml.fr";
+  const redirectUri = `${clientUrl}/api/auth/google/callback`;
+  const clientId = process.env.GOOGLE_CLIENT_ID || "";
+  
+  if (!clientId) {
+    console.warn("⚠️ GOOGLE_CLIENT_ID is not configured in .env");
+    return res.status(500).send("Google OAuth is not configured. Please add GOOGLE_CLIENT_ID to your .env file.");
+  }
+
+  const googleUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
+    `client_id=${clientId}&` +
+    `redirect_uri=${encodeURIComponent(redirectUri)}&` +
+    `response_type=code&` +
+    `scope=openid%20email%20profile`;
+  res.redirect(googleUrl);
+});
+
+app.get("/api/auth/google/callback", async (req, res) => {
+  const { code } = req.query;
+  const clientUrl = process.env.CLIENT_URL || "https://chaml.fr";
+  const redirectUri = `${clientUrl}/api/auth/google/callback`;
+
+  if (!code) {
+    return res.redirect("/?error=missing_code");
+  }
+
+  try {
+    // Exchange auth code for access token
+    const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        code,
+        client_id: process.env.GOOGLE_CLIENT_ID || "",
+        client_secret: process.env.GOOGLE_CLIENT_SECRET || "",
+        redirect_uri: redirectUri,
+        grant_type: "authorization_code"
+      })
+    });
+
+    const tokenData = await tokenRes.json();
+    if (!tokenRes.ok) {
+      throw new Error(tokenData.error_description || "Failed to exchange Google OAuth code");
+    }
+
+    // Fetch profile info from Google
+    const profileRes = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+      headers: { Authorization: `Bearer ${tokenData.access_token}` }
+    });
+    const profile = await profileRes.json();
+
+    const email = profile.email;
+    const firstName = profile.given_name || "";
+    const lastName = profile.family_name || "";
+
+    // Check if user already exists
+    const existingUser = await query("SELECT * FROM users WHERE email = $1", [email]);
+    if (existingUser.rows.length > 0) {
+      const user = existingUser.rows[0];
+      const token = jwt.sign(
+        { id: user.id, email: user.email, role: user.role, coupleId: user.couple_id },
+        JWT_SECRET,
+        { expiresIn: "7d" }
+      );
+
+      res.cookie("chaml_token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+      });
+
+      return res.redirect("/");
+    } else {
+      // Redirect to registration page with Google pre-fills
+      return res.redirect(`/?google_register=true&email=${encodeURIComponent(email)}&firstName=${encodeURIComponent(firstName)}&lastName=${encodeURIComponent(lastName)}`);
+    }
+  } catch (err) {
+    console.error("❌ Google OAuth Error:", err.message);
+    res.redirect(`/?error=${encodeURIComponent(err.message)}`);
+  }
+});
 
 // Get Active Session / User details
 app.get("/api/auth/me", async (req, res) => {
@@ -432,8 +513,12 @@ app.post("/api/auth/register", async (req, res) => {
     return res.status(503).json({ error: "Les inscriptions sont temporairement suspendues car le serveur de messagerie (SMTP) n'est pas disponible ou est mal configuré. Veuillez contacter l'administrateur." });
   }
 
-  const { email, password, firstName, lastName, phone, address, city, department, zone, livingSurface, familySize } = req.body;
-  if (!email || !password || !firstName || !lastName) {
+  const { email, password, firstName, lastName, phone, address, city, department, zone, livingSurface, familySize, isGoogle } = req.body;
+  if (!isGoogle && !isSMTPAvailable) {
+    return res.status(503).json({ error: "Les inscriptions sont temporairement suspendues car le serveur de messagerie (SMTP) n'est pas disponible ou est mal configuré. Veuillez contacter l'administrateur." });
+  }
+
+  if (!email || (!isGoogle && !password) || !firstName || !lastName) {
     return res.status(400).json({ error: "Missing required registration parameters." });
   }
 
@@ -448,16 +533,20 @@ app.post("/api/auth/register", async (req, res) => {
     const userId = `user_fr_${Date.now()}`;
 
     // Hash password
-    const passwordHash = await bcrypt.hash(password, 10);
+    const passToHash = password || Math.random().toString(36);
+    const passwordHash = await bcrypt.hash(passToHash, 10);
+
+    const isApprovedVal = isGoogle ? true : false;
+    const isEmailVerifiedVal = isGoogle ? true : false;
 
     // 1. Create Couple
-    await query("INSERT INTO couples (id, is_approved, dossier_status) VALUES ($1, false, 'draft')", [coupleId]);
+    await query("INSERT INTO couples (id, is_approved, dossier_status) VALUES ($1, $2, 'draft')", [coupleId, isApprovedVal]);
 
     // 2. Create Spouse in France (Applicant)
     await query(`
       INSERT INTO users (id, email, password_hash, role, couple_id, first_name, last_name, phone, address, city, department, zone, living_surface, family_size, is_approved, is_email_verified)
-      VALUES ($1, $2, $3, 'demandeur', $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, false, false)
-    `, [userId, email, passwordHash, coupleId, firstName, lastName, phone, address || "", city, department, zone || "A", Number(livingSurface || 0), Number(familySize || 2)]);
+      VALUES ($1, $2, $3, 'demandeur', $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+    `, [userId, email, passwordHash, coupleId, firstName, lastName, phone, address || "", city, department, zone || "A", Number(livingSurface || 0), Number(familySize || 2), isApprovedVal, isEmailVerifiedVal]);
 
     // 3. Seed documents checklist
     const initialDocs = [
@@ -483,6 +572,24 @@ app.post("/api/auth/register", async (req, res) => {
     }
 
     await logAction("Couple Registered", `Created applicant account: ${email}`, email);
+
+    if (isGoogle) {
+      // Auto login: generate JWT token and set cookie
+      const token = jwt.sign(
+        { id: userId, email, role: 'demandeur', coupleId },
+        JWT_SECRET,
+        { expiresIn: "7d" }
+      );
+
+      res.cookie("chaml_token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+      });
+
+      return res.json({ success: true, coupleId, autoLogin: true });
+    }
 
     // Send real activation email to applicant's address
     try {
