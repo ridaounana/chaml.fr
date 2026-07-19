@@ -15,6 +15,7 @@ export default function Dashboard({ lang, user }) {
   // E2EE state hooks
   const [e2eeKey, setE2eeKey] = useState(sessionStorage.getItem("chaml_e2ee_key") || "");
   const [tempKeyInput, setTempKeyInput] = useState("");
+  const [showKeyText, setShowKeyText] = useState(false);
 
   // Invitation Form State
   const [inviteEmail, setInviteEmail] = useState("");
@@ -385,24 +386,47 @@ export default function Dashboard({ lang, user }) {
                 <strong style={{ fontSize: "0.85rem", color: "var(--text-main)" }}>Chiffrement de bout en bout actif</strong>
               </div>
               <p style={{ margin: 0, fontSize: "0.78rem", color: "var(--text-muted)", lineHeight: "1.4" }}>
-                Pour garantir la confidentialité absolue, vos documents sont cryptés côté client avant envoi. Même l'administrateur n'a pas accès à vos fichiers.
+                Pour garantir la confidentialité absolue, vos documents sont cryptés côté client avant envoi. Choisissez un code PIN ou une phrase secrète (minimum 6 caractères) facile à retenir pour vous et votre conjoint.
               </p>
               
               {!e2eeKey ? (
-                <div style={{ display: "flex", gap: "0.5rem" }}>
-                  <input
-                    type="password"
-                    placeholder="Saisissez votre clé de chiffrement..."
-                    className="input-field"
-                    style={{ padding: "0.4rem 0.6rem", fontSize: "0.8rem", margin: 0 }}
-                    value={tempKeyInput}
-                    onChange={e => setTempKeyInput(e.target.value)}
-                  />
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                  <div style={{ display: "flex", gap: "0.5rem", position: "relative", alignItems: "center", width: "100%" }}>
+                    <input
+                      type={showKeyText ? "text" : "password"}
+                      placeholder="Code PIN ou mot de passe conjoint..."
+                      className="input-field"
+                      style={{ padding: "0.4rem 2.2rem 0.4rem 0.6rem", fontSize: "0.8rem", margin: 0, flex: 1 }}
+                      value={tempKeyInput}
+                      onChange={e => setTempKeyInput(e.target.value)}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowKeyText(!showKeyText)}
+                      style={{
+                        position: "absolute",
+                        right: "0.5rem",
+                        background: "none",
+                        border: "none",
+                        color: "var(--text-muted)",
+                        cursor: "pointer",
+                        fontSize: "0.9rem",
+                        display: "flex",
+                        alignItems: "center"
+                      }}
+                      title={showKeyText ? "Masquer" : "Afficher"}
+                    >
+                      {showKeyText ? "👁️" : "🙈"}
+                    </button>
+                  </div>
                   <button
                     className="btn btn-primary"
-                    style={{ padding: "0.4rem 0.8rem", fontSize: "0.8rem", whiteSpace: "nowrap" }}
+                    style={{ padding: "0.45rem", fontSize: "0.8rem", fontWeight: "bold" }}
                     onClick={() => {
-                      if (!tempKeyInput) return;
+                      if (!tempKeyInput || tempKeyInput.length < 6) {
+                        alert("Veuillez choisir un code PIN ou mot de passe d'au moins 6 caractères pour plus de sécurité.");
+                        return;
+                      }
                       setE2eeKey(tempKeyInput);
                       sessionStorage.setItem("chaml_e2ee_key", tempKeyInput);
                     }}
@@ -411,17 +435,40 @@ export default function Dashboard({ lang, user }) {
                   </button>
                 </div>
               ) : (
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span style={{ fontSize: "0.8rem", color: "var(--success)", fontWeight: 500 }}>✓ Clé de chiffrement active</span>
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ fontSize: "0.8rem", color: "var(--success)", fontWeight: 500 }}>✓ Clé de chiffrement active</span>
+                    <button
+                      style={{ background: "none", border: "none", color: "var(--danger)", fontSize: "0.78rem", cursor: "pointer", textDecoration: "underline", padding: 0 }}
+                      onClick={() => {
+                        setE2eeKey("");
+                        setTempKeyInput("");
+                        sessionStorage.removeItem("chaml_e2ee_key");
+                      }}
+                    >
+                      Changer de clé
+                    </button>
+                  </div>
                   <button
-                    style={{ background: "none", border: "none", color: "var(--danger)", fontSize: "0.78rem", cursor: "pointer", textDecoration: "underline", padding: 0 }}
+                    className="btn btn-secondary"
+                    style={{ padding: "0.35rem 0.5rem", fontSize: "0.75rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.3rem" }}
                     onClick={() => {
-                      setE2eeKey("");
-                      setTempKeyInput("");
-                      sessionStorage.removeItem("chaml_e2ee_key");
+                      const element = document.createElement("a");
+                      const file = new Blob([
+                        `--- CLÉ DE CHIFFREMENT PRIVÉE CHAML.FR ---\n`,
+                        `Dossier : ${couple ? couple.id : "Chaml"}\n`,
+                        `Clé / Code PIN : ${e2eeKey}\n\n`,
+                        `Cette clé est indispensable pour décrypter et télécharger vos documents sur Chaml.fr.\n`,
+                        `Ne la partagez jamais avec des tiers.\n`
+                      ], {type: 'text/plain'});
+                      element.href = URL.createObjectURL(file);
+                      element.download = `chaml-code-chiffrement.txt`;
+                      document.body.appendChild(element);
+                      element.click();
+                      document.body.removeChild(element);
                     }}
                   >
-                    Changer de clé
+                    💾 Télécharger une copie de sauvegarde
                   </button>
                 </div>
               )}
