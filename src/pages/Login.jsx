@@ -185,10 +185,42 @@ export default function Login({
       minHeight: "80vh",
       padding: "2rem 1rem"
     }}>
-      <div className="glass-card fade-in" style={{ width: "100%", maxWidth: view === "register" ? "850px" : "480px" }}>
+      <div className="glass-card fade-in" style={{ width: "100%", maxWidth: view === "register" ? "850px" : "480px", position: "relative" }}>
         
+        {/* Floating Top-Left Back Button */}
+        <button 
+          type="button"
+          onClick={onBackToLanding}
+          style={{
+            position: "absolute",
+            top: "1.25rem",
+            left: "1.25rem",
+            background: "rgba(255,255,255,0.03)",
+            border: "1px solid var(--border-card)",
+            borderRadius: "0.5rem",
+            padding: "0.4rem 0.8rem",
+            color: "var(--text-muted)",
+            fontSize: "0.8rem",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.4rem",
+            transition: "all 0.2s ease"
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = "var(--text-main)";
+            e.currentTarget.style.background = "rgba(255,255,255,0.08)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = "var(--text-muted)";
+            e.currentTarget.style.background = "rgba(255,255,255,0.03)";
+          }}
+        >
+          ← Accueil
+        </button>
+
         {/* Brand Logo Header */}
-        <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
+        <div style={{ textAlign: "center", marginBottom: "1.5rem", marginTop: "1rem" }}>
           <span style={{ fontSize: "3rem" }}>{config.appLogo || "🕌"}</span>
           <h1 style={{ fontSize: "2rem", marginTop: "0.5rem", fontWeight: 800 }}>
             {config.appName || "Chaml"}
@@ -262,13 +294,6 @@ export default function Login({
                   Créer un compte (Sign Up)
                 </button>
               </div>
-              <button 
-                type="button"
-                onClick={onBackToLanding}
-                style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: "0.82rem", cursor: "pointer", textDecoration: "underline" }}
-              >
-                ← Retour à l'accueil
-              </button>
             </div>
 
             {/* Demo Credentials Help Box */}
@@ -405,9 +430,6 @@ export default function Login({
               </button>
               <button type="button" className="btn btn-secondary" onClick={() => { setView("login"); setError(""); }}>
                 Retour à la connexion
-              </button>
-              <button type="button" className="btn btn-secondary" onClick={onBackToLanding}>
-                ← Accueil
               </button>
             </div>
           </form>
