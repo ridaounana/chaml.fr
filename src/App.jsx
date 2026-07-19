@@ -35,6 +35,9 @@ export default function App() {
 
     if (pay) {
       setPaymentStatus(pay);
+    } else if (localStorage.getItem("show_payment_success_toast") === "true") {
+      setPaymentStatus("success");
+      localStorage.removeItem("show_payment_success_toast");
     }
 
     if (isVerified === "true") {
@@ -65,10 +68,9 @@ export default function App() {
               if (pay === "success" && sessionId) {
                 verifyStripeSession(sessionId)
                   .then(() => {
-                    // Fetch fresh session state to reflect upgraded Premium status
-                    getMe().then(fresh => {
-                      if (fresh.user) setSession(fresh.user);
-                    });
+                    // Save toast display instruction in localStorage and reload page to sync all component states
+                    localStorage.setItem("show_payment_success_toast", "true");
+                    window.location.href = "/";
                   })
                   .catch(err => console.error("Stripe verify session error:", err));
               }

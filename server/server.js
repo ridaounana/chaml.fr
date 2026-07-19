@@ -319,7 +319,9 @@ app.post("/api/payment/create-checkout-session", authenticateUser, async (req, r
 // Verification route to check Stripe checkout session status and upgrade the couple
 app.post("/api/payment/verify-session", authenticateUser, async (req, res) => {
   const { sessionId } = req.body;
+  console.log(`🔍 Received verify-session request for session ID: ${sessionId} (User: ${req.user.email})`);
   if (!sessionId) {
+    console.warn("⚠️ verify-session aborted: Missing sessionId");
     return res.status(400).json({ error: "Missing sessionId parameter." });
   }
 
@@ -329,6 +331,7 @@ app.post("/api/payment/verify-session", authenticateUser, async (req, res) => {
 
     // Security validation: verify metadata coupleId matches the authenticated user's coupleId
     if (session.metadata?.coupleId !== req.user.coupleId) {
+      console.warn(`⚠️ verify-session unauthorized: Metadata coupleId (${session.metadata?.coupleId}) does not match request user coupleId (${req.user.coupleId})`);
       return res.status(403).json({ error: "Unauthorized session access." });
     }
 
@@ -336,8 +339,10 @@ app.post("/api/payment/verify-session", authenticateUser, async (req, res) => {
     if (session.payment_status === "paid" || session.status === "complete") {
       await query("UPDATE couples SET is_premium = true WHERE id = $1", [req.user.coupleId]);
       await logAction("Premium Upgraded Via Callback", `Couple ${req.user.coupleId} upgraded via checkout verification.`, req.user.email);
+      console.log(`✅ Success: Couple ${req.user.coupleId} upgraded to Premium via direct verification callback!`);
       return res.json({ success: true });
     } else {
+      console.warn(`⚠️ verify-session failed: Payment status is ${session.payment_status}, session status is ${session.status}`);
       return res.status(400).json({ error: "Le paiement n'a pas été complété." });
     }
   } catch (err) {
