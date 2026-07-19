@@ -402,7 +402,7 @@ app.get("/api/auth/google/callback", async (req, res) => {
   const redirectUri = `${clientUrl}/api/auth/google/callback`;
 
   if (!code) {
-    return res.redirect("/?error=missing_code");
+    return res.redirect(`${clientUrl}/?error=missing_code`);
   }
 
   try {
@@ -451,14 +451,14 @@ app.get("/api/auth/google/callback", async (req, res) => {
         maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
       });
 
-      return res.redirect("/");
+      return res.redirect(clientUrl);
     } else {
       // Redirect to registration page with Google pre-fills
-      return res.redirect(`/?google_register=true&email=${encodeURIComponent(email)}&firstName=${encodeURIComponent(firstName)}&lastName=${encodeURIComponent(lastName)}`);
+      return res.redirect(`${clientUrl}/?google_register=true&email=${encodeURIComponent(email)}&firstName=${encodeURIComponent(firstName)}&lastName=${encodeURIComponent(lastName)}`);
     }
   } catch (err) {
     console.error("❌ Google OAuth Error:", err.message);
-    res.redirect(`/?error=${encodeURIComponent(err.message)}`);
+    res.redirect(`${clientUrl}/?error=${encodeURIComponent(err.message)}`);
   }
 });
 
@@ -838,8 +838,8 @@ app.get("/api/auth/verify-email", async (req, res) => {
     // Set both email verified and approved automatically upon email confirmation
     await query("UPDATE users SET is_email_verified = true, is_approved = true WHERE couple_id = $1", [coupleId]);
     await query("UPDATE couples SET is_approved = true WHERE id = $1", [coupleId]);
-    await logAction("Email Verified", `Verified email and activated account via link click for couple: ${coupleId}`, "System");
-    res.redirect("/?verified=true");
+    const clientUrl = process.env.CLIENT_URL || "https://chaml.fr";
+    res.redirect(`${clientUrl}/?verified=true`);
   } catch (err) {
     res.status(500).send("Erreur lors de la validation de l'e-mail: " + err.message);
   }
