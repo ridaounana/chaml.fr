@@ -157,6 +157,148 @@ export default function Landing({ lang, onNavigate }) {
   const [showLegalModal, setShowLegalModal] = useState(false);
   const [activeFaq, setActiveFaq] = useState(null);
 
+  // Previews States
+  const [previewTab, setPreviewTab] = useState("simulator"); // "simulator" | "checklist"
+  const [simFamilySize, setSimFamilySize] = useState(2);
+  const [simIncome, setSimIncome] = useState(1800);
+  const [simSurface, setSimSurface] = useState(25);
+  const [simZone, setSimZone] = useState("A");
+  const [chkSponsorStatus, setChkSponsorStatus] = useState("employee");
+  const [chkFamilyComposition, setChkFamilyComposition] = useState("spouse_only");
+
+  const previewText = {
+    fr: {
+      section_title: "⚡ Testez votre éligibilité en direct",
+      section_subtitle: "Simulez vos critères financiers et de logement sans créer de compte.",
+      tab_sim: "📊 Simulateur Express",
+      tab_chk: "📝 Check-list Express",
+      fam_size: "Taille de la famille (rejoignante) :",
+      fam_desc: "Vous + conjoint + enfants",
+      people: "personnes",
+      income: "Revenus nets mensuels moyens :",
+      surface: "Surface habitable du logement :",
+      zone: "Zone géographique du logement :",
+      zone_a: "Zone A (Paris, grande couronne, Côte d'Azur...)",
+      zone_b: "Zone B (Villes de +150 000 hab., grande couronne...)",
+      zone_c: "Zone C (Reste du territoire français)",
+      req_income: "Revenu net exigé (SMIC pondéré) :",
+      req_surface: "Surface minimale requise :",
+      income_ok: "Revenus conformes",
+      income_nok: "Revenus insuffisants",
+      surface_ok: "Surface conforme",
+      surface_nok: "Surface insuffisante",
+      compliance_score: "Score de conformité du dossier :",
+      cta_save: "🚀 Sauvegarder ce dossier & m'inscrire",
+      chk_sponsor: "Activité du demandeur (en France) :",
+      chk_family: "Composition de la famille rejoignante :",
+      chk_emp: "Salarié (CDI, CDD)",
+      chk_ind: "Indépendant (Libéral, Kbis)",
+      chk_ret: "Autre / Retraité / Inactif",
+      chk_spouse: "Conjoint(e) uniquement",
+      chk_kids: "Conjoint(e) + Enfant(s)",
+      chk_title: "Votre liste de pièces justificatives personnalisée :",
+      chk_disclaimer: "Cette liste est fournie à titre indicatif selon les critères officiels de l'OFII. Créez un compte pour téléverser et chiffrer vos fichiers."
+    },
+    ar: {
+      section_title: "⚡ اختبروا مطابقة ملفكم مباشرة",
+      section_subtitle: "قوموا بمحاكاة شروط الدخل والسكن مجاناً وبدون تسجيل.",
+      tab_sim: "📊 محاكي إكسبريس",
+      tab_chk: "📝 قائمة الوثائق إكسبريس",
+      fam_size: "عدد أفراد الأسرة (الملتحقين):",
+      fam_desc: "أنت + الزوج + الأطفال",
+      people: "أفراد",
+      income: "متوسط الدخل الشهري الصافي:",
+      surface: "المساحة الإجمالية للسكن:",
+      zone: "المنطقة الجغرافية للسكن:",
+      zone_a: "المنطقة أ (باريس وضواحيها، الكوت دازور...)",
+      zone_b: "المنطقة ب (المدن الكبرى +150 ألف نسمة...)",
+      zone_c: "المنطقة ج (باقي الأراضي الفرنسية)",
+      req_income: "الدخل الصافي المطلوب (الحد الأدنى):",
+      req_surface: "المساحة الدنيا المطلوبة:",
+      income_ok: "الدخل مطابق للشروط",
+      income_nok: "الدخل غير كافٍ",
+      surface_ok: "المساحة مطابقة للشروط",
+      surface_nok: "المساحة غير كافية",
+      compliance_score: "نسبة مطابقة ملفكم:",
+      cta_save: "🚀 حفظ هذا الملف وإنشاء حسابي",
+      chk_sponsor: "نشاط مقدم الطلب (في فرنسا):",
+      chk_family: "تركيبة الأسرة الملتحقة:",
+      chk_emp: "موظف (عقد عمل)",
+      chk_ind: "عمل حر (شركة، تاجر)",
+      chk_ret: "أخرى / متقاعد / غير نشط",
+      chk_spouse: "الزوج/الزوجة فقط",
+      chk_kids: "الزوج/الزوجة + الأطفال",
+      chk_title: "قائمة المستندات والوثائق الخاصة بكم:",
+      chk_disclaimer: "هذه القائمة استرشادية بناءً على معايير مكتب الهجرة (OFII). أنشئوا حساباً لتحميل وتشفير ملفاتكم."
+    },
+    en: {
+      section_title: "⚡ Test Your Eligibility Instantly",
+      section_subtitle: "Simulate income and housing requirements without creating an account.",
+      tab_sim: "📊 Express Simulator",
+      tab_chk: "📝 Express Checklist",
+      fam_size: "Family size (joining):",
+      fam_desc: "You + spouse + children",
+      people: "people",
+      income: "Average net monthly income:",
+      surface: "Habitable surface area:",
+      zone: "Geographical zone of housing:",
+      zone_a: "Zone A (Paris, major cities, Côte d'Azur...)",
+      zone_b: "Zone B (Cities with +150k population...)",
+      zone_c: "Zone C (Rest of France)",
+      req_income: "Required net income (SMIC ratio):",
+      req_surface: "Minimum surface required:",
+      income_ok: "Income compliant",
+      income_nok: "Income insufficient",
+      surface_ok: "Surface compliant",
+      surface_nok: "Surface insufficient",
+      compliance_score: "Application compliance score:",
+      cta_save: "🚀 Save this file & register",
+      chk_sponsor: "Sponsor's activity (in France):",
+      chk_family: "Joining family composition:",
+      chk_emp: "Employee (Contracted)",
+      chk_ind: "Self-employed (Business, Kbis)",
+      chk_ret: "Other / Retired / Unemployed",
+      chk_spouse: "Spouse only",
+      chk_kids: "Spouse + Child(ren)",
+      chk_title: "Your personalized document checklist:",
+      chk_disclaimer: "This list is indicative based on official OFII criteria. Create an account to upload and encrypt your files."
+    }
+  };
+
+  // Calculations for Previews
+  const previewTextLocale = previewText[lang] || previewText.fr;
+  const smicVal = 1823;
+  let baseSurf = 28;
+  if (simZone === "A") baseSurf = 22;
+  else if (simZone === "B") baseSurf = 24;
+
+  let reqSurf = baseSurf;
+  const extraPeopleCount = simFamilySize - 2;
+  if (extraPeopleCount > 0) {
+    if (simFamilySize <= 8) {
+      reqSurf += extraPeopleCount * 10;
+    } else {
+      reqSurf += 60 + (simFamilySize - 8) * 5;
+    }
+  }
+
+  let salMult = 1.0;
+  if (simFamilySize >= 4 && simFamilySize <= 5) salMult = 1.1;
+  else if (simFamilySize >= 6) salMult = 1.2;
+
+  const reqInc = Math.round(smicVal * salMult);
+  const isIncCompliant = simIncome >= reqInc;
+  const isSurfCompliant = simSurface >= reqSurf;
+  const incPercent = Math.min(100, Math.round((simIncome / reqInc) * 100));
+  const surfPercent = Math.min(100, Math.round((simSurface / reqSurf) * 100));
+  const compliancePercent = Math.round((incPercent + surfPercent) / 2);
+
+  const handleSaveAndRegister = () => {
+    localStorage.setItem("prefill_surface", simSurface.toString());
+    localStorage.setItem("prefill_zone", simZone);
+    onNavigate("register");
+  };
+
   const faqItems = {
     fr: [
       {
@@ -295,6 +437,369 @@ export default function Landing({ lang, onNavigate }) {
           />
         </div>
       </header>
+
+      {/* ⚡ Dynamic Onboarding Previews (Concept 1 & 2) */}
+      <section style={{
+        background: "rgba(255, 255, 255, 0.01)",
+        border: "1px solid var(--border-card)",
+        borderRadius: "1.25rem",
+        padding: "2.5rem",
+        marginBottom: "4rem",
+        position: "relative",
+        boxShadow: "0 15px 30px -10px rgba(0, 0, 0, 0.2)"
+      }}>
+        <div style={{ textAlign: "center", marginBottom: "2rem" }}>
+          <h2 style={{ fontSize: "1.8rem", fontWeight: "800", color: "var(--text-main)", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}>
+            {previewTextLocale.section_title}
+          </h2>
+          <p style={{ color: "var(--text-muted)", fontSize: "0.95rem", marginTop: "0.5rem" }}>
+            {previewTextLocale.section_subtitle}
+          </p>
+        </div>
+
+        {/* Tabs selector */}
+        <div style={{
+          display: "flex",
+          justifyContent: "center",
+          gap: "1rem",
+          marginBottom: "2.5rem"
+        }}>
+          <button
+            onClick={() => setPreviewTab("simulator")}
+            className={`btn ${previewTab === "simulator" ? "btn-primary" : "btn-secondary"}`}
+            style={{ padding: "0.6rem 1.5rem", borderRadius: "2rem", display: "flex", alignItems: "center", gap: "0.35rem", fontSize: "0.95rem", fontWeight: "bold" }}
+          >
+            {previewTextLocale.tab_sim}
+          </button>
+          <button
+            onClick={() => setPreviewTab("checklist")}
+            className={`btn ${previewTab === "checklist" ? "btn-primary" : "btn-secondary"}`}
+            style={{ padding: "0.6rem 1.5rem", borderRadius: "2rem", display: "flex", alignItems: "center", gap: "0.35rem", fontSize: "0.95rem", fontWeight: "bold" }}
+          >
+            {previewTextLocale.tab_chk}
+          </button>
+        </div>
+
+        {previewTab === "simulator" ? (
+          /* Concept 1: Express Simulator */
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+            gap: "2.5rem"
+          }}>
+            
+            {/* Left Inputs column */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+              
+              <div className="form-group">
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+                  <label className="form-label" style={{ fontWeight: "bold" }}>{previewTextLocale.fam_size}</label>
+                  <span style={{ color: "var(--primary)", fontWeight: "bold" }}>{simFamilySize} {previewTextLocale.people}</span>
+                </div>
+                <input 
+                  type="range" 
+                  min="2" 
+                  max="10" 
+                  value={simFamilySize} 
+                  onChange={e => setSimFamilySize(Number(e.target.value))} 
+                  style={{ width: "100%", accentColor: "var(--primary)", height: "6px", borderRadius: "3px", cursor: "pointer" }}
+                />
+                <span style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginTop: "0.25rem", display: "block" }}>
+                  {previewTextLocale.fam_desc}
+                </span>
+              </div>
+
+              <div className="form-group">
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+                  <label className="form-label" style={{ fontWeight: "bold" }}>{previewTextLocale.income}</label>
+                  <span style={{ color: "var(--primary)", fontWeight: "bold" }}>{simIncome} € / mois</span>
+                </div>
+                <input 
+                  type="range" 
+                  min="1000" 
+                  max="4000" 
+                  step="50"
+                  value={simIncome} 
+                  onChange={e => setSimIncome(Number(e.target.value))} 
+                  style={{ width: "100%", accentColor: "var(--primary)", height: "6px", borderRadius: "3px", cursor: "pointer" }}
+                />
+              </div>
+
+              <div className="form-group">
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+                  <label className="form-label" style={{ fontWeight: "bold" }}>{previewTextLocale.surface}</label>
+                  <span style={{ color: "var(--primary)", fontWeight: "bold" }}>{simSurface} m²</span>
+                </div>
+                <input 
+                  type="range" 
+                  min="15" 
+                  max="100" 
+                  value={simSurface} 
+                  onChange={e => setSimSurface(Number(e.target.value))} 
+                  style={{ width: "100%", accentColor: "var(--primary)", height: "6px", borderRadius: "3px", cursor: "pointer" }}
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label" style={{ fontWeight: "bold", marginBottom: "0.5rem" }}>{previewTextLocale.zone}</label>
+                <select 
+                  className="select-dropdown" 
+                  style={{ width: "100%", padding: "0.75rem", borderRadius: "0.5rem" }} 
+                  value={simZone} 
+                  onChange={e => setSimZone(e.target.value)}
+                >
+                  <option value="A">{previewTextLocale.zone_a}</option>
+                  <option value="B">{previewTextLocale.zone_b}</option>
+                  <option value="C">{previewTextLocale.zone_c}</option>
+                </select>
+              </div>
+
+            </div>
+
+            {/* Right Outcomes column */}
+            <div style={{
+              background: "rgba(var(--primary-rgb), 0.02)",
+              border: "1px solid var(--border-card)",
+              borderRadius: "1rem",
+              padding: "2rem",
+              display: "flex",
+              flexDirection: "column",
+              gap: "1.5rem",
+              justifyContent: "space-between"
+            }}>
+              
+              <div>
+                <h3 style={{ fontSize: "1.1rem", fontWeight: "bold", borderBottom: "1px solid var(--border-card)", paddingBottom: "0.5rem", marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.35rem" }}>
+                  📊 Diagnostic de conformité
+                </h3>
+
+                {/* Score */}
+                <div style={{ marginBottom: "1.5rem" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.35rem", fontSize: "0.85rem", fontWeight: "bold" }}>
+                    <span>{previewTextLocale.compliance_score}</span>
+                    <span style={{ color: compliancePercent >= 100 ? "#10b981" : compliancePercent >= 75 ? "#f59e0b" : "#ef4444" }}>{compliancePercent}%</span>
+                  </div>
+                  <div style={{ width: "100%", height: "8px", background: "rgba(148, 163, 184, 0.15)", borderRadius: "4px", overflow: "hidden" }}>
+                    <div style={{ 
+                      width: `${compliancePercent}%`, 
+                      height: "100%", 
+                      background: compliancePercent >= 100 ? "linear-gradient(90deg, #10b981 0%, #059669 100%)" : compliancePercent >= 75 ? "linear-gradient(90deg, #f59e0b 0%, #d97706 100%)" : "linear-gradient(90deg, #ef4444 0%, #dc2626 100%)",
+                      transition: "width 0.3s ease"
+                    }}></div>
+                  </div>
+                </div>
+
+                {/* Criteria results */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                  
+                  {/* Income */}
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "var(--bg-app)", padding: "0.75rem 1rem", borderRadius: "0.5rem", borderLeft: isIncCompliant ? "4px solid #10b981" : "4px solid #ef4444" }}>
+                    <div>
+                      <span style={{ fontSize: "0.8rem", color: "var(--text-muted)", display: "block" }}>{previewTextLocale.req_income}</span>
+                      <strong style={{ fontSize: "0.95rem" }}>{reqInc} € / mois</strong>
+                    </div>
+                    <span className={`badge ${isIncCompliant ? "badge-approved" : "badge-rejected"}`} style={{ fontSize: "0.8rem" }}>
+                      {isIncCompliant ? `✓ ${previewTextLocale.income_ok}` : `✗ ${previewTextLocale.income_nok}`}
+                    </span>
+                  </div>
+
+                  {/* Surface */}
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "var(--bg-app)", padding: "0.75rem 1rem", borderRadius: "0.5rem", borderLeft: isSurfCompliant ? "4px solid #10b981" : "4px solid #ef4444" }}>
+                    <div>
+                      <span style={{ fontSize: "0.8rem", color: "var(--text-muted)", display: "block" }}>{previewTextLocale.req_surface}</span>
+                      <strong style={{ fontSize: "0.95rem" }}>{reqSurf} m² (Zone {simZone})</strong>
+                    </div>
+                    <span className={`badge ${isSurfCompliant ? "badge-approved" : "badge-rejected"}`} style={{ fontSize: "0.8rem" }}>
+                      {isSurfCompliant ? `✓ ${previewTextLocale.surface_ok}` : `✗ ${previewTextLocale.surface_nok}`}
+                    </span>
+                  </div>
+
+                </div>
+              </div>
+
+              {/* Save CTA */}
+              <button 
+                onClick={handleSaveAndRegister}
+                className="btn btn-primary"
+                style={{ width: "100%", padding: "0.9rem", fontWeight: "bold", fontSize: "0.95rem", marginTop: "1rem" }}
+              >
+                {previewTextLocale.cta_save}
+              </button>
+
+            </div>
+
+          </div>
+        ) : (
+          /* Concept 2: Express Checklist */
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+            gap: "2.5rem"
+          }}>
+            
+            {/* Left Inputs Column */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+              
+              <div className="form-group">
+                <label className="form-label" style={{ fontWeight: "bold", marginBottom: "0.5rem" }}>{previewTextLocale.chk_sponsor}</label>
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                  <button 
+                    onClick={() => setChkSponsorStatus("employee")}
+                    className={`btn ${chkSponsorStatus === "employee" ? "btn-primary" : "btn-secondary"}`}
+                    style={{ padding: "0.7rem", textAlign: "left", fontSize: "0.88rem" }}
+                  >
+                    💼 {previewTextLocale.chk_emp}
+                  </button>
+                  <button 
+                    onClick={() => setChkSponsorStatus("independent")}
+                    className={`btn ${chkSponsorStatus === "independent" ? "btn-primary" : "btn-secondary"}`}
+                    style={{ padding: "0.7rem", textAlign: "left", fontSize: "0.88rem" }}
+                  >
+                    🎨 {previewTextLocale.chk_ind}
+                  </button>
+                  <button 
+                    onClick={() => setChkSponsorStatus("retired")}
+                    className={`btn ${chkSponsorStatus === "retired" ? "btn-primary" : "btn-secondary"}`}
+                    style={{ padding: "0.7rem", textAlign: "left", fontSize: "0.88rem" }}
+                  >
+                    👴 {previewTextLocale.chk_ret}
+                  </button>
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label" style={{ fontWeight: "bold", marginBottom: "0.5rem" }}>{previewTextLocale.chk_family}</label>
+                <div style={{ display: "flex", gap: "0.75rem" }}>
+                  <button 
+                    onClick={() => setChkFamilyComposition("spouse_only")}
+                    className={`btn ${chkFamilyComposition === "spouse_only" ? "btn-primary" : "btn-secondary"}`}
+                    style={{ flex: 1, padding: "0.7rem", fontSize: "0.88rem" }}
+                  >
+                    ❤️ {previewTextLocale.chk_spouse}
+                  </button>
+                  <button 
+                    onClick={() => setChkFamilyComposition("spouse_and_children")}
+                    className={`btn ${chkFamilyComposition === "spouse_and_children" ? "btn-primary" : "btn-secondary"}`}
+                    style={{ flex: 1, padding: "0.7rem", fontSize: "0.88rem" }}
+                  >
+                    👨‍👩‍👧‍👦 {previewTextLocale.chk_kids}
+                  </button>
+                </div>
+              </div>
+
+            </div>
+
+            {/* Right Generated Checklist Column */}
+            <div style={{
+              background: "rgba(var(--primary-rgb), 0.02)",
+              border: "1px solid var(--border-card)",
+              borderRadius: "1rem",
+              padding: "2rem",
+              display: "flex",
+              flexDirection: "column",
+              gap: "1.5rem",
+              justifyContent: "space-between"
+            }}>
+              
+              <div>
+                <h3 style={{ fontSize: "1.1rem", fontWeight: "bold", borderBottom: "1px solid var(--border-card)", paddingBottom: "0.5rem", marginBottom: "1rem" }}>
+                  📋 {previewTextLocale.chk_title}
+                </h3>
+
+                <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+                  
+                  {/* Sponsor activity docs */}
+                  {chkSponsorStatus === "employee" && (
+                    <>
+                      <li style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.85rem", color: "var(--text-main)" }}>
+                        <span style={{ color: "#10b981" }}>✔</span> 12 derniers bulletins de paie (Sponsor)
+                      </li>
+                      <li style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.85rem", color: "var(--text-main)" }}>
+                        <span style={{ color: "#10b981" }}>✔</span> Contrat de travail (CDI / CDD long)
+                      </li>
+                      <li style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.85rem", color: "var(--text-main)" }}>
+                        <span style={{ color: "#10b981" }}>✔</span> Avis d'imposition sur le revenu
+                      </li>
+                    </>
+                  )}
+
+                  {chkSponsorStatus === "independent" && (
+                    <>
+                      <li style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.85rem", color: "var(--text-main)" }}>
+                        <span style={{ color: "#10b981" }}>✔</span> Justificatifs d'activité (Kbis, Inscription URSSAF)
+                      </li>
+                      <li style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.85rem", color: "var(--text-main)" }}>
+                        <span style={{ color: "#10b981" }}>✔</span> Deux derniers bilans comptables certifiés
+                      </li>
+                      <li style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.85rem", color: "var(--text-main)" }}>
+                        <span style={{ color: "#10b981" }}>✔</span> Avis d'imposition sur le revenu
+                      </li>
+                    </>
+                  )}
+
+                  {chkSponsorStatus === "retired" && (
+                    <>
+                      <li style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.85rem", color: "var(--text-main)" }}>
+                        <span style={{ color: "#10b981" }}>✔</span> Justificatifs de pension de retraite (12 derniers mois)
+                      </li>
+                      <li style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.85rem", color: "var(--text-main)" }}>
+                        <span style={{ color: "#10b981" }}>✔</span> Relevés bancaires attestant le versement
+                      </li>
+                      <li style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.85rem", color: "var(--text-main)" }}>
+                        <span style={{ color: "#10b981" }}>✔</span> Avis d'imposition sur le revenu
+                      </li>
+                    </>
+                  )}
+
+                  {/* Family composition docs */}
+                  <li style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.85rem", color: "var(--text-main)" }}>
+                    <span style={{ color: "#10b981" }}>✔</span> Acte de mariage traduit en français (Adoul)
+                  </li>
+                  <li style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.85rem", color: "var(--text-main)" }}>
+                    <span style={{ color: "#10b981" }}>✔</span> Passeport du conjoint (rejoignant)
+                  </li>
+
+                  {chkFamilyComposition === "spouse_and_children" && (
+                    <>
+                      <li style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.85rem", color: "var(--text-main)" }}>
+                        <span style={{ color: "#10b981" }}>✔</span> Acte de naissance traduit pour chaque enfant
+                      </li>
+                      <li style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.85rem", color: "var(--text-main)" }}>
+                        <span style={{ color: "#10b981" }}>✔</span> Carnet de vaccination / Certificat médical
+                      </li>
+                    </>
+                  )}
+
+                  {/* Housing docs */}
+                  <li style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.85rem", color: "var(--text-main)" }}>
+                    <span style={{ color: "#10b981" }}>✔</span> Bail de location + Quittance de loyer récente
+                  </li>
+                  <li style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.85rem", color: "var(--text-main)" }}>
+                    <span style={{ color: "#10b981" }}>✔</span> Facture d'électricité ou gaz (EDF / Engie)
+                  </li>
+
+                </ul>
+              </div>
+
+              {/* Disclaimer & CTA */}
+              <div>
+                <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", lineHeight: "1.4", margin: "0 0 1rem 0", marginTop: "1rem" }}>
+                  {previewTextLocale.chk_disclaimer}
+                </p>
+                <button 
+                  onClick={() => onNavigate("register")}
+                  className="btn btn-primary"
+                  style={{ width: "100%", padding: "0.9rem", fontWeight: "bold", fontSize: "0.95rem" }}
+                >
+                  🚀 {text.btn_start}
+                </button>
+              </div>
+
+            </div>
+
+          </div>
+        )}
+      </section>
 
       {/* Stats Board */}
       <section className="landing-stats-grid">

@@ -29,8 +29,16 @@ export default function Login({
   const [frPhone, setFrPhone] = useState("");
   const [frCity, setFrCity] = useState("");
   const [frDep, setFrDep] = useState("");
-  const [frZone, setFrZone] = useState("A");
-  const [frSurface, setFrSurface] = useState("30");
+  const [frZone, setFrZone] = useState(() => {
+    const val = localStorage.getItem("prefill_zone");
+    if (val) localStorage.removeItem("prefill_zone");
+    return val || "A";
+  });
+  const [frSurface, setFrSurface] = useState(() => {
+    const val = localStorage.getItem("prefill_surface");
+    if (val) localStorage.removeItem("prefill_surface");
+    return val || "30";
+  });
 
   // Address autocomplete state
   const [frAddress, setFrAddress] = useState("");
