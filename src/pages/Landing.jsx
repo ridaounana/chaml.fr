@@ -403,38 +403,171 @@ export default function Landing({ lang, onNavigate }) {
             <button 
               className="btn btn-primary" 
               onClick={() => onNavigate("register")}
-              style={{ padding: "0.9rem 1.8rem", fontSize: "1rem", fontWeight: "bold", boxShadow: "0 10px 20px -5px rgba(var(--primary-rgb), 0.3)" }}
+              style={{ 
+                padding: "0.9rem 1.8rem", 
+                fontSize: "1rem", 
+                fontWeight: "bold", 
+                minWidth: "220px", 
+                justifyContent: "center",
+                boxShadow: "0 10px 20px -5px rgba(var(--primary-rgb), 0.3)" 
+              }}
             >
               🚀 {text.btn_start}
             </button>
             <button 
               className="btn btn-secondary" 
               onClick={() => onNavigate("login")}
-              style={{ padding: "0.9rem 1.8rem", fontSize: "1rem", fontWeight: "bold" }}
+              style={{ 
+                padding: "0.9rem 1.8rem", 
+                fontSize: "1rem", 
+                fontWeight: "bold", 
+                minWidth: "220px", 
+                justifyContent: "center" 
+              }}
             >
               🔑 {text.btn_login}
             </button>
           </div>
         </div>
 
-        {/* Hero Image Section */}
+        {/* Localized HTML/CSS Dashboard Mockup Card (Replaces static images) */}
         <div style={{
           position: "relative",
           borderRadius: "1rem",
           overflow: "hidden",
           border: "1px solid var(--border-card)",
           boxShadow: "0 20px 40px -15px rgba(0, 0, 0, 0.25)",
-          aspectRatio: "16/10"
+          aspectRatio: "16/10",
+          background: "#0f172a",
+          padding: "1.5rem",
+          color: "#f8fafc",
+          display: "flex",
+          flexDirection: "column",
+          gap: "1rem",
+          fontFamily: "var(--font-main)"
         }}>
-          <img 
-            src={lang === "ar" ? "/hero-ar.jpg" : lang === "en" ? "/hero-en.jpg" : "/hero-fr.jpg"} 
-            alt="Family Reunion Chaml" 
-            style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "cover"
-            }}
-          />
+          {/* Mockup Header */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(255,255,255,0.08)", paddingBottom: "0.75rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <span style={{ fontSize: "1.2rem" }}>📁</span>
+              <div>
+                <strong style={{ fontSize: "0.95rem", display: "block" }}>
+                  {lang === "ar" ? "ملف لم الشمل العائلي" : lang === "en" ? "Family Reunification File" : "Dossier de Regroupement Familial"}
+                </strong>
+                <span style={{ fontSize: "0.7rem", color: "#94a3b8" }}>
+                  {lang === "ar" ? "مساحة مشتركة لجمع المستندات" : lang === "en" ? "Shared space for supporting documents" : "Espace partagé pour rassembler vos pièces"}
+                </span>
+              </div>
+            </div>
+            <span style={{ 
+              fontSize: "0.75rem", 
+              padding: "0.25rem 0.5rem", 
+              borderRadius: "0.25rem", 
+              background: "rgba(16, 185, 129, 0.15)", 
+              color: "#10b981",
+              fontWeight: "bold"
+            }}>
+              ● Live Sync
+            </span>
+          </div>
+
+          {/* E2EE Info Alert */}
+          <div style={{
+            background: "rgba(13, 148, 136, 0.08)",
+            border: "1px solid rgba(13, 148, 136, 0.2)",
+            borderRadius: "0.5rem",
+            padding: "0.75rem 1rem",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.75rem"
+          }}>
+            <span style={{ fontSize: "1.2rem" }}>🔒</span>
+            <div>
+              <strong style={{ fontSize: "0.85rem", color: "#0d9488", display: "block" }}>
+                {lang === "ar" ? "التشفير التام (E2EE) مفعل" : lang === "en" ? "End-to-End Encryption Active" : "Chiffrement de bout en bout activé"}
+              </strong>
+              <p style={{ fontSize: "0.7rem", color: "#94a3b8", margin: 0 }}>
+                {lang === "ar" ? "مستنداتكم مشفرة في المتصفح قبل الإرسال." : lang === "en" ? "Your documents are encrypted locally before uploading." : "Vos documents sont cryptés localement avant téléversement."}
+              </p>
+            </div>
+          </div>
+
+          {/* Document list */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+            <span style={{ fontSize: "0.75rem", fontWeight: "bold", color: "#64748b", textTransform: "uppercase" }}>
+              {lang === "ar" ? "الوثائق المطلوبة (فرنسا)" : lang === "en" ? "Required Documents (France)" : "Partie Demandeur (En France)"}
+            </span>
+
+            {/* Item 1 */}
+            <div style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              background: "rgba(255, 255, 255, 0.03)",
+              border: "1px solid rgba(255, 255, 255, 0.05)",
+              borderRadius: "0.5rem",
+              padding: "0.6rem 0.85rem"
+            }}>
+              <span style={{ fontSize: "0.8rem", color: "#cbd5e1" }}>
+                {lang === "ar" ? "نسخة من بطاقة الإقامة" : lang === "en" ? "Valid Residence Permit" : "Titre de séjour en cours de validité"}
+              </span>
+              <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+                <span style={{ fontSize: "0.7rem", color: "#f59e0b", background: "rgba(245, 158, 11, 0.15)", padding: "0.2rem 0.5rem", borderRadius: "0.25rem", fontWeight: "bold" }}>
+                  {lang === "ar" ? "في الانتظار" : lang === "en" ? "PENDING" : "EN ATTENTE"}
+                </span>
+                <span style={{ fontSize: "0.7rem", background: "#0284c7", padding: "0.25rem 0.5rem", borderRadius: "0.25rem", color: "white" }}>
+                  {lang === "ar" ? "تحميل" : lang === "en" ? "Upload" : "Télécharger"}
+                </span>
+              </div>
+            </div>
+
+            {/* Item 2 */}
+            <div style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              background: "rgba(255, 255, 255, 0.03)",
+              border: "1px solid rgba(255, 255, 255, 0.05)",
+              borderRadius: "0.5rem",
+              padding: "0.6rem 0.85rem"
+            }}>
+              <span style={{ fontSize: "0.8rem", color: "#cbd5e1" }}>
+                {lang === "ar" ? "استمارة CERFA الرسمية" : lang === "en" ? "Official CERFA Form" : "Formulaire officiel CERFA n°11436"}
+              </span>
+              <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+                <span style={{ fontSize: "0.7rem", color: "#f59e0b", background: "rgba(245, 158, 11, 0.15)", padding: "0.2rem 0.5rem", borderRadius: "0.25rem", fontWeight: "bold" }}>
+                  {lang === "ar" ? "في الانتظار" : lang === "en" ? "PENDING" : "EN ATTENTE"}
+                </span>
+                <span style={{ fontSize: "0.7rem", background: "#0284c7", padding: "0.25rem 0.5rem", borderRadius: "0.25rem", color: "white" }}>
+                  {lang === "ar" ? "تحميل" : lang === "en" ? "Upload" : "Télécharger"}
+                </span>
+              </div>
+            </div>
+
+            {/* Item 3 */}
+            <div style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              background: "rgba(255, 255, 255, 0.03)",
+              border: "1px solid rgba(255, 255, 255, 0.05)",
+              borderRadius: "0.5rem",
+              padding: "0.6rem 0.85rem"
+            }}>
+              <span style={{ fontSize: "0.8rem", color: "#cbd5e1" }}>
+                {lang === "ar" ? "12 كشف راتب الأخير" : lang === "en" ? "Last 12 Pay Slips" : "12 derniers bulletins de salaire"}
+              </span>
+              <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+                <span style={{ fontSize: "0.7rem", color: "#f59e0b", background: "rgba(245, 158, 11, 0.15)", padding: "0.2rem 0.5rem", borderRadius: "0.25rem", fontWeight: "bold" }}>
+                  {lang === "ar" ? "في الانتظار" : lang === "en" ? "PENDING" : "EN ATTENTE"}
+                </span>
+                <span style={{ fontSize: "0.7rem", background: "#0284c7", padding: "0.25rem 0.5rem", borderRadius: "0.25rem", color: "white" }}>
+                  {lang === "ar" ? "تحميل" : lang === "en" ? "Upload" : "Télécharger"}
+                </span>
+              </div>
+            </div>
+
+          </div>
         </div>
       </header>
 
