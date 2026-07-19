@@ -46,6 +46,18 @@ export const verifyEmail = (coupleId) =>
     body: { coupleId }
   });
 
+export const forgotPassword = (email) =>
+  request("/api/auth/forgot-password", {
+    method: "POST",
+    body: { email }
+  });
+
+export const resetPassword = (token, newPassword) =>
+  request("/api/auth/reset-password", {
+    method: "POST",
+    body: { token, newPassword }
+  });
+
 // 2. Client Dossier Services
 export const getDossier = () => request("/api/dossier");
 

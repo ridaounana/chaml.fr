@@ -18,6 +18,7 @@ export default function App() {
   const [authView, setAuthView] = useState("landing"); // "landing" | "login" | "register"
   const [paymentStatus, setPaymentStatus] = useState(null);
   const [emailVerifiedAlert, setEmailVerifiedAlert] = useState(false);
+  const [resetToken, setResetToken] = useState("");
 
   // Load Configuration and Session from API on mount
   useEffect(() => {
@@ -32,6 +33,12 @@ export default function App() {
     const sessionId = params.get("session_id");
     const isVerified = params.get("verified");
     const googleRegister = params.get("google_register");
+    const authViewParam = params.get("auth_view");
+    const tokenParam = params.get("token");
+
+    if (tokenParam) {
+      setResetToken(tokenParam);
+    }
 
     if (pay) {
       setPaymentStatus(pay);
@@ -81,6 +88,8 @@ export default function App() {
               setAuthView("login");
             } else if (googleRegister === "true") {
               setAuthView("register");
+            } else if (authViewParam === "reset_password") {
+              setAuthView("reset_password");
             }
           }
         })
@@ -90,11 +99,13 @@ export default function App() {
             setAuthView("login");
           } else if (googleRegister === "true") {
             setAuthView("register");
+          } else if (authViewParam === "reset_password") {
+            setAuthView("reset_password");
           }
         })
         .finally(() => {
-          if (pay || isVerified || googleRegister) {
-            // Clean URL parameters so they are removed from the browser bar (managed inside Login.jsx for Google register)
+          if (pay || isVerified || googleRegister || authViewParam) {
+            // Clean URL parameters so they are removed from the browser bar
             if (!googleRegister) {
               window.history.replaceState({}, document.title, window.location.pathname);
             }
@@ -280,6 +291,7 @@ export default function App() {
               onLoginSuccess={handleLogin} 
               config={config} 
               initialView={authView}
+              resetToken={resetToken}
               onBackToLanding={() => setAuthView("landing")}
             />
           )}

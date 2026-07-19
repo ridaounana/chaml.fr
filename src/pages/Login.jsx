@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { getTranslation } from "../utils/i18n";
-import { loginUser, registerApplicant, verifyEmail, acceptInvite } from "../utils/api";
+import { loginUser, registerApplicant, verifyEmail, acceptInvite, forgotPassword, resetPassword } from "../utils/api";
 import { FranceFlag, MoroccoFlag } from "../components/Flag";
 import { searchAddress, getZoneFromPostcode } from "../utils/address";
 
@@ -9,6 +9,7 @@ export default function Login({
   onLoginSuccess, 
   config,
   initialView = "login",
+  resetToken,
   onBackToLanding
 }) {
   const [view, setView] = useState(initialView); // 'login' | 'register' | 'unverified' | 'unapproved' | 'accept_invite'
@@ -19,6 +20,24 @@ export default function Login({
   // Accept Invitation State
   const [invitePassword, setInvitePassword] = useState("");
   const [inviteSuccess, setInviteSuccess] = useState("");
+
+  // Forgot Password State
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotSuccess, setForgotSuccess] = useState("");
+  const [forgotLoading, setForgotLoading] = useState(false);
+
+  // Reset Password State
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
+  const [resetSuccess, setResetSuccess] = useState("");
+  const [resetLoading, setResetLoading] = useState(false);
+
+  // Sync initialView updates
+  useEffect(() => {
+    if (initialView) {
+      setView(initialView);
+    }
+  }, [initialView]);
 
   // Registration Form State
   const [isGoogleSignup, setIsGoogleSignup] = useState(false);
@@ -132,6 +151,49 @@ export default function Login({
         } else {
           setError(getTranslation(lang, "login_error"));
         }
+      });
+  };
+
+  const handleForgotPassword = (e) => {
+    e.preventDefault();
+    setError("");
+    setForgotSuccess("");
+    setForgotLoading(true);
+
+    forgotPassword(forgotEmail)
+      .then(res => {
+        setForgotSuccess(res.message || "Un e-mail de réinitialisation a été envoyé avec succès.");
+      })
+      .catch(err => {
+        setError(err.message || "Erreur lors de la demande de réinitialisation.");
+      })
+      .finally(() => {
+        setForgotLoading(false);
+      });
+  };
+
+  const handleResetPassword = (e) => {
+    e.preventDefault();
+    setError("");
+    setResetSuccess("");
+
+    if (newPassword !== confirmNewPassword) {
+      setError("Les mots de passe ne correspondent pas.");
+      return;
+    }
+
+    setResetLoading(true);
+    resetPassword(resetToken, newPassword)
+      .then(res => {
+        setResetSuccess(res.message || "Votre mot de passe a été réinitialisé.");
+        setNewPassword("");
+        setConfirmNewPassword("");
+      })
+      .catch(err => {
+        setError(err.message || "Erreur lors de la réinitialisation.");
+      })
+      .finally(() => {
+        setResetLoading(false);
       });
   };
 
@@ -301,7 +363,16 @@ export default function Login({
               </div>
 
               <div className="form-group">
-                <label className="form-label">{getTranslation(lang, "password_label")}</label>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <label className="form-label">{getTranslation(lang, "password_label")}</label>
+                  <button 
+                    type="button" 
+                    onClick={() => { setView("forgot_password"); setError(""); }} 
+                    style={{ background: "none", border: "none", color: "var(--primary)", fontSize: "0.8rem", cursor: "pointer", textDecoration: "underline", padding: 0 }}
+                  >
+                    {lang === "ar" ? "نسيت كلمة المرور؟" : lang === "en" ? "Forgot password?" : "Mot de passe oublié ?"}
+                  </button>
+                </div>
                 <input
                   className="input-field"
                   type="password"
@@ -618,6 +689,117 @@ export default function Login({
             >
               Retour à la connexion
             </button>
+          </div>
+        )}
+
+        {view === "forgot_password" && (
+          <div className="fade-in">
+            <h2 style={{ fontSize: "1.3rem", marginBottom: "0.5rem" }}>
+              {lang === "ar" ? "نسيت كلمة المرور" : lang === "en" ? "Forgot Password" : "Mot de passe oublié"}
+            </h2>
+            <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", marginBottom: "1.5rem" }}>
+              {lang === "ar" 
+                ? "أدخل بريدك الإلكتروني وسنرسل لك رابطًا لإعادة تعيين كلمة المرور." 
+                : lang === "en" 
+                ? "Enter your email address and we will send you a password reset link." 
+                : "Saisissez votre adresse email et nous vous enverrons un lien de réinitialisation."}
+            </p>
+
+            {forgotSuccess && (
+              <div className="badge badge-approved" style={{ width: "100%", padding: "0.75rem", marginBottom: "1.25rem", display: "block", textAlign: "center" }}>
+                {forgotSuccess}
+              </div>
+            )}
+
+            <form onSubmit={handleForgotPassword} style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+              <div className="form-group">
+                <label className="form-label">{getTranslation(lang, "email_label")}</label>
+                <input
+                  className="input-field"
+                  type="email"
+                  required
+                  placeholder="anass@chaml.fr"
+                  value={forgotEmail}
+                  onChange={(e) => setForgotEmail(e.target.value)}
+                />
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", marginTop: "0.5rem" }}>
+                <button type="submit" className="btn btn-primary" style={{ width: "100%", padding: "0.8rem" }} disabled={forgotLoading}>
+                  {forgotLoading ? "..." : lang === "ar" ? "إرسال الرابط" : lang === "en" ? "Send Reset Link" : "Envoyer le lien"}
+                </button>
+                <button type="button" className="btn btn-secondary" style={{ width: "100%", padding: "0.8rem" }} onClick={() => { setView("login"); setError(""); setForgotSuccess(""); }}>
+                  {lang === "ar" ? "رجوع" : lang === "en" ? "Back" : "Retour"}
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
+        {view === "reset_password" && (
+          <div className="fade-in">
+            <h2 style={{ fontSize: "1.3rem", marginBottom: "0.5rem" }}>
+              {lang === "ar" ? "تعيين كلمة مرور جديدة" : lang === "en" ? "Reset Password" : "Réinitialisation du mot de passe"}
+            </h2>
+            <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", marginBottom: "1.5rem" }}>
+              {lang === "ar" 
+                ? "الرجاء إدخال كلمة المرور الجديدة وتأكيدها." 
+                : lang === "en" 
+                ? "Please enter your new password." 
+                : "Veuillez saisir et confirmer votre nouveau mot de passe."}
+            </p>
+
+            {resetSuccess && (
+              <div style={{ textAlign: "center" }}>
+                <div className="badge badge-approved" style={{ width: "100%", padding: "0.75rem", marginBottom: "1.25rem", display: "block" }}>
+                  {resetSuccess}
+                </div>
+                <button type="button" className="btn btn-primary" style={{ width: "100%", padding: "0.8rem" }} onClick={() => { setView("login"); setError(""); setResetSuccess(""); }}>
+                  {lang === "ar" ? "تسجيل الدخول" : lang === "en" ? "Go to Login" : "Se connecter"}
+                </button>
+              </div>
+            )}
+
+            {!resetSuccess && (
+              <form onSubmit={handleResetPassword} style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+                <div className="form-group">
+                  <label className="form-label">
+                    {lang === "ar" ? "كلمة المرور الجديدة" : lang === "en" ? "New Password" : "Nouveau mot de passe"}
+                  </label>
+                  <input
+                    className="input-field"
+                    type="password"
+                    required
+                    placeholder="••••••••"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">
+                    {lang === "ar" ? "تأكيد كلمة المرور" : lang === "en" ? "Confirm Password" : "Confirmer le mot de passe"}
+                  </label>
+                  <input
+                    className="input-field"
+                    type="password"
+                    required
+                    placeholder="••••••••"
+                    value={confirmNewPassword}
+                    onChange={(e) => setConfirmNewPassword(e.target.value)}
+                  />
+                </div>
+
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", marginTop: "0.5rem" }}>
+                  <button type="submit" className="btn btn-primary" style={{ width: "100%", padding: "0.8rem" }} disabled={resetLoading}>
+                    {resetLoading ? "..." : lang === "ar" ? "تحديث كلمة المرور" : lang === "en" ? "Update Password" : "Mettre à jour le mot de passe"}
+                  </button>
+                  <button type="button" className="btn btn-secondary" style={{ width: "100%", padding: "0.8rem" }} onClick={() => { setView("login"); setError(""); }}>
+                    {lang === "ar" ? "إلغاء" : lang === "en" ? "Cancel" : "Annuler"}
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
         )}
 

@@ -47,6 +47,8 @@ CREATE TABLE IF NOT EXISTS users (
   is_frozen BOOLEAN DEFAULT FALSE,
   is_approved BOOLEAN DEFAULT FALSE,
   is_email_verified BOOLEAN DEFAULT FALSE,
+  reset_password_token VARCHAR(255),
+  reset_password_expires TIMESTAMP WITH TIME ZONE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 

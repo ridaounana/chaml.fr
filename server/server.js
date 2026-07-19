@@ -13,6 +13,7 @@ import nodemailer from "nodemailer";
 import Stripe from "stripe";
 import cron from "node-cron";
 import { query, initializeDatabase } from "./db.js";
+import crypto from "crypto";
 
 dotenv.config();
 
@@ -744,6 +745,89 @@ app.post("/api/auth/login", async (req, res) => {
 app.post("/api/auth/logout", (req, res) => {
   res.clearCookie("chaml_token");
   res.json({ success: true });
+});
+
+// Request Password Reset (Forgot Password)
+app.post("/api/auth/forgot-password", async (req, res) => {
+  const { email } = req.body;
+  if (!email) {
+    return res.status(400).json({ error: "L'adresse email est requise." });
+  }
+
+  try {
+    const userRes = await query("SELECT * FROM users WHERE email = $1", [email.toLowerCase().trim()]);
+    if (userRes.rows.length === 0) {
+      // Security best practice: don't reveal if user exists, return success anyway
+      return res.json({ success: true, message: "Si cette adresse existe, un email a été envoyé." });
+    }
+
+    const user = userRes.rows[0];
+    const token = crypto.randomBytes(32).toString("hex");
+    const expires = new Date(Date.now() + 3600000); // 1 hour expiration
+
+    await query(
+      "UPDATE users SET reset_password_token = $1, reset_password_expires = $2 WHERE id = $3",
+      [token, expires, user.id]
+    );
+
+    const clientUrl = process.env.CLIENT_URL || "https://chaml.fr";
+    const resetLink = `${clientUrl}/?auth_view=reset_password&token=${token}`;
+
+    const subject = "Réinitialisation de votre mot de passe - Chaml.fr";
+    const text = `Bonjour,\n\nVous avez demandé la réinitialisation de votre mot de passe sur Chaml.fr.\n\nVeuillez cliquer sur le lien suivant pour choisir un nouveau mot de passe (valable 1 heure) :\n${resetLink}\n\nSi vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet e-mail.\n\nCordialement,\nL'équipe Chaml.fr`;
+    const html = `<p>Bonjour,</p>
+                  <p>Vous avez demandé la réinitialisation de votre mot de passe sur <strong>Chaml.fr</strong>.</p>
+                  <p>Veuillez cliquer sur le bouton ci-dessous pour choisir un nouveau mot de passe (ce lien est valable 1 heure) :</p>
+                  <p style="margin: 2rem 0;">
+                    <a href="${resetLink}" style="background: #0d9488; color: white; padding: 0.8rem 1.5rem; text-decoration: none; border-radius: 0.5rem; font-weight: bold;">Réinitialiser mon mot de passe</a>
+                  </p>
+                  <p>Si le bouton ne fonctionne pas, copiez-collez ce lien dans votre navigateur :<br/>${resetLink}</p>
+                  <p>Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet e-mail en toute sécurité.</p>
+                  <p>Cordialement,<br/>L'équipe Chaml.fr</p>`;
+
+    await sendSystemEmail(user.email, subject, text, html);
+    await logAction("Password Reset Requested", `Token generated for: ${user.email}`, user.email);
+
+    res.json({ success: true, message: "Si cette adresse existe, un email a été envoyé." });
+  } catch (err) {
+    console.error("❌ Forgot password endpoint error:", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Perform Password Reset (Submit new password)
+app.post("/api/auth/reset-password", async (req, res) => {
+  const { token, newPassword } = req.body;
+  if (!token || !newPassword) {
+    return res.status(400).json({ error: "Le jeton et le nouveau mot de passe sont requis." });
+  }
+
+  try {
+    const userRes = await query(
+      "SELECT * FROM users WHERE reset_password_token = $1 AND reset_password_expires > CURRENT_TIMESTAMP",
+      [token]
+    );
+
+    if (userRes.rows.length === 0) {
+      return res.status(400).json({ error: "Le lien de réinitialisation est invalide ou a expiré." });
+    }
+
+    const user = userRes.rows[0];
+    const passwordHash = await bcrypt.hash(newPassword, 10);
+
+    // Update password and clear reset token fields
+    await query(
+      "UPDATE users SET password_hash = $1, reset_password_token = NULL, reset_password_expires = NULL WHERE id = $2",
+      [passwordHash, user.id]
+    );
+
+    await logAction("Password Reset Success", `Password changed for: ${user.email}`, user.email);
+
+    res.json({ success: true, message: "Votre mot de passe a été modifié avec succès. Vous pouvez maintenant vous connecter." });
+  } catch (err) {
+    console.error("❌ Reset password endpoint error:", err.message);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // GET Email Verification Link Redirect (Real link clicks)
