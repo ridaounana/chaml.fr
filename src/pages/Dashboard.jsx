@@ -631,13 +631,13 @@ export default function Dashboard({ lang, user }) {
               <div style={{ fontSize: "3rem", marginBottom: "0.5rem" }}>🕌</div>
               <h2 style={{ fontSize: "1.6rem", color: "var(--primary)", margin: 0 }}>Chaml Premium 🌟</h2>
               <p style={{ color: "var(--text-muted)", fontSize: "0.88rem", marginTop: "0.5rem" }}>
-                Débloquez l'onboarding collaboratif et protégez vos fichiers sensibles.
+                La solution complète pour maximiser vos chances de réussite et sécuriser vos démarches.
               </p>
             </div>
 
             <hr style={{ border: "none", borderTop: "1px solid var(--border-card)", margin: 0 }} />
 
-            <div style={{ display: "flex", flexDirection: "column", gap: "1rem", fontSize: "0.88rem", color: "var(--text-muted)" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "1.1rem", fontSize: "0.88rem", color: "var(--text-muted)" }}>
               <div style={{ display: "flex", gap: "0.75rem", alignItems: "flex-start" }}>
                 <span style={{ fontSize: "1.2rem" }}>🤝</span>
                 <div>
@@ -650,15 +650,31 @@ export default function Dashboard({ lang, user }) {
                 <span style={{ fontSize: "1.2rem" }}>🔒</span>
                 <div>
                   <strong style={{ color: "var(--text-main)", display: "block" }}>Chiffrement E2EE de bout en bout</strong>
-                  <span>Téléversez des fichiers de manière 100% cryptée (AES-GCM-256) sur votre machine. Même l'admin ne peut pas les lire.</span>
+                  <span>Téléversez vos pièces sensibles de manière 100% cryptée (AES-GCM-256) sur votre machine. Même Chaml ne peut pas les lire.</span>
                 </div>
               </div>
 
               <div style={{ display: "flex", gap: "0.75rem", alignItems: "flex-start" }}>
-                <span style={{ fontSize: "1.2rem" }}>🗑️</span>
+                <span style={{ fontSize: "1.2rem" }}>⚖️</span>
                 <div>
-                  <strong style={{ color: "var(--text-main)", display: "block" }}>Destruction Auto (Purge 30j)</strong>
-                  <span>Garantie de vie privée : tous vos documents cryptés sont définitivement supprimés 30 jours après approbation.</span>
+                  <strong style={{ color: "var(--text-main)", display: "block" }}>Générateur de Recours Juridiques</strong>
+                  <span>Générez des lettres types de recours gracieux ou hiérarchiques pré-remplies en cas de retard ou de silence de la préfecture.</span>
+                </div>
+              </div>
+
+              <div style={{ display: "flex", gap: "0.75rem", alignItems: "flex-start" }}>
+                <span style={{ fontSize: "1.2rem" }}>📊</span>
+                <div>
+                  <strong style={{ color: "var(--text-main)", display: "block" }}>Simulateurs de Conformité Illimités</strong>
+                  <span>Accès complet et illimité au simulateur de ressources (SMIC) et de logement par zone OFII.</span>
+                </div>
+              </div>
+
+              <div style={{ display: "flex", gap: "0.75rem", alignItems: "flex-start" }}>
+                <span style={{ fontSize: "1.2rem" }}>⏰</span>
+                <div>
+                  <strong style={{ color: "var(--text-main)", display: "block" }}>Destruction Auto & Alerte RGPD (30j)</strong>
+                  <span>Garantie de vie privée : alerte de suppression à J-25 par e-mail et purge définitive et irrécupérable de vos fichiers 30 jours après validation.</span>
                 </div>
               </div>
             </div>
