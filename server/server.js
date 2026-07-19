@@ -301,7 +301,7 @@ app.post("/api/payment/create-checkout-session", authenticateUser, async (req, r
         },
       ],
       mode: "payment",
-      success_url: `${process.env.CLIENT_URL || "http://localhost:5173"}/?payment=success`,
+      success_url: `${process.env.CLIENT_URL || "http://localhost:5173"}/?payment=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.CLIENT_URL || "http://localhost:5173"}/?payment=cancel`,
       metadata: {
         coupleId: coupleId,
@@ -312,6 +312,36 @@ app.post("/api/payment/create-checkout-session", authenticateUser, async (req, r
     res.json({ url: session.url });
   } catch (err) {
     console.error("❌ Failed to create Stripe session:", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Verification route to check Stripe checkout session status and upgrade the couple
+app.post("/api/payment/verify-session", authenticateUser, async (req, res) => {
+  const { sessionId } = req.body;
+  if (!sessionId) {
+    return res.status(400).json({ error: "Missing sessionId parameter." });
+  }
+
+  try {
+    // Retrieve checkout session details from Stripe
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+
+    // Security validation: verify metadata coupleId matches the authenticated user's coupleId
+    if (session.metadata?.coupleId !== req.user.coupleId) {
+      return res.status(403).json({ error: "Unauthorized session access." });
+    }
+
+    // Check payment validation status
+    if (session.payment_status === "paid" || session.status === "complete") {
+      await query("UPDATE couples SET is_premium = true WHERE id = $1", [req.user.coupleId]);
+      await logAction("Premium Upgraded Via Callback", `Couple ${req.user.coupleId} upgraded via checkout verification.`, req.user.email);
+      return res.json({ success: true });
+    } else {
+      return res.status(400).json({ error: "Le paiement n'a pas été complété." });
+    }
+  } catch (err) {
+    console.error("❌ Stripe session verification failed:", err.message);
     res.status(500).json({ error: err.message });
   }
 });

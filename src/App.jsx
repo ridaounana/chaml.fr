@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { getMe, getConfig, logoutUser } from "./utils/api";
+import { getMe, getConfig, logoutUser, verifyStripeSession } from "./utils/api";
 import { getTranslation } from "./utils/i18n";
 import Navbar from "./components/Navbar";
 import Landing from "./pages/Landing";
@@ -28,11 +28,10 @@ export default function App() {
     const inviteCoupleId = params.get("inviteCoupleId");
     const inviteEmail = params.get("inviteEmail");
     const pay = params.get("payment");
+    const sessionId = params.get("session_id");
 
     if (pay) {
       setPaymentStatus(pay);
-      // Clean URL parameters so they are removed from the browser bar
-      window.history.replaceState({}, document.title, window.location.pathname);
     }
 
     if (inviteCoupleId && inviteEmail) {
@@ -54,11 +53,29 @@ export default function App() {
               setActivePage("admin");
             } else {
               setActivePage("dashboard");
+              
+              // Verify stripe checkout session if returning from successful checkout
+              if (pay === "success" && sessionId) {
+                verifyStripeSession(sessionId)
+                  .then(() => {
+                    // Fetch fresh session state to reflect upgraded Premium status
+                    getMe().then(fresh => {
+                      if (fresh.user) setSession(fresh.user);
+                    });
+                  })
+                  .catch(err => console.error("Stripe verify session error:", err));
+              }
             }
           }
         })
         .catch(err => {
           console.error("Error loading session:", err);
+        })
+        .finally(() => {
+          if (pay) {
+            // Clean URL parameters so they are removed from the browser bar
+            window.history.replaceState({}, document.title, window.location.pathname);
+          }
         });
     }
 

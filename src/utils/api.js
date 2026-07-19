@@ -135,3 +135,9 @@ export const acceptInvite = (coupleId, email, password) =>
     method: "POST",
     body: { coupleId, email, password }
   });
+
+export const verifyStripeSession = (sessionId) => 
+  request("/api/payment/verify-session", {
+    method: "POST",
+    body: { sessionId }
+  });
