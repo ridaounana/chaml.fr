@@ -17,6 +17,7 @@ export default function App() {
   const [activePage, setActivePage] = useState("dashboard");
   const [authView, setAuthView] = useState("landing"); // "landing" | "login" | "register"
   const [paymentStatus, setPaymentStatus] = useState(null);
+  const [emailVerifiedAlert, setEmailVerifiedAlert] = useState(false);
 
   // Load Configuration and Session from API on mount
   useEffect(() => {
@@ -29,9 +30,14 @@ export default function App() {
     const inviteEmail = params.get("inviteEmail");
     const pay = params.get("payment");
     const sessionId = params.get("session_id");
+    const isVerified = params.get("verified");
 
     if (pay) {
       setPaymentStatus(pay);
+    }
+
+    if (isVerified === "true") {
+      setEmailVerifiedAlert(true);
     }
 
     if (inviteCoupleId && inviteEmail) {
@@ -66,13 +72,21 @@ export default function App() {
                   .catch(err => console.error("Stripe verify session error:", err));
               }
             }
+          } else {
+            // If they just verified their email but have no session cookie, show the login form
+            if (isVerified === "true") {
+              setAuthView("login");
+            }
           }
         })
         .catch(err => {
           console.error("Error loading session:", err);
+          if (isVerified === "true") {
+            setAuthView("login");
+          }
         })
         .finally(() => {
-          if (pay) {
+          if (pay || isVerified) {
             // Clean URL parameters so they are removed from the browser bar
             window.history.replaceState({}, document.title, window.location.pathname);
           }
@@ -198,6 +212,34 @@ export default function App() {
           <span>❌ <strong>Paiement annulé.</strong> Si vous rencontrez un problème, écrivez-nous.</span>
           <button 
             onClick={() => setPaymentStatus(null)} 
+            style={{ background: "none", border: "none", color: "white", cursor: "pointer", fontWeight: "bold", fontSize: "1.2rem", padding: 0 }}
+          >
+            ×
+          </button>
+        </div>
+      )}
+
+      {/* Email Verification Success Toast */}
+      {emailVerifiedAlert && (
+        <div style={{
+          position: "fixed",
+          top: "80px",
+          right: "20px",
+          backgroundColor: "#0d9488",
+          color: "white",
+          padding: "1rem 1.5rem",
+          borderRadius: "0.5rem",
+          boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.3)",
+          zIndex: 1000,
+          display: "flex",
+          alignItems: "center",
+          gap: "0.75rem",
+          fontWeight: "500",
+          border: "1px solid rgba(255,255,255,0.1)"
+        }}>
+          <span>🎉 <strong>Adresse e-mail vérifiée !</strong> {session ? "Votre compte est activé avec succès." : "Votre compte est activé. Connectez-vous pour commencer."}</span>
+          <button 
+            onClick={() => setEmailVerifiedAlert(false)} 
             style={{ background: "none", border: "none", color: "white", cursor: "pointer", fontWeight: "bold", fontSize: "1.2rem", padding: 0 }}
           >
             ×
