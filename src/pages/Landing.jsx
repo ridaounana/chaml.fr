@@ -155,6 +155,64 @@ const LANDING_TEXT = {
 export default function Landing({ lang, onNavigate }) {
   const text = LANDING_TEXT[lang] || LANDING_TEXT.fr;
   const [showLegalModal, setShowLegalModal] = useState(false);
+  const [activeFaq, setActiveFaq] = useState(null);
+
+  const faqItems = {
+    fr: [
+      {
+        q: "Qu'est-ce que Chaml.fr et comment m'aide-t-il ?",
+        a: "Chaml.fr est un outil d'accompagnement indépendant et collaboratif conçu pour simplifier les démarches de regroupement familial. Il permet de gérer une check-list commune entre les conjoints en France et au Maroc, de simuler la conformité des ressources et du logement, et de générer des recours administratifs en cas de retard de traitement."
+      },
+      {
+        q: "Comment fonctionne le chiffrement de bout en bout (E2EE) de mes documents ?",
+        a: "Pour garantir une confidentialité absolue, vos documents justificatifs (fiches de paie, pièces d'identité) sont chiffrés directement dans votre navigateur en AES-GCM-256 à l'aide de votre code PIN secret avant d'être envoyés sur le serveur. Nous n'avons jamais accès à votre code PIN. Seuls vous et votre conjoint pouvez déchiffrer et visualiser vos documents."
+      },
+      {
+        q: "Les simulateurs de salaire et de logement sont-ils fiables ?",
+        a: "Oui, nos simulateurs se basent sur les barèmes et critères officiels appliqués par l'OFII et le CESEDA (revenus nets exigés en fonction du SMIC et de la taille de la famille, et surface minimale requise selon la zone géographique A, B ou C de votre logement)."
+      },
+      {
+        q: "Que se passe-t-il après la validation de mon dossier ?",
+        a: "Dans le respect de notre politique RGPD et de votre vie privée, toutes vos pièces jointes chiffrées sont définitivement et irrémédiablement purgées de nos serveurs 30 jours après la validation de votre dossier. De plus, vous recevez un rappel par e-mail automatique 5 jours avant la suppression."
+      }
+    ],
+    ar: [
+      {
+        q: "ما هو شمل.fr وكيف يساعدني؟",
+        a: "شمل.fr هي منصة مساعدة مستقلة وتفاعلية مصممة لتبسيط إجراءات لم الشمل العائلي. تتيح لكم إدارة قائمة وثائق مشتركة بين الزوجين في فرنسا والمغرب، ومحاكاة مطابقة الموارد المالية والسكن، وإنشاء خطابات طعون إدارية في حالة تأخر المعالجة."
+      },
+      {
+        q: "كيف يعمل التشفير التام (E2EE) لمستنداتي؟",
+        a: "لضمان السرية المطلقة، يتم تشفير مستنداتكم الحساسة (بيانات الراتب، الهوية) مباشرة في متصفحكم باستخدام خوارزمية AES-GCM-256 وبواسطة رمز PIN السري الخاص بكم قبل إرسالها إلى الخادم. ليس لدينا وصول إلى رمزكم السري، وبالتالي لا يمكن لأي طرف ثالث قراءة ملفاتكم."
+      },
+      {
+        q: "هل محاكيات الراتب والسكن دقيقة وموثوقة؟",
+        a: "نعم، تعتمد محاكياتنا على الجداول والمعايير الرسمية المعتمدة من طرف مكتب الهجرة والإدماج (OFII) وقوانين الهجرة الفرنسية (صافي الدخل المطلوب حسب الحد الأدنى للأجور وحجم الأسرة، والمساحة الدنيا المطلوبة حسب المنطقة الجغرافية للسكن)."
+      },
+      {
+        q: "ماذا يحدث بعد قبول ملفي؟",
+        a: "التزاماً بحماية بياناتكم وخصوصيتكم، يتم حذف جميع وثائقكم المشفرة بشكل نهائي ولا رجعة فيه من خوادمنا بعد 30 يومًا من قبول ملفكم الإداري، مع إرسال تنبيه تذكيري تلقائي عبر البريد الإلكتروني قبل الحذف بـ 5 أيام."
+      }
+    ],
+    en: [
+      {
+        q: "What is Chaml.fr and how does it help me?",
+        a: "Chaml.fr is an independent collaborative tracker designed to simplify family reunification procedures. It helps manage a shared document checklist between spouses in France and Morocco, verify income and housing eligibility criteria, and generate pre-filled administrative appeal letters."
+      },
+      {
+        q: "How does the End-to-End Encryption (E2EE) secure my documents?",
+        a: "To ensure absolute privacy, your sensitive files (pay slips, ID cards) are encrypted directly in your browser using AES-GCM-256 with your secret PIN code before being uploaded. We never have access to your PIN. Only you and your spouse can decrypt and read your documents."
+      },
+      {
+        q: "Are the income and housing surface simulators accurate?",
+        a: "Yes, our simulators are based on the official guidelines and regulations applied by the OFII and CESEDA (net income requirements based on SMIC and household size, and housing surface area rules depending on zones A, B, or C)."
+      },
+      {
+        q: "What happens after my application is approved?",
+        a: "In compliance with our GDPR privacy policy, all your encrypted files are permanently and irretrievably deleted from our servers 30 days after approval. An automatic email alert is sent to you 5 days before the final purge."
+      }
+    ]
+  };
 
   return (
     <div className="landing-wrapper fade-in" style={{ marginTop: "1rem" }}>
@@ -300,35 +358,64 @@ export default function Landing({ lang, onNavigate }) {
         </div>
       </section>
 
-      {/* Testimonials */}
+      {/* 🙋 FAQ Accordion (Replaces testimonials) */}
       <section style={{
-        background: "rgba(var(--primary-rgb), 0.03)",
+        background: "rgba(var(--primary-rgb), 0.02)",
         border: "1px solid var(--border-card)",
         borderRadius: "1.25rem",
         padding: "3rem 2rem",
         marginBottom: "5rem"
       }}>
-        <div style={{ textAlign: "center", marginBottom: "3rem" }}>
-          <h2 style={{ fontSize: "1.8rem", fontWeight: "800" }}>{text.testimonials_title}</h2>
+        <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
+          <h2 style={{ fontSize: "1.8rem", fontWeight: "800", color: "var(--text-main)" }}>
+            {lang === "ar" ? "الأسئلة الشائعة (FAQ)" : lang === "en" ? "Frequently Asked Questions (FAQ)" : "Questions Fréquentes (FAQ)"}
+          </h2>
+          <p style={{ color: "var(--text-muted)", fontSize: "0.9rem", marginTop: "0.5rem" }}>
+            {lang === "ar" ? "كل ما تريدون معرفته عن كيفية عمل شمل لحماية وإنجاح ملفكم." : lang === "en" ? "Everything you need to know about Chaml security and compliance." : "Tout savoir sur le fonctionnement, la sécurité et la conformité de votre dossier."}
+          </p>
         </div>
 
-        <div className="landing-testimonials-grid">
-          <div className="glass-card" style={{ padding: "2rem", background: "var(--bg-app)" }}>
-            <p style={{ fontStyle: "italic", lineHeight: "1.6", color: "var(--text-main)" }}>
-              "{text.test1_quote}"
-            </p>
-            <strong style={{ display: "block", marginTop: "1rem", color: "var(--primary)", fontSize: "0.85rem" }}>
-              — {text.test1_author}
-            </strong>
-          </div>
-          <div className="glass-card" style={{ padding: "2rem", background: "var(--bg-app)" }}>
-            <p style={{ fontStyle: "italic", lineHeight: "1.6", color: "var(--text-main)" }}>
-              "{text.test2_quote}"
-            </p>
-            <strong style={{ display: "block", marginTop: "1rem", color: "var(--primary)", fontSize: "0.85rem" }}>
-              — {text.test2_author}
-            </strong>
-          </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", maxWidth: "800px", margin: "0 auto" }}>
+          {(faqItems[lang] || faqItems.fr).map((item, idx) => {
+            const isOpen = activeFaq === idx;
+            return (
+              <div 
+                key={idx} 
+                className="glass-card" 
+                style={{ 
+                  padding: "1rem 1.5rem", 
+                  background: "rgba(255, 255, 255, 0.01)", 
+                  border: "1px solid var(--border-card)",
+                  borderRadius: "0.75rem",
+                  cursor: "pointer",
+                  transition: "all 0.2s ease"
+                }}
+                onClick={() => setActiveFaq(isOpen ? null : idx)}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "1rem" }}>
+                  <strong style={{ fontSize: "0.92rem", color: isOpen ? "var(--primary)" : "var(--text-main)" }}>
+                    {item.q}
+                  </strong>
+                  <span style={{ fontSize: "1.1rem", color: "var(--text-muted)", transition: "transform 0.2s", transform: isOpen ? "rotate(90deg)" : "none" }}>
+                    ➔
+                  </span>
+                </div>
+                {isOpen && (
+                  <p style={{ 
+                    marginTop: "0.75rem", 
+                    fontSize: "0.85rem", 
+                    lineHeight: "1.6", 
+                    color: "var(--text-muted)", 
+                    borderTop: "1px solid var(--border-card)", 
+                    paddingTop: "0.75rem",
+                    margin: 0
+                  }}>
+                    {item.a}
+                  </p>
+                )}
+              </div>
+            );
+          })}
         </div>
       </section>
 
