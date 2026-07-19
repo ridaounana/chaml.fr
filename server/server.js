@@ -38,9 +38,22 @@ app.post("/api/payment/webhook", express.raw({ type: "*/*" }), async (req, res) 
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET ? process.env.STRIPE_WEBHOOK_SECRET.trim() : undefined;
   let event;
 
+  console.log("=== 🔍 STRIPE WEBHOOK RECEIVED ===");
+  console.log("- Signature Header present:", !!sig);
+  console.log("- Webhook Secret present:", !!webhookSecret);
+  if (webhookSecret) {
+    console.log(`- Webhook Secret (starts with): ${webhookSecret.slice(0, 10)}...`);
+  }
+  console.log("- Body is Buffer:", Buffer.isBuffer(req.body));
+  if (req.body) {
+    console.log("- Body length (bytes):", req.body.length);
+    console.log("- Body content snippet (first 100 chars):", req.body.toString().slice(0, 100));
+  }
+
   try {
     if (webhookSecret && sig) {
       event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
+      console.log("✅ Webhook signature verified successfully! Event type:", event.type);
     } else {
       console.warn("⚠️ Stripe webhook secret not configured or signature missing. Parsing unverified payload.");
       event = JSON.parse(req.body.toString());
