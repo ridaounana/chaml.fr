@@ -379,7 +379,13 @@ app.post("/api/payment/verify-session", authenticateUser, async (req, res) => {
 
 // Google OAuth Authentication Routes
 app.get("/api/auth/google", (req, res) => {
-  const clientUrl = process.env.CLIENT_URL || "https://chaml.fr";
+  const protocol = req.headers["x-forwarded-proto"] || req.protocol;
+  const host = req.headers["x-forwarded-host"] || req.get("host");
+  let fallbackUrl = `${protocol}://${host}`;
+  if (host.includes("localhost:5000")) {
+    fallbackUrl = "http://localhost:5173";
+  }
+  const clientUrl = process.env.CLIENT_URL || fallbackUrl;
   const redirectUri = `${clientUrl}/api/auth/google/callback`;
   const clientId = process.env.GOOGLE_CLIENT_ID || "";
   
@@ -398,7 +404,13 @@ app.get("/api/auth/google", (req, res) => {
 
 app.get("/api/auth/google/callback", async (req, res) => {
   const { code } = req.query;
-  const clientUrl = process.env.CLIENT_URL || "https://chaml.fr";
+  const protocol = req.headers["x-forwarded-proto"] || req.protocol;
+  const host = req.headers["x-forwarded-host"] || req.get("host");
+  let fallbackUrl = `${protocol}://${host}`;
+  if (host.includes("localhost:5000")) {
+    fallbackUrl = "http://localhost:5173";
+  }
+  const clientUrl = process.env.CLIENT_URL || fallbackUrl;
   const redirectUri = `${clientUrl}/api/auth/google/callback`;
 
   if (!code) {
@@ -770,7 +782,13 @@ app.post("/api/auth/forgot-password", async (req, res) => {
       [token, expires, user.id]
     );
 
-    const clientUrl = process.env.CLIENT_URL || "https://chaml.fr";
+    const protocol = req.headers["x-forwarded-proto"] || req.protocol;
+    const host = req.headers["x-forwarded-host"] || req.get("host");
+    let fallbackUrl = `${protocol}://${host}`;
+    if (host.includes("localhost:5000")) {
+      fallbackUrl = "http://localhost:5173";
+    }
+    const clientUrl = process.env.CLIENT_URL || fallbackUrl;
     const resetLink = `${clientUrl}/?auth_view=reset_password&token=${token}`;
 
     const subject = "Réinitialisation de votre mot de passe - Chaml.fr";
@@ -838,7 +856,13 @@ app.get("/api/auth/verify-email", async (req, res) => {
     // Set both email verified and approved automatically upon email confirmation
     await query("UPDATE users SET is_email_verified = true, is_approved = true WHERE couple_id = $1", [coupleId]);
     await query("UPDATE couples SET is_approved = true WHERE id = $1", [coupleId]);
-    const clientUrl = process.env.CLIENT_URL || "https://chaml.fr";
+    const protocol = req.headers["x-forwarded-proto"] || req.protocol;
+    const host = req.headers["x-forwarded-host"] || req.get("host");
+    let fallbackUrl = `${protocol}://${host}`;
+    if (host.includes("localhost:5000")) {
+      fallbackUrl = "http://localhost:5173";
+    }
+    const clientUrl = process.env.CLIENT_URL || fallbackUrl;
     res.redirect(`${clientUrl}/?verified=true`);
   } catch (err) {
     res.status(500).send("Erreur lors de la validation de l'e-mail: " + err.message);
