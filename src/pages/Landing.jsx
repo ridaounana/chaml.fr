@@ -583,58 +583,86 @@ export default function Landing({ lang, onNavigate }) {
       <section style={{
         background: "rgba(255, 255, 255, 0.01)",
         border: "1px solid var(--border-card)",
-        borderRadius: "1.25rem",
-        padding: "2.5rem",
-        marginBottom: "4rem",
+        borderRadius: "1rem",
+        padding: "clamp(1rem, 2.5vw, 1.75rem)",
+        marginBottom: "2.5rem",
         position: "relative",
-        boxShadow: "0 15px 30px -10px rgba(0, 0, 0, 0.2)"
+        boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.15)"
       }}>
-        <div style={{ textAlign: "center", marginBottom: "2rem" }}>
-          <h2 style={{ fontSize: "1.8rem", fontWeight: "800", color: "var(--text-main)", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}>
+        <div style={{ textAlign: "center", marginBottom: "0.75rem" }}>
+          <h2 style={{ fontSize: "clamp(1.2rem, 3vw, 1.5rem)", fontWeight: "800", color: "var(--text-main)", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.4rem", margin: 0 }}>
             {previewTextLocale.section_title}
           </h2>
-          <p style={{ color: "var(--text-muted)", fontSize: "0.95rem", marginTop: "0.5rem" }}>
+          <p style={{ color: "var(--text-muted)", fontSize: "0.82rem", marginTop: "0.25rem", marginBottom: 0 }}>
             {previewTextLocale.section_subtitle}
           </p>
         </div>
 
-        {/* Tabs selector */}
+        {/* Compact Segmented Control Toggle */}
         <div style={{
           display: "flex",
           justifyContent: "center",
-          gap: "1rem",
-          marginBottom: "2.5rem"
+          marginBottom: "1rem"
         }}>
-          <button
-            onClick={() => setPreviewTab("simulator")}
-            className={`btn ${previewTab === "simulator" ? "btn-primary" : "btn-secondary"}`}
-            style={{ padding: "0.6rem 1.5rem", borderRadius: "2rem", display: "flex", alignItems: "center", gap: "0.35rem", fontSize: "0.95rem", fontWeight: "bold" }}
-          >
-            {previewTextLocale.tab_sim}
-          </button>
-          <button
-            onClick={() => setPreviewTab("checklist")}
-            className={`btn ${previewTab === "checklist" ? "btn-primary" : "btn-secondary"}`}
-            style={{ padding: "0.6rem 1.5rem", borderRadius: "2rem", display: "flex", alignItems: "center", gap: "0.35rem", fontSize: "0.95rem", fontWeight: "bold" }}
-          >
-            {previewTextLocale.tab_chk}
-          </button>
+          <div style={{
+            display: "inline-flex",
+            background: "rgba(148, 163, 184, 0.1)",
+            border: "1px solid var(--border-card)",
+            borderRadius: "2rem",
+            padding: "0.2rem"
+          }}>
+            <button
+              onClick={() => setPreviewTab("simulator")}
+              style={{
+                padding: "0.35rem 0.95rem",
+                borderRadius: "1.5rem",
+                fontSize: "0.82rem",
+                fontWeight: 700,
+                border: "none",
+                background: previewTab === "simulator" ? "var(--primary)" : "transparent",
+                color: previewTab === "simulator" ? "white" : "var(--text-muted)",
+                cursor: "pointer",
+                transition: "all 0.2s ease"
+              }}
+            >
+              {previewTextLocale.tab_sim}
+            </button>
+            <button
+              onClick={() => setPreviewTab("checklist")}
+              style={{
+                padding: "0.35rem 0.95rem",
+                borderRadius: "1.5rem",
+                fontSize: "0.82rem",
+                fontWeight: 700,
+                border: "none",
+                background: previewTab === "checklist" ? "var(--primary)" : "transparent",
+                color: previewTab === "checklist" ? "white" : "var(--text-muted)",
+                cursor: "pointer",
+                transition: "all 0.2s ease"
+              }}
+            >
+              {previewTextLocale.tab_chk}
+            </button>
+          </div>
         </div>
 
         {previewTab === "simulator" ? (
-          /* Concept 1: Express Simulator */
+          /* Concept 1: Express Simulator (Mobile-First Compact) */
           <div style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-            gap: "2.5rem"
+            gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+            gap: "1.25rem"
           }}>
             
             {/* Left Inputs column */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
               
-              <div className="form-group">
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
-                  <label className="form-label" style={{ fontWeight: "bold" }}>{previewTextLocale.fam_size}</label>
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "0.82rem" }}>
+                  <label className="form-label" style={{ fontWeight: "bold", margin: 0, fontSize: "0.82rem", display: "inline-flex", alignItems: "center", gap: "0.3rem" }}>
+                    {previewTextLocale.fam_size}
+                    <span title={previewTextLocale.fam_desc} style={{ cursor: "help", fontSize: "0.75rem", opacity: 0.7 }}>ℹ️</span>
+                  </label>
                   <span style={{ color: "var(--primary)", fontWeight: "bold" }}>{simFamilySize} {previewTextLocale.people}</span>
                 </div>
                 <input 
@@ -643,16 +671,13 @@ export default function Landing({ lang, onNavigate }) {
                   max="10" 
                   value={simFamilySize} 
                   onChange={e => setSimFamilySize(Number(e.target.value))} 
-                  style={{ width: "100%", accentColor: "var(--primary)", height: "6px", borderRadius: "3px", cursor: "pointer" }}
+                  style={{ width: "100%", accentColor: "var(--primary)", height: "4px", borderRadius: "2px", cursor: "pointer", margin: "0.2rem 0 0 0" }}
                 />
-                <span style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginTop: "0.25rem", display: "block" }}>
-                  {previewTextLocale.fam_desc}
-                </span>
               </div>
 
-              <div className="form-group">
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
-                  <label className="form-label" style={{ fontWeight: "bold" }}>{previewTextLocale.income}</label>
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "0.82rem" }}>
+                  <label className="form-label" style={{ fontWeight: "bold", margin: 0, fontSize: "0.82rem" }}>{previewTextLocale.income}</label>
                   <span style={{ color: "var(--primary)", fontWeight: "bold" }}>{simIncome} € / mois</span>
                 </div>
                 <input 
@@ -662,13 +687,13 @@ export default function Landing({ lang, onNavigate }) {
                   step="50"
                   value={simIncome} 
                   onChange={e => setSimIncome(Number(e.target.value))} 
-                  style={{ width: "100%", accentColor: "var(--primary)", height: "6px", borderRadius: "3px", cursor: "pointer" }}
+                  style={{ width: "100%", accentColor: "var(--primary)", height: "4px", borderRadius: "2px", cursor: "pointer", margin: "0.2rem 0 0 0" }}
                 />
               </div>
 
-              <div className="form-group">
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
-                  <label className="form-label" style={{ fontWeight: "bold" }}>{previewTextLocale.surface}</label>
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "0.82rem" }}>
+                  <label className="form-label" style={{ fontWeight: "bold", margin: 0, fontSize: "0.82rem" }}>{previewTextLocale.surface}</label>
                   <span style={{ color: "var(--primary)", fontWeight: "bold" }}>{simSurface} m²</span>
                 </div>
                 <input 
@@ -677,15 +702,15 @@ export default function Landing({ lang, onNavigate }) {
                   max="100" 
                   value={simSurface} 
                   onChange={e => setSimSurface(Number(e.target.value))} 
-                  style={{ width: "100%", accentColor: "var(--primary)", height: "6px", borderRadius: "3px", cursor: "pointer" }}
+                  style={{ width: "100%", accentColor: "var(--primary)", height: "4px", borderRadius: "2px", cursor: "pointer", margin: "0.2rem 0 0 0" }}
                 />
               </div>
 
-              <div className="form-group">
-                <label className="form-label" style={{ fontWeight: "bold", marginBottom: "0.5rem" }}>{previewTextLocale.zone}</label>
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label className="form-label" style={{ fontWeight: "bold", marginBottom: "0.25rem", fontSize: "0.82rem" }}>{previewTextLocale.zone}</label>
                 <select 
                   className="select-dropdown" 
-                  style={{ width: "100%", padding: "0.75rem", borderRadius: "0.5rem" }} 
+                  style={{ width: "100%", padding: "0.45rem 0.65rem", borderRadius: "0.4rem", fontSize: "0.82rem" }} 
                   value={simZone} 
                   onChange={e => setSimZone(e.target.value)}
                 >
@@ -697,61 +722,85 @@ export default function Landing({ lang, onNavigate }) {
 
             </div>
 
-            {/* Right Outcomes column */}
+            {/* Right Outcomes column (Compact Diagnostic Card) */}
             <div style={{
               background: "rgba(var(--primary-rgb), 0.02)",
               border: "1px solid var(--border-card)",
-              borderRadius: "1rem",
-              padding: "2rem",
+              borderRadius: "0.75rem",
+              padding: "0.85rem 1rem",
               display: "flex",
               flexDirection: "column",
-              gap: "1.5rem",
+              gap: "0.75rem",
               justifyContent: "space-between"
             }}>
               
               <div>
-                <h3 style={{ fontSize: "1.1rem", fontWeight: "bold", borderBottom: "1px solid var(--border-card)", paddingBottom: "0.5rem", marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.35rem" }}>
-                  📊 Diagnostic de conformité
-                </h3>
-
-                {/* Score */}
-                <div style={{ marginBottom: "1.5rem" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.35rem", fontSize: "0.85rem", fontWeight: "bold" }}>
-                    <span>{previewTextLocale.compliance_score}</span>
-                    <span style={{ color: compliancePercent >= 100 ? "#10b981" : compliancePercent >= 75 ? "#f59e0b" : "#ef4444" }}>{compliancePercent}%</span>
-                  </div>
-                  <div style={{ width: "100%", height: "8px", background: "rgba(148, 163, 184, 0.15)", borderRadius: "4px", overflow: "hidden" }}>
-                    <div style={{ 
-                      width: `${compliancePercent}%`, 
-                      height: "100%", 
-                      background: compliancePercent >= 100 ? "linear-gradient(90deg, #10b981 0%, #059669 100%)" : compliancePercent >= 75 ? "linear-gradient(90deg, #f59e0b 0%, #d97706 100%)" : "linear-gradient(90deg, #ef4444 0%, #dc2626 100%)",
-                      transition: "width 0.3s ease"
-                    }}></div>
-                  </div>
+                {/* Inline Diagnostic Header */}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.35rem" }}>
+                  <h3 style={{ fontSize: "0.95rem", fontWeight: "bold", margin: 0, display: "flex", alignItems: "center", gap: "0.3rem" }}>
+                    📊 Diagnostic de conformité
+                  </h3>
+                  <span style={{ 
+                    fontSize: "0.9rem", 
+                    fontWeight: "800", 
+                    color: compliancePercent >= 100 ? "#10b981" : compliancePercent >= 75 ? "#f59e0b" : "#ef4444" 
+                  }}>
+                    {compliancePercent}%
+                  </span>
                 </div>
 
-                {/* Criteria results */}
-                <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                {/* Thin Progress bar */}
+                <div style={{ width: "100%", height: "5px", background: "rgba(148, 163, 184, 0.15)", borderRadius: "3px", overflow: "hidden", marginBottom: "0.65rem" }}>
+                  <div style={{ 
+                    width: `${compliancePercent}%`, 
+                    height: "100%", 
+                    background: compliancePercent >= 100 ? "linear-gradient(90deg, #10b981 0%, #059669 100%)" : compliancePercent >= 75 ? "linear-gradient(90deg, #f59e0b 0%, #d97706 100%)" : "linear-gradient(90deg, #ef4444 0%, #dc2626 100%)",
+                    transition: "width 0.3s ease"
+                  }}></div>
+                </div>
+
+                {/* Single-line Criteria result rows */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.45rem" }}>
                   
-                  {/* Income */}
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "var(--bg-app)", padding: "0.75rem 1rem", borderRadius: "0.5rem", borderLeft: isIncCompliant ? "4px solid #10b981" : "4px solid #ef4444" }}>
-                    <div>
-                      <span style={{ fontSize: "0.8rem", color: "var(--text-muted)", display: "block" }}>{previewTextLocale.req_income}</span>
-                      <strong style={{ fontSize: "0.95rem" }}>{reqInc} € / mois</strong>
+                  {/* Income Row */}
+                  <div style={{ 
+                    display: "flex", 
+                    justifyContent: "space-between", 
+                    alignItems: "center", 
+                    background: "var(--bg-app)", 
+                    padding: "0.4rem 0.65rem", 
+                    borderRadius: "0.4rem", 
+                    fontSize: "0.8rem",
+                    borderLeft: isIncCompliant ? "3px solid #10b981" : "3px solid #ef4444" 
+                  }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", flexWrap: "wrap" }}>
+                      <span style={{ fontWeight: 600 }}>Revenus :</span>
+                      <strong style={{ color: "var(--text-main)" }}>{simIncome} €/mois</strong>
+                      <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>(exigé : {reqInc} €)</span>
                     </div>
-                    <span className={`badge ${isIncCompliant ? "badge-approved" : "badge-rejected"}`} style={{ fontSize: "0.8rem" }}>
-                      {isIncCompliant ? `✓ ${previewTextLocale.income_ok}` : `✗ ${previewTextLocale.income_nok}`}
+                    <span className={`badge ${isIncCompliant ? "badge-approved" : "badge-rejected"}`} style={{ fontSize: "0.72rem", padding: "0.15rem 0.45rem", whiteSpace: "nowrap" }}>
+                      {isIncCompliant ? `✓ ${previewTextLocale.income_ok}` : `❌ ${previewTextLocale.income_nok}`}
                     </span>
                   </div>
 
-                  {/* Surface */}
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "var(--bg-app)", padding: "0.75rem 1rem", borderRadius: "0.5rem", borderLeft: isSurfCompliant ? "4px solid #10b981" : "4px solid #ef4444" }}>
-                    <div>
-                      <span style={{ fontSize: "0.8rem", color: "var(--text-muted)", display: "block" }}>{previewTextLocale.req_surface}</span>
-                      <strong style={{ fontSize: "0.95rem" }}>{reqSurf} m² (Zone {simZone})</strong>
+                  {/* Surface Row */}
+                  <div style={{ 
+                    display: "flex", 
+                    justifyContent: "space-between", 
+                    alignItems: "center", 
+                    background: "var(--bg-app)", 
+                    padding: "0.4rem 0.65rem", 
+                    borderRadius: "0.4rem", 
+                    fontSize: "0.8rem",
+                    borderLeft: isSurfCompliant ? "3px solid #10b981" : "3px solid #ef4444" 
+                  }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", flexWrap: "wrap" }}>
+                      <span style={{ fontWeight: 600 }}>Surface :</span>
+                      <strong style={{ color: "var(--text-main)" }}>{simSurface} m²</strong>
+                      <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>(requis : {reqSurf} m²)</span>
                     </div>
-                    <span className={`badge ${isSurfCompliant ? "badge-approved" : "badge-rejected"}`} style={{ fontSize: "0.8rem" }}>
-                      {isSurfCompliant ? `✓ ${previewTextLocale.surface_ok}` : `✗ ${previewTextLocale.surface_nok}`}
+                    <span className={`badge ${isSurfCompliant ? "badge-approved" : "badge-rejected"}`} style={{ fontSize: "0.72rem", padding: "0.15rem 0.45rem", whiteSpace: "nowrap" }}>
+                      {isSurfCompliant ? `✓ ${previewTextLocale.surface_ok}` : `❌ ${previewTextLocale.surface_nok}`}
                     </span>
                   </div>
 
@@ -762,7 +811,14 @@ export default function Landing({ lang, onNavigate }) {
               <button 
                 onClick={handleSaveAndRegister}
                 className="btn btn-primary"
-                style={{ width: "100%", padding: "0.9rem", fontWeight: "bold", fontSize: "0.95rem", marginTop: "1rem" }}
+                style={{ 
+                  width: "100%", 
+                  padding: "0.65rem 1rem", 
+                  fontWeight: "bold", 
+                  fontSize: "0.88rem", 
+                  marginTop: "0.4rem",
+                  justifyContent: "center" 
+                }}
               >
                 {previewTextLocale.cta_save}
               </button>
@@ -774,54 +830,54 @@ export default function Landing({ lang, onNavigate }) {
           /* Concept 2: Express Checklist */
           <div style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-            gap: "2.5rem"
+            gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+            gap: "1.25rem"
           }}>
             
             {/* Left Inputs Column */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.65rem" }}>
               
-              <div className="form-group">
-                <label className="form-label" style={{ fontWeight: "bold", marginBottom: "0.5rem" }}>{previewTextLocale.chk_sponsor}</label>
-                <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label className="form-label" style={{ fontWeight: "bold", marginBottom: "0.25rem", fontSize: "0.82rem" }}>{previewTextLocale.chk_sponsor}</label>
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.35rem" }}>
                   <button 
                     onClick={() => setChkSponsorStatus("employee")}
                     className={`btn ${chkSponsorStatus === "employee" ? "btn-primary" : "btn-secondary"}`}
-                    style={{ padding: "0.7rem", textAlign: "left", fontSize: "0.88rem" }}
+                    style={{ padding: "0.45rem 0.65rem", textAlign: "left", fontSize: "0.82rem" }}
                   >
                     💼 {previewTextLocale.chk_emp}
                   </button>
                   <button 
                     onClick={() => setChkSponsorStatus("independent")}
                     className={`btn ${chkSponsorStatus === "independent" ? "btn-primary" : "btn-secondary"}`}
-                    style={{ padding: "0.7rem", textAlign: "left", fontSize: "0.88rem" }}
+                    style={{ padding: "0.45rem 0.65rem", textAlign: "left", fontSize: "0.82rem" }}
                   >
                     🎨 {previewTextLocale.chk_ind}
                   </button>
                   <button 
                     onClick={() => setChkSponsorStatus("retired")}
                     className={`btn ${chkSponsorStatus === "retired" ? "btn-primary" : "btn-secondary"}`}
-                    style={{ padding: "0.7rem", textAlign: "left", fontSize: "0.88rem" }}
+                    style={{ padding: "0.45rem 0.65rem", textAlign: "left", fontSize: "0.82rem" }}
                   >
                     👴 {previewTextLocale.chk_ret}
                   </button>
                 </div>
               </div>
 
-              <div className="form-group">
-                <label className="form-label" style={{ fontWeight: "bold", marginBottom: "0.5rem" }}>{previewTextLocale.chk_family}</label>
-                <div style={{ display: "flex", gap: "0.75rem" }}>
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label className="form-label" style={{ fontWeight: "bold", marginBottom: "0.25rem", fontSize: "0.82rem" }}>{previewTextLocale.chk_family}</label>
+                <div style={{ display: "flex", gap: "0.5rem" }}>
                   <button 
                     onClick={() => setChkFamilyComposition("spouse_only")}
                     className={`btn ${chkFamilyComposition === "spouse_only" ? "btn-primary" : "btn-secondary"}`}
-                    style={{ flex: 1, padding: "0.7rem", fontSize: "0.88rem" }}
+                    style={{ flex: 1, padding: "0.45rem 0.65rem", fontSize: "0.82rem" }}
                   >
                     ❤️ {previewTextLocale.chk_spouse}
                   </button>
                   <button 
                     onClick={() => setChkFamilyComposition("spouse_and_children")}
                     className={`btn ${chkFamilyComposition === "spouse_and_children" ? "btn-primary" : "btn-secondary"}`}
-                    style={{ flex: 1, padding: "0.7rem", fontSize: "0.88rem" }}
+                    style={{ flex: 1, padding: "0.45rem 0.65rem", fontSize: "0.82rem" }}
                   >
                     👨‍👩‍👧‍👦 {previewTextLocale.chk_kids}
                   </button>
