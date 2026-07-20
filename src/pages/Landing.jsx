@@ -232,7 +232,9 @@ export default function Landing({ lang, onNavigate }) {
       calc12_tax_label: "Revenu Net Imposable Annuel (€) :",
       calc12_payslip_label: "Cumul Net Imposable bulletin de Décembre (€) :",
       calc12_monthly_avg: "Moyenne mensuelle calculée :",
-      calc12_legal_note: "ℹ️ L'OFII retient le montant le plus favorable entre le Net Imposable de vos 12 bulletins de paie et votre Avis d'Imposition."
+      calc12_legal_note: "ℹ️ L'OFII retient le montant le plus favorable entre le Net Imposable de vos 12 bulletins de paie et votre Avis d'Imposition.",
+      aah_legal_info: "Sous réserve d'appréciation finale par la Préfecture. Simulation fournie à titre indicatif sans engagement juridique.",
+      aah_link_text: "🔗 Consulter l'Article L. 531-2 du CESEDA sur Légifrance"
     },
     ar: {
       section_title: "⚡ اختبروا مطابقة ملفكم مباشرة",
@@ -279,7 +281,9 @@ export default function Landing({ lang, onNavigate }) {
       calc12_tax_label: "الدخل الصافي الخاضع للضريبة سنوياً (€):",
       calc12_payslip_label: "مجموع الصافي الخاضع للضريبة في كشف ديسمبر (€):",
       calc12_monthly_avg: "متوسط الدخل الشهري المحسوب:",
-      calc12_legal_note: "ℹ️ يعتمد مكتب الهجرة (OFII) المبلغ الأفضل بين متوسط كشوف الراتب والإقرار الضريبي."
+      calc12_legal_note: "ℹ️ يعتمد مكتب الهجرة (OFII) المبلغ الأفضل بين متوسط كشوف الراتب والإقرار الضريبي.",
+      aah_legal_info: "خاضع للقرار النهائي للعمالة (Préfecture). هذه المحاكاة استرشادية ولا تشكل التزاماً قانونياً.",
+      aah_link_text: "🔗 النص القانوني الرسمي المادة L. 531-2 على موقع Légifrance"
     },
     en: {
       section_title: "⚡ Test Your Eligibility Instantly",
@@ -326,7 +330,9 @@ export default function Landing({ lang, onNavigate }) {
       calc12_tax_label: "Annual Taxable Net Income (€):",
       calc12_payslip_label: "December Pay Slip Cumulative Taxable Net (€):",
       calc12_monthly_avg: "Calculated Monthly Average:",
-      calc12_legal_note: "ℹ️ OFII evaluates the average Taxable Net Income over the 12 months preceding your application."
+      calc12_legal_note: "ℹ️ OFII evaluates the average Taxable Net Income over the 12 months preceding your application.",
+      aah_legal_info: "Subject to final evaluation by the Prefecture. Non-binding simulation provided for informational purposes.",
+      aah_link_text: "🔗 Official law text on Légifrance (Art. L. 531-2 CESEDA)"
     }
   };
 
@@ -922,21 +928,46 @@ export default function Landing({ lang, onNavigate }) {
                 <div style={{ display: "flex", flexDirection: "column", gap: "0.45rem" }}>
 
                   {isAahExempt ? (
-                    <div style={{ 
-                      background: "rgba(16, 185, 129, 0.12)", 
-                      color: "#10b981", 
-                      padding: "0.6rem 0.75rem", 
-                      borderRadius: "0.4rem", 
-                      fontSize: "0.8rem", 
-                      fontWeight: "bold",
-                      textAlign: "center",
-                      border: "1px solid rgba(16, 185, 129, 0.3)",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: "0.35rem"
-                    }}>
-                      {previewTextLocale.aah_badge}
+                    <div style={{ display: "flex", flexDirection: "column", gap: "0.45rem" }}>
+                      <div style={{ 
+                        background: "rgba(16, 185, 129, 0.12)", 
+                        color: "#10b981", 
+                        padding: "0.55rem 0.75rem", 
+                        borderRadius: "0.4rem", 
+                        fontSize: "0.8rem", 
+                        fontWeight: "bold",
+                        textAlign: "center",
+                        border: "1px solid rgba(16, 185, 129, 0.3)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "0.35rem"
+                      }}>
+                        {previewTextLocale.aah_badge}
+                      </div>
+
+                      {/* Legal Disclaimer & Légifrance Official Link */}
+                      <div style={{ 
+                        background: "rgba(255, 255, 255, 0.03)", 
+                        border: "1px solid var(--border-card)", 
+                        borderRadius: "0.4rem", 
+                        padding: "0.45rem 0.65rem",
+                        fontSize: "0.74rem",
+                        color: "var(--text-muted)",
+                        lineHeight: "1.4"
+                      }}>
+                        <p style={{ margin: "0 0 0.3rem 0" }}>
+                          ℹ️ {previewTextLocale.aah_legal_info}
+                        </p>
+                        <a 
+                          href="https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000042772590" 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          style={{ color: "var(--primary)", fontWeight: "bold", textDecoration: "underline", display: "inline-block" }}
+                        >
+                          {previewTextLocale.aah_link_text}
+                        </a>
+                      </div>
                     </div>
                   ) : (
                     <>
