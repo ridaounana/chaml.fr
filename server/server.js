@@ -123,6 +123,61 @@ const generateToken = (payload) => {
 };
 
 // ----------------------------------------------------
+// PII AES-256 ENCRYPTION VAULT AT REST
+// ----------------------------------------------------
+const PII_VAULT_SECRET = process.env.PII_ENCRYPTION_KEY || "chaml_pii_master_vault_secret_2026";
+const PII_KEY = crypto.createHash("sha256").update(PII_VAULT_SECRET).digest();
+
+const encryptPII = (plainText) => {
+  if (plainText === null || plainText === undefined || plainText === "") return "";
+  const str = String(plainText);
+  if (str.startsWith("enc:")) return str;
+  try {
+    const iv = crypto.randomBytes(16);
+    const cipher = crypto.createCipheriv("aes-256-cbc", PII_KEY, iv);
+    let encrypted = cipher.update(str, "utf8", "hex");
+    encrypted += cipher.final("hex");
+    return `enc:${iv.toString("hex")}:${encrypted}`;
+  } catch (err) {
+    console.error("❌ PII Encryption Error:", err.message);
+    return str;
+  }
+};
+
+const decryptPII = (cipherText) => {
+  if (!cipherText || typeof cipherText !== "string" || !cipherText.startsWith("enc:")) {
+    return cipherText || "";
+  }
+  try {
+    const parts = cipherText.slice(4).split(":");
+    if (parts.length !== 2) return cipherText;
+    const iv = Buffer.from(parts[0], "hex");
+    const encryptedText = parts[1];
+    const decipher = crypto.createDecipheriv("aes-256-cbc", PII_KEY, iv);
+    let decrypted = decipher.update(encryptedText, "hex", "utf8");
+    decrypted += decipher.final("utf8");
+    return decrypted;
+  } catch (err) {
+    console.error("❌ PII Decryption Error:", err.message);
+    return cipherText;
+  }
+};
+
+const decryptUserObject = (user) => {
+  if (!user) return user;
+  const u = { ...user };
+  if (u.first_name) u.first_name = decryptPII(u.first_name);
+  if (u.last_name) u.last_name = decryptPII(u.last_name);
+  if (u.firstName) u.firstName = decryptPII(u.firstName);
+  if (u.lastName) u.lastName = decryptPII(u.lastName);
+  if (u.address) u.address = decryptPII(u.address);
+  if (u.city) u.city = decryptPII(u.city);
+  if (u.department) u.department = decryptPII(u.department);
+  if (u.phone) u.phone = decryptPII(u.phone);
+  return u;
+};
+
+// ----------------------------------------------------
 // SMTP VERIFICATION & SYSTEM STATUS CHECKS
 // ----------------------------------------------------
 const SYSTEM_VAULT_KEY = "chaml_secure_db_vault_key_2026";
@@ -294,11 +349,30 @@ const seedDatabase = async () => {
       const adminHash = await bcrypt.hash(randomAdminPass, 10);
       await query(`
         INSERT INTO users (id, email, password_hash, role, first_name, last_name, is_approved, is_email_verified)
-        VALUES ('admin_01', 'admin@chaml.fr', $1, 'admin', 'Chaml', 'Admin', true, true)
-      `, [adminHash]);
+        VALUES ('admin_01', 'admin@chaml.fr', $1, 'admin', $2, $3, true, true)
+      `, [adminHash, encryptPII("Chaml"), encryptPII("Admin")]);
+    }
+
+    // 3. Migrate existing database PII records to AES-256 encrypted format if unencrypted
+    const allUsers = await query("SELECT id, first_name, last_name, address, city, department, phone FROM users");
+    for (const u of allUsers.rows) {
+      const encFn = encryptPII(u.first_name);
+      const encLn = encryptPII(u.last_name);
+      const encAddr = encryptPII(u.address);
+      const encCity = encryptPII(u.city);
+      const encDep = encryptPII(u.department);
+      const encPhone = encryptPII(u.phone);
+
+      if (encFn !== u.first_name || encLn !== u.last_name || encAddr !== u.address || encCity !== u.city || encDep !== u.department || encPhone !== u.phone) {
+        await query(`
+          UPDATE users 
+          SET first_name = $1, last_name = $2, address = $3, city = $4, department = $5, phone = $6
+          WHERE id = $7
+        `, [encFn, encLn, encAddr, encCity, encDep, encPhone, u.id]);
+      }
     }
   } catch (err) {
-    console.error("Seeding error:", err.message);
+    console.error("Seeding & PII encryption migration error:", err.message);
   }
 };
 
@@ -502,11 +576,12 @@ app.get("/api/auth/me", async (req, res) => {
         email: user.email,
         role: user.role,
         coupleId: user.couple_id,
-        firstName: user.first_name,
-        lastName: user.last_name,
-        address: user.address,
-        city: user.city,
-        department: user.department,
+        firstName: decryptPII(user.first_name),
+        lastName: decryptPII(user.last_name),
+        address: decryptPII(user.address),
+        city: decryptPII(user.city),
+        department: decryptPII(user.department),
+        phone: decryptPII(user.phone),
         zone: user.zone,
         livingSurface: Number(user.living_surface || 0),
         familySize: Number(user.family_size || 2),
@@ -590,11 +665,27 @@ app.post("/api/auth/register", async (req, res) => {
     // 1. Create Couple
     await query("INSERT INTO couples (id, is_approved, dossier_status) VALUES ($1, $2, 'draft')", [coupleId, isApprovedVal]);
 
-    // 2. Create Spouse in France (Applicant)
+    // 2. Create Spouse in France (Applicant) with AES-256 Encrypted PII
     await query(`
       INSERT INTO users (id, email, password_hash, role, couple_id, first_name, last_name, phone, address, city, department, zone, living_surface, family_size, is_approved, is_email_verified)
       VALUES ($1, $2, $3, 'demandeur', $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
-    `, [userId, email, passwordHash, coupleId, firstName, lastName, phone, address || "", city, department, zone || "A", Number(livingSurface || 0), Number(familySize || 2), isApprovedVal, isEmailVerifiedVal]);
+    `, [
+      userId, 
+      email, 
+      passwordHash, 
+      coupleId, 
+      encryptPII(firstName), 
+      encryptPII(lastName), 
+      encryptPII(phone || ""), 
+      encryptPII(address || ""), 
+      encryptPII(city || ""), 
+      encryptPII(department || ""), 
+      zone || "A", 
+      Number(livingSurface || 0), 
+      Number(familySize || 2), 
+      isApprovedVal, 
+      isEmailVerifiedVal
+    ]);
 
     // 3. Seed documents checklist
     const initialDocs = [
@@ -752,8 +843,8 @@ app.post("/api/auth/login", async (req, res) => {
         email: user.email,
         role: user.role,
         coupleId: user.couple_id,
-        firstName: user.first_name,
-        lastName: user.last_name,
+        firstName: decryptPII(user.first_name),
+        lastName: decryptPII(user.last_name),
         isEmailVerified: user.is_email_verified,
         isApproved: user.is_approved
       }
@@ -961,8 +1052,9 @@ app.get("/api/dossier", authenticateUser, async (req, res) => {
     const usersRes = await query("SELECT first_name, last_name, role, city, department FROM users WHERE couple_id = $1", [coupleId]);
     const docsRes = await query("SELECT * FROM documents WHERE couple_id = $1 ORDER BY id ASC", [coupleId]);
 
-    const demandeur = usersRes.rows.find(u => u.role === "demandeur") || {};
-    const beneficiaire = usersRes.rows.find(u => u.role === "beneficiaire") || null;
+    const decryptedUsers = usersRes.rows.map(decryptUserObject);
+    const demandeur = decryptedUsers.find(u => u.role === "demandeur") || {};
+    const beneficiaire = decryptedUsers.find(u => u.role === "beneficiaire") || null;
 
     const partner = req.user.role === "demandeur" ? beneficiaire : demandeur;
     const partnerName = partner ? partner.first_name : "Partner";
@@ -1130,10 +1222,12 @@ app.get("/api/admin/couples", authenticateUser, requireAdmin, async (req, res) =
     const usersRes = await query("SELECT id, email, role, couple_id, first_name, last_name, is_frozen, is_approved, is_email_verified FROM users WHERE role != 'admin'");
     const docsRes = await query("SELECT couple_id, doc_key, uploaded, category, required, status, comment, owner FROM documents");
 
+    const decryptedUsers = usersRes.rows.map(decryptUserObject);
+
     // Map couples with their corresponding spouses and document checklists
     const result = couplesRes.rows.map(c => {
-      const demandeur = usersRes.rows.find(u => u.couple_id === c.id && u.role === "demandeur") || {};
-      const beneficiaire = usersRes.rows.find(u => u.couple_id === c.id && u.role === "beneficiaire") || null;
+      const demandeur = decryptedUsers.find(u => u.couple_id === c.id && u.role === "demandeur") || {};
+      const beneficiaire = decryptedUsers.find(u => u.couple_id === c.id && u.role === "beneficiaire") || null;
       const coupleDocs = docsRes.rows.filter(d => d.couple_id === c.id);
 
       const franceDocs = coupleDocs.filter(d => d.owner === "demandeur").map(d => ({
@@ -1438,7 +1532,15 @@ app.post("/api/dossier/invite-spouse", authenticateUser, async (req, res) => {
     await query(`
       INSERT INTO users (id, email, password_hash, role, couple_id, first_name, last_name, phone, city, is_approved, is_email_verified)
       VALUES ($1, $2, 'INVITATION_PENDING', 'beneficiaire', $3, $4, $5, $6, $7, true, false)
-    `, [userId, email, req.user.coupleId, firstName, lastName, phone || "", city || ""]);
+    `, [
+      userId, 
+      email, 
+      req.user.coupleId, 
+      encryptPII(firstName), 
+      encryptPII(lastName), 
+      encryptPII(phone || ""), 
+      encryptPII(city || "")
+    ]);
 
     await logAction("Spouse Invited", `Invited spouse ${email} to join couple: ${req.user.coupleId}`, req.user.email);
 

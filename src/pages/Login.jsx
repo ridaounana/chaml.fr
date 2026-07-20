@@ -492,6 +492,51 @@ export default function Login({
               autoComplete="off" 
             />
 
+            {!isGoogleSignup && (
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", alignItems: "center" }}>
+                <a
+                  href="/api/auth/google"
+                  className="btn btn-secondary"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "0.75rem",
+                    width: "100%",
+                    padding: "0.75rem",
+                    fontSize: "0.9rem",
+                    fontWeight: "600",
+                    textDecoration: "none",
+                    border: "1px solid var(--border-card)",
+                    borderRadius: "0.5rem",
+                    backgroundColor: "rgba(255,255,255,0.02)",
+                    color: "var(--text-main)",
+                    cursor: "pointer",
+                    transition: "all 0.2s"
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.06)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.02)";
+                  }}
+                >
+                  <svg width="18" height="18" viewBox="0 0 18 18">
+                    <path fill="#4285F4" d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.47h4.84a4.14 4.14 0 0 1-1.8 2.71v2.26h2.91c1.7-1.56 2.69-3.86 2.69-6.6z"/>
+                    <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.2l-2.91-2.26c-.8.54-1.83.86-3.05.86-2.34 0-4.32-1.58-5.03-3.7H.95v2.32A9 9 0 0 0 9 18z"/>
+                    <path fill="#FBBC05" d="M3.97 10.7a5.4 5.4 0 0 1 0-3.4V4.98H.95a9 9 0 0 0 0 8.04l3.02-2.32z"/>
+                    <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35L15 2.1A9 9 0 0 0 .95 4.98l3.02 2.32C4.68 5.16 6.66 3.58 9 3.58z"/>
+                  </svg>
+                  {getTranslation(lang, "login_gmail")}
+                </a>
+                <div style={{ display: "flex", alignItems: "center", width: "100%", gap: "1rem" }}>
+                  <hr style={{ flex: 1, border: "none", borderTop: "1px solid var(--border-card)" }} />
+                  <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>{getTranslation(lang, "or")}</span>
+                  <hr style={{ flex: 1, border: "none", borderTop: "1px solid var(--border-card)" }} />
+                </div>
+              </div>
+            )}
+
             <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
               <h3 style={{ color: "var(--primary)", fontSize: "1.05rem", borderBottom: "1px solid var(--border-card)", paddingBottom: "0.25rem", display: "flex", alignItems: "center", gap: "0.35rem" }}>
                 <FranceFlag size={16} /> {getTranslation(lang, "reg_applicant_header")}
