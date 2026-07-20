@@ -183,6 +183,19 @@ export const TRANSLATIONS = {
     doc_ma_translation: "Traduction certifiée conforme de l'acte de mariage par traducteur assermenté",
     doc_ma_cin: "Carte Nationale d'Identité Électronique (CNIE) du conjoint",
 
+    // E2EE Shared Couple Vault Key
+    e2ee_widget_title: "Clé Secrète du Dossier Conjoint (Chiffrement AES-256)",
+    e2ee_widget_desc: "Cette clé unique permet à vous et votre conjoint(e) de déchiffrer et consulter l'ensemble des pièces justificatives du dossier en toute sécurité.",
+    e2ee_status_active: "🟢 Clé du dossier configurée et active dans votre navigateur",
+    e2ee_status_missing: "⚠️ Aucune clé renseignée : Veuillez saisir la clé du dossier pour lire ou téléverser des documents.",
+    e2ee_copy_btn: "📋 Copier la clé (pour votre conjoint(e))",
+    e2ee_key_copied: "Clé du dossier copiée dans le presse-papier !",
+    e2ee_change_btn: "✏️ Modifier la clé",
+    e2ee_show_key: "👁️ Afficher la clé",
+    e2ee_hide_key: "🙈 Masquer la clé",
+    e2ee_invite_key_label: "Clé Secrète du Dossier (transmise par votre conjoint(e))",
+    e2ee_invite_key_placeholder: "Entrez la clé secrète partagée...",
+
     // Admin
     admin_title: "Portail d'Administration Chaml",
     admin_users_tab: "Gestion des Comptes",
@@ -387,6 +400,19 @@ export const TRANSLATIONS = {
     doc_ma_translation: "ترجمة معتمدة لعقد الزواج من طرف ترجمان محلف في فرنسا",
     doc_ma_cin: "بطاقة التعريف الوطنية الإلكترونية للزوج(ة)",
 
+    // E2EE Shared Couple Vault Key
+    e2ee_widget_title: "مفتاح التشفير السري للملف المشترك (AES-256)",
+    e2ee_widget_desc: "يتيح هذا المفتاح الموحد لك ولزوجك(تك) فك تشفير واطلاع جميع وثائق الملف بأمان تام.",
+    e2ee_status_active: "🟢 مفتاح الملف مفعل ومشفر في متصفحك حالياً",
+    e2ee_status_missing: "⚠️ لم يتم إدخال المفتاح: يرجى إدخال مفتاح التشفير لقراءة أو تحميل الوثائق.",
+    e2ee_copy_btn: "📋 نسخ المفتاح (لمشاركته مع زوجك/تك)",
+    e2ee_key_copied: "تم نسخ مفتاح التشفير إلى الحافظة بنجاح!",
+    e2ee_change_btn: "✏️ تعديل المفتاح",
+    e2ee_show_key: "👁️ إظهار المفتاح",
+    e2ee_hide_key: "🙈 إخفاء المفتاح",
+    e2ee_invite_key_label: "مفتاح التشفير السري (المقدم من زوجك/تك)",
+    e2ee_invite_key_placeholder: "أدخل مفتاح التشفير المشترك...",
+
     // Admin
     admin_title: "لوحة التحكم لمشرف شمل",
     admin_users_tab: "إدارة الحسابات",
@@ -590,6 +616,19 @@ export const TRANSLATIONS = {
     doc_ma_marriage: "Original Moroccan marriage certificate (in Arabic)",
     doc_ma_translation: "Certified translation of the marriage certificate by a sworn translator",
     doc_ma_cin: "National electronic ID card (CNIE) of the spouse",
+
+    // E2EE Shared Couple Vault Key
+    e2ee_widget_title: "Shared Couple Vault Key (AES-256 Encryption)",
+    e2ee_widget_desc: "This unique key allows you and your spouse to securely decrypt and view all dossier documents.",
+    e2ee_status_active: "🟢 Dossier Vault Key configured and active in your browser",
+    e2ee_status_missing: "⚠️ No key configured: Please enter the dossier key to view or upload documents.",
+    e2ee_copy_btn: "📋 Copy Key (for your spouse)",
+    e2ee_key_copied: "Vault key copied to clipboard!",
+    e2ee_change_btn: "✏️ Change Key",
+    e2ee_show_key: "👁️ Show Key",
+    e2ee_hide_key: "🙈 Hide Key",
+    e2ee_invite_key_label: "Dossier Secret Key (provided by your spouse)",
+    e2ee_invite_key_placeholder: "Enter shared secret key...",
 
     // Admin
     admin_title: "Chaml Admin Portal",

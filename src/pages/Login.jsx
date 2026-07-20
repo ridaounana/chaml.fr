@@ -243,11 +243,16 @@ export default function Login({
       });
   };
 
+  const [inviteE2eeKey, setInviteE2eeKey] = useState("");
+
   const handleAcceptInvite = (e) => {
     e.preventDefault();
     if (!invitePassword) {
       setError("Veuillez saisir votre mot de passe.");
       return;
+    }
+    if (inviteE2eeKey) {
+      sessionStorage.setItem("chaml_e2ee_key", inviteE2eeKey);
     }
     acceptInvite(pendingCoupleId, frEmail, invitePassword)
       .then(() => {
@@ -745,6 +750,20 @@ export default function Login({
                 value={invitePassword} 
                 onChange={e => setInvitePassword(e.target.value)} 
               />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">🔑 {getTranslation(lang, "e2ee_invite_key_label")}</label>
+              <input 
+                className="input-field" 
+                type="password" 
+                placeholder={getTranslation(lang, "e2ee_invite_key_placeholder")}
+                value={inviteE2eeKey} 
+                onChange={e => setInviteE2eeKey(e.target.value)} 
+              />
+              <span style={{ fontSize: "0.78rem", color: "var(--text-muted)", marginTop: "0.25rem", display: "block" }}>
+                {getTranslation(lang, "e2ee_widget_desc")}
+              </span>
             </div>
 
             <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>

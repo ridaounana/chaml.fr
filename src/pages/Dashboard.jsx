@@ -17,6 +17,7 @@ export default function Dashboard({ lang, user }) {
   const [e2eeKey, setE2eeKey] = useState(sessionStorage.getItem("chaml_e2ee_key") || "");
   const [tempKeyInput, setTempKeyInput] = useState("");
   const [showKeyText, setShowKeyText] = useState(false);
+  const [copiedKeySuccess, setCopiedKeySuccess] = useState(false);
 
   // Invitation Form State
   const [inviteEmail, setInviteEmail] = useState("");
@@ -429,34 +430,39 @@ export default function Dashboard({ lang, user }) {
             <h1 style={{ fontSize: "1.8rem" }}>📁 {getTranslation(lang, "dash_title")}</h1>
             <p style={{ color: "var(--text-muted)", fontSize: "0.95rem" }}>{getTranslation(lang, "dash_subtitle")}</p>
 
-            {/* E2EE Key Entry Widget */}
+            {/* E2EE Shared Couple Vault Key Widget */}
             <div style={{
               marginTop: "1.25rem",
-              padding: "1rem",
+              padding: "1.15rem",
               background: "rgba(13, 148, 136, 0.05)",
               border: "1px solid var(--border-card)",
-              borderRadius: "0.5rem",
+              borderRadius: "0.75rem",
               display: "flex",
               flexDirection: "column",
-              gap: "0.5rem",
-              maxWidth: "450px"
+              gap: "0.6rem",
+              maxWidth: "500px"
             }}>
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <span style={{ fontSize: "1.1rem" }}>🔒</span>
-                <strong style={{ fontSize: "0.85rem", color: "var(--text-main)" }}>Chiffrement de bout en bout actif</strong>
+                <span style={{ fontSize: "1.2rem" }}>🔑</span>
+                <strong style={{ fontSize: "0.9rem", color: "var(--text-main)" }}>
+                  {getTranslation(lang, "e2ee_widget_title")}
+                </strong>
               </div>
-              <p style={{ margin: 0, fontSize: "0.78rem", color: "var(--text-muted)", lineHeight: "1.4" }}>
-                Pour garantir la confidentialité absolue, vos documents sont cryptés côté client avant envoi. Choisissez un code PIN ou une phrase secrète (minimum 6 caractères) facile à retenir pour vous et votre conjoint.
+              <p style={{ margin: 0, fontSize: "0.8rem", color: "var(--text-muted)", lineHeight: "1.45" }}>
+                {getTranslation(lang, "e2ee_widget_desc")}
               </p>
               
               {!e2eeKey ? (
-                <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", marginTop: "0.25rem" }}>
+                  <div style={{ fontSize: "0.78rem", color: "var(--danger)", fontWeight: 600 }}>
+                    {getTranslation(lang, "e2ee_status_missing")}
+                  </div>
                   <div style={{ display: "flex", gap: "0.5rem", position: "relative", alignItems: "center", width: "100%" }}>
                     <input
                       type={showKeyText ? "text" : "password"}
-                      placeholder="Code PIN ou mot de passe conjoint..."
+                      placeholder={getTranslation(lang, "e2ee_invite_key_placeholder")}
                       className="input-field"
-                      style={{ padding: "0.4rem 2.2rem 0.4rem 0.6rem", fontSize: "0.8rem", margin: 0, flex: 1 }}
+                      style={{ padding: "0.45rem 2.2rem 0.45rem 0.6rem", fontSize: "0.82rem", margin: 0, flex: 1 }}
                       value={tempKeyInput}
                       onChange={e => setTempKeyInput(e.target.value)}
                     />
@@ -470,18 +476,18 @@ export default function Dashboard({ lang, user }) {
                         border: "none",
                         color: "var(--text-muted)",
                         cursor: "pointer",
-                        fontSize: "0.9rem",
+                        fontSize: "0.95rem",
                         display: "flex",
                         alignItems: "center"
                       }}
-                      title={showKeyText ? "Masquer" : "Afficher"}
+                      title={showKeyText ? getTranslation(lang, "e2ee_hide_key") : getTranslation(lang, "e2ee_show_key")}
                     >
                       {showKeyText ? "👁️" : "🙈"}
                     </button>
                   </div>
                   <button
                     className="btn btn-primary"
-                    style={{ padding: "0.45rem", fontSize: "0.8rem", fontWeight: "bold" }}
+                    style={{ padding: "0.5rem", fontSize: "0.82rem", fontWeight: "bold" }}
                     onClick={() => {
                       if (!tempKeyInput || tempKeyInput.length < 6) {
                         alert(getTranslation(lang, "alert_e2ee_key_min_len"));
@@ -491,45 +497,60 @@ export default function Dashboard({ lang, user }) {
                       sessionStorage.setItem("chaml_e2ee_key", tempKeyInput);
                     }}
                   >
-                    Valider la clé
+                    Valider la clé du dossier
                   </button>
                 </div>
               ) : (
-                <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", marginTop: "0.25rem" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span style={{ fontSize: "0.8rem", color: "var(--success)", fontWeight: 500 }}>✓ Clé de chiffrement active</span>
+                    <span style={{ fontSize: "0.82rem", color: "var(--success)", fontWeight: 600 }}>
+                      {getTranslation(lang, "e2ee_status_active")}
+                    </span>
                     <button
-                      style={{ background: "none", border: "none", color: "var(--danger)", fontSize: "0.78rem", cursor: "pointer", textDecoration: "underline", padding: 0 }}
+                      style={{ background: "none", border: "none", color: "var(--danger)", fontSize: "0.78rem", cursor: "pointer", textDecoration: "underline", padding: 0, fontWeight: 600 }}
                       onClick={() => {
                         setE2eeKey("");
                         setTempKeyInput("");
                         sessionStorage.removeItem("chaml_e2ee_key");
                       }}
                     >
-                      Changer de clé
+                      {getTranslation(lang, "e2ee_change_btn")}
                     </button>
                   </div>
-                  <button
-                    className="btn btn-secondary"
-                    style={{ padding: "0.35rem 0.5rem", fontSize: "0.75rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.3rem" }}
-                    onClick={() => {
-                      const element = document.createElement("a");
-                      const file = new Blob([
-                        `--- CLÉ DE CHIFFREMENT PRIVÉE CHAML.FR ---\n`,
-                        `Dossier : ${couple ? couple.id : "Chaml"}\n`,
-                        `Clé / Code PIN : ${e2eeKey}\n\n`,
-                        `Cette clé est indispensable pour décrypter et télécharger vos documents sur Chaml.fr.\n`,
-                        `Ne la partagez jamais avec des tiers.\n`
-                      ], {type: 'text/plain'});
-                      element.href = URL.createObjectURL(file);
-                      element.download = `chaml-code-chiffrement.txt`;
-                      document.body.appendChild(element);
-                      element.click();
-                      document.body.removeChild(element);
-                    }}
-                  >
-                    💾 Télécharger une copie de sauvegarde
-                  </button>
+
+                  <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                    <button
+                      className="btn btn-secondary"
+                      style={{ padding: "0.4rem 0.65rem", fontSize: "0.78rem", fontWeight: "bold", background: copiedKeySuccess ? "rgba(16, 185, 129, 0.15)" : undefined, color: copiedKeySuccess ? "var(--success)" : undefined }}
+                      onClick={() => {
+                        navigator.clipboard.writeText(e2eeKey);
+                        setCopiedKeySuccess(true);
+                        setTimeout(() => setCopiedKeySuccess(false), 2500);
+                      }}
+                    >
+                      {copiedKeySuccess ? `✓ ${getTranslation(lang, "e2ee_key_copied")}` : getTranslation(lang, "e2ee_copy_btn")}
+                    </button>
+                    <button
+                      className="btn btn-secondary"
+                      style={{ padding: "0.4rem 0.65rem", fontSize: "0.78rem" }}
+                      onClick={() => {
+                        const element = document.createElement("a");
+                        const file = new Blob([
+                          `--- CLÉ DU DOSSIER CONJOINT CHAML.FR ---\n`,
+                          `Dossier ID : ${couple ? couple.id : "Chaml"}\n`,
+                          `Clé Secrète : ${e2eeKey}\n\n`,
+                          `Transmettez cette clé secrète à votre conjoint(e) pour qu'il/elle puisse déchiffrer vos documents sur Chaml.fr.\n`
+                        ], {type: 'text/plain'});
+                        element.href = URL.createObjectURL(file);
+                        element.download = `cle-dossier-chaml.txt`;
+                        document.body.appendChild(element);
+                        element.click();
+                        document.body.removeChild(element);
+                      }}
+                    >
+                      💾 Sauvegarder
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
