@@ -197,8 +197,8 @@ export default function Landing({ lang, onNavigate }) {
       mode_brut: "Brut mensuel",
       income_net_label: "Revenus nets mensuels moyens :",
       income_brut_label: "Revenus bruts mensuels moyens :",
-      aah_checkbox: "Titulaire de l'AAH ou pension d'invalidité (Dispense Art. L. 531-2 CESEDA)",
-      aah_badge: "✓ Exonération légale accordée (Art. L. 531-2)",
+      aah_checkbox: "Titulaire de l'AAH ou pension d'invalidité (Dispense Art. L. 434-8 CESEDA)",
+      aah_badge: "✓ Exonération légale accordée (Art. L. 434-8)",
       fam_size: "Taille de la famille (rejoignante) :",
       fam_desc: "Vous + conjoint + enfants",
       people: "personnes",
@@ -234,7 +234,7 @@ export default function Landing({ lang, onNavigate }) {
       calc12_monthly_avg: "Moyenne mensuelle calculée :",
       calc12_legal_note: "ℹ️ L'OFII retient le montant le plus favorable entre le Net Imposable de vos 12 bulletins de paie et votre Avis d'Imposition.",
       aah_legal_info: "Sous réserve d'appréciation finale par la Préfecture. Simulation fournie à titre indicatif sans engagement juridique.",
-      aah_link_text: "🔗 Consulter l'Article L. 531-2 du CESEDA sur Légifrance"
+      aah_link_text: "🔗 Consulter l'Article L. 434-8 du CESEDA sur Légifrance"
     },
     ar: {
       section_title: "⚡ اختبروا مطابقة ملفكم مباشرة",
@@ -247,7 +247,7 @@ export default function Landing({ lang, onNavigate }) {
       income_net_label: "متوسط الدخل الشهري الصافي:",
       income_brut_label: "متوسط الدخل الشهري الإجمالي (Brut):",
       aah_checkbox: "مستفيد من إعانة ذوي الاحتياجات (AAH) أو معاش العجز (إعفاء قانوني)",
-      aah_badge: "✓ إعفاء قانوني تام (المادة L. 531-2)",
+      aah_badge: "✓ إعفاء قانوني تام (المادة L. 434-8)",
       fam_size: "عدد أفراد الأسرة (الملتحقين):",
       fam_desc: "أنت + الزوج + الأطفال",
       people: "أفراد",
@@ -283,7 +283,7 @@ export default function Landing({ lang, onNavigate }) {
       calc12_monthly_avg: "متوسط الدخل الشهري المحسوب:",
       calc12_legal_note: "ℹ️ يعتمد مكتب الهجرة (OFII) المبلغ الأفضل بين متوسط كشوف الراتب والإقرار الضريبي.",
       aah_legal_info: "خاضع للقرار النهائي للعمالة (Préfecture). هذه المحاكاة استرشادية ولا تشكل التزاماً قانونياً.",
-      aah_link_text: "🔗 النص القانوني الرسمي المادة L. 531-2 على موقع Légifrance"
+      aah_link_text: "🔗 النص القانوني الرسمي المادة L. 434-8 على موقع Légifrance"
     },
     en: {
       section_title: "⚡ Test Your Eligibility Instantly",
@@ -295,8 +295,8 @@ export default function Landing({ lang, onNavigate }) {
       mode_brut: "Gross Monthly (Brut)",
       income_net_label: "Average net monthly income:",
       income_brut_label: "Average gross monthly income (Brut):",
-      aah_checkbox: "Disability Allowance (AAH) or Invalidity Pension (Art. L. 531-2 Exemption)",
-      aah_badge: "✓ Full Legal Exemption (Art. L. 531-2)",
+      aah_checkbox: "Disability Allowance (AAH) or Invalidity Pension (Art. L. 434-8 Exemption)",
+      aah_badge: "✓ Full Legal Exemption (Art. L. 434-8)",
       fam_size: "Family size (joining):",
       fam_desc: "You + spouse + children",
       people: "people",
@@ -332,7 +332,7 @@ export default function Landing({ lang, onNavigate }) {
       calc12_monthly_avg: "Calculated Monthly Average:",
       calc12_legal_note: "ℹ️ OFII evaluates the average Taxable Net Income over the 12 months preceding your application.",
       aah_legal_info: "Subject to final evaluation by the Prefecture. Non-binding simulation provided for informational purposes.",
-      aah_link_text: "🔗 Official law text on Légifrance (Art. L. 531-2 CESEDA)"
+      aah_link_text: "🔗 Official law text on Légifrance (Art. L. 434-8 CESEDA)"
     }
   };
 
@@ -960,7 +960,7 @@ export default function Landing({ lang, onNavigate }) {
                           ℹ️ {previewTextLocale.aah_legal_info}
                         </p>
                         <a 
-                          href="https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000042772590" 
+                          href="https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000042772714" 
                           target="_blank" 
                           rel="noopener noreferrer" 
                           style={{ color: "var(--primary)", fontWeight: "bold", textDecoration: "underline", display: "inline-block" }}
