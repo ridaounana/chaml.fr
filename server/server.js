@@ -1750,6 +1750,16 @@ app.post("/api/dossier/invite-spouse", authenticateUser, async (req, res) => {
         const decryptedPassword = decryptSMTPPassword(c.smtp_password);
         const secure = c.smtp_protocol === "SSL";
 
+        // Fetch inviter's real decrypted name
+        const inviterRes = await query("SELECT first_name, last_name FROM users WHERE id = $1", [req.user.id]);
+        let inviterName = "Votre conjoint(e)";
+        if (inviterRes.rows.length > 0) {
+          const inviter = decryptUserObject(inviterRes.rows[0]);
+          if (inviter.first_name) {
+            inviterName = `${inviter.first_name} ${inviter.last_name || ""}`.trim();
+          }
+        }
+
         const transporter = nodemailer.createTransport({
           host: c.smtp_host,
           port: Number(c.smtp_port),
@@ -1764,21 +1774,90 @@ app.post("/api/dossier/invite-spouse", authenticateUser, async (req, res) => {
         const mailOptions = {
           from: `"${c.smtp_sender_name}" <${c.smtp_sender_email}>`,
           to: email,
-          subject: "🕌 Chaml.fr - Invitation à rejoindre votre dossier conjoint",
-          text: `Bonjour ${firstName},\n\nVotre conjoint(e) vous invite à le/la rejoindre sur Chaml.fr pour préparer votre dossier de regroupement familial.\n\nVeuillez accepter l'invitation et choisir votre mot de passe en cliquant sur le lien suivant :\n${inviteUrl}\n\nUne fois votre mot de passe créé, vous aurez accès immédiatement à votre tableau de bord.\n\nCordialement,\nL'équipe Chaml.fr`,
+          subject: `🕌 Chaml.fr - ${inviterName} vous invite à rejoindre votre dossier conjoint`,
+          text: `Bonjour ${firstName},\n\nVotre conjoint(e) ${inviterName} vous invite à le/la rejoindre sur Chaml.fr pour préparer votre dossier de regroupement familial.\n\nVeuillez accepter l'invitation et choisir votre mot de passe en cliquant sur le lien suivant :\n${inviteUrl}\n\nUne fois votre mot de passe créé, vous aurez accès immédiatement à votre tableau de bord.\n\nCordialement,\nL'équipe Chaml.fr`,
           html: `
-            <div style="font-family: Arial, sans-serif; line-height: 1.6; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
-              <h2 style="color: #0d9488; text-align: center;">🕌 Rejoignez votre conjoint(e) sur Chaml.fr</h2>
-              <p>Bonjour <strong>${firstName} ${lastName}</strong>,</p>
-              <p>Votre conjoint(e) <strong>${req.user.firstName}</strong> vous invite à rejoindre son dossier conjoint sur Chaml.fr afin de collaborer sur vos démarches de regroupement familial.</p>
-              <p>Pour accepter cette invitation et définir votre mot de passe de connexion, veuillez cliquer sur le bouton ci-dessous :</p>
-              <div style="text-align: center; margin: 30px 0;">
-                <a href="${inviteUrl}" style="background-color: #0d9488; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Définir mon mot de passe</a>
-              </div>
-              <p style="font-size: 0.85rem; color: #64748b;">Si le bouton ne fonctionne pas, copiez-collez le lien suivant dans votre navigateur :<br/>${inviteUrl}</p>
-              <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;"/>
-              <p style="font-size: 0.85rem; text-align: center; color: #94a3b8;">L'équipe Chaml.fr - Reuniting your family, without borders</p>
-            </div>
+            <!DOCTYPE html>
+            <html lang="fr" dir="ltr">
+            <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            </head>
+            <body style="margin: 0; padding: 0; background-color: #0f172a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #334155;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #0f172a; padding: 30px 10px;">
+                <tr>
+                  <td align="center">
+                    <table role="presentation" width="100%" style="max-width: 620px; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3); text-align: left;">
+                      
+                      <!-- Header Banner -->
+                      <tr>
+                        <td style="background: linear-gradient(135deg, #0f172a 0%, #0d9488 100%); padding: 32px 28px; text-align: center;">
+                          <div style="font-size: 32px; margin-bottom: 6px;">🕌</div>
+                          <h1 style="color: #ffffff; font-size: 24px; font-weight: 800; margin: 0;">Chaml.fr</h1>
+                          <p style="color: #99f6e4; font-size: 13px; margin: 4px 0 0 0; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">
+                            Plateforme de Regroupement Familial
+                          </p>
+                        </td>
+                      </tr>
+
+                      <!-- Body Content -->
+                      <tr>
+                        <td style="padding: 32px 28px;">
+                          
+                          <!-- Status Badge -->
+                          <div style="background-color: #f0fdf4; border: 1px solid #6ee7b7; border-radius: 12px; padding: 16px; text-align: center; margin-bottom: 24px;">
+                            <span style="background-color: #10b981; color: #ffffff; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; display: inline-block; margin-bottom: 8px;">
+                              💌 Invitation Reçue
+                            </span>
+                            <h2 style="color: #065f46; font-size: 20px; margin: 6px 0 0 0; font-weight: 800;">
+                              Rejoignez votre conjoint(e) sur Chaml.fr
+                            </h2>
+                          </div>
+
+                          <p style="font-size: 16px; line-height: 1.6; color: #1e293b; margin-top: 0;">
+                            Bonjour <strong>${firstName} ${lastName}</strong>,
+                          </p>
+
+                          <p style="font-size: 15px; line-height: 1.6; color: #334155;">
+                            Votre conjoint(e) <strong>${inviterName}</strong> vous invite à rejoindre son dossier conjoint sur Chaml.fr afin de collaborer et rassembler vos pièces justificatives pour votre demande de regroupement familial.
+                          </p>
+
+                          <!-- Call To Action Button -->
+                          <div style="text-align: center; margin: 32px 0 24px 0;">
+                            <a href="${inviteUrl}" target="_blank" style="background-color: #0d9488; color: #ffffff; padding: 14px 28px; border-radius: 8px; font-weight: bold; font-size: 15px; text-decoration: none; display: inline-block; box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3);">
+                              🔐 Définir mon mot de passe et rejoindre le dossier
+                            </a>
+                          </div>
+
+                          <!-- Security Note -->
+                          <div style="background-color: #f1f5f9; border-radius: 8px; padding: 12px 16px; font-size: 12px; color: #64748b; text-align: center;">
+                            🔒 Sécurité & Confidentialité : Vos pièces justificatives sont chiffrées de bout en bout (AES-256)
+                          </div>
+
+                        </td>
+                      </tr>
+
+                      <!-- Footer -->
+                      <tr>
+                        <td style="background-color: #f8fafc; border-top: 1px solid #e2e8f0; padding: 24px 28px; text-align: center; font-size: 12px; color: #64748b; line-height: 1.6;">
+                          <p style="margin: 0 0 6px 0; font-weight: bold; color: #334155;">Chaml.fr</p>
+                          <p style="margin: 0 0 12px 0;">Plateforme d'accompagnement au regroupement familial en France</p>
+                          <p style="margin: 0; font-size: 11px; color: #94a3b8;">
+                            Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :<br />
+                            <a href="${inviteUrl}" style="color: #0d9488;">${inviteUrl}</a>
+                          </p>
+                          <p style="margin: 10px 0 0 0; font-size: 11px; color: #cbd5e1;">
+                            © 2026 Chaml.fr. Tous droits réservés.
+                          </p>
+                        </td>
+                      </tr>
+
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </body>
+            </html>
           `
         };
 
