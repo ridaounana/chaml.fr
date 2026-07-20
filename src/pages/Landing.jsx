@@ -921,47 +921,68 @@ export default function Landing({ lang, onNavigate }) {
                 {/* Single-line Criteria result rows */}
                 <div style={{ display: "flex", flexDirection: "column", gap: "0.45rem" }}>
 
-                  {/* Income Row */}
-                  <div style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    background: "var(--bg-app)",
-                    padding: "0.4rem 0.65rem",
-                    borderRadius: "0.4rem",
-                    fontSize: "0.8rem",
-                    borderLeft: isIncCompliant ? "3px solid #10b981" : "3px solid #ef4444"
-                  }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", flexWrap: "wrap" }}>
-                      <span style={{ fontWeight: 600 }}>Revenus :</span>
-                      <strong style={{ color: "var(--text-main)" }}>{simIncome} €/mois</strong>
-                      <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>(exigé : {reqInc} €)</span>
+                  {isAahExempt ? (
+                    <div style={{ 
+                      background: "rgba(16, 185, 129, 0.12)", 
+                      color: "#10b981", 
+                      padding: "0.6rem 0.75rem", 
+                      borderRadius: "0.4rem", 
+                      fontSize: "0.8rem", 
+                      fontWeight: "bold",
+                      textAlign: "center",
+                      border: "1px solid rgba(16, 185, 129, 0.3)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "0.35rem"
+                    }}>
+                      {previewTextLocale.aah_badge}
                     </div>
-                    <span className={`badge ${isIncCompliant ? "badge-approved" : "badge-rejected"}`} style={{ fontSize: "0.72rem", padding: "0.15rem 0.45rem", whiteSpace: "nowrap" }}>
-                      {isIncCompliant ? `✓ ${previewTextLocale.income_ok}` : `❌ ${previewTextLocale.income_nok}`}
-                    </span>
-                  </div>
+                  ) : (
+                    <>
+                      {/* Income Row */}
+                      <div style={{ 
+                        display: "flex", 
+                        justifyContent: "space-between", 
+                        alignItems: "center", 
+                        background: "var(--bg-app)", 
+                        padding: "0.4rem 0.65rem", 
+                        borderRadius: "0.4rem", 
+                        fontSize: "0.8rem",
+                        borderLeft: isIncCompliant ? "3px solid #10b981" : "3px solid #ef4444" 
+                      }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", flexWrap: "wrap" }}>
+                          <span style={{ fontWeight: 600 }}>Revenus :</span>
+                          <strong style={{ color: "var(--text-main)" }}>{simIncome} €/mois</strong>
+                          <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>(exigé : {reqInc} €)</span>
+                        </div>
+                        <span className={`badge ${isIncCompliant ? "badge-approved" : "badge-rejected"}`} style={{ fontSize: "0.72rem", padding: "0.15rem 0.45rem", whiteSpace: "nowrap" }}>
+                          {isIncCompliant ? `✓ ${previewTextLocale.income_ok}` : `❌ ${previewTextLocale.income_nok}`}
+                        </span>
+                      </div>
 
-                  {/* Surface Row */}
-                  <div style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    background: "var(--bg-app)",
-                    padding: "0.4rem 0.65rem",
-                    borderRadius: "0.4rem",
-                    fontSize: "0.8rem",
-                    borderLeft: isSurfCompliant ? "3px solid #10b981" : "3px solid #ef4444"
-                  }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", flexWrap: "wrap" }}>
-                      <span style={{ fontWeight: 600 }}>Surface :</span>
-                      <strong style={{ color: "var(--text-main)" }}>{simSurface} m²</strong>
-                      <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>(requis : {reqSurf} m²)</span>
-                    </div>
-                    <span className={`badge ${isSurfCompliant ? "badge-approved" : "badge-rejected"}`} style={{ fontSize: "0.72rem", padding: "0.15rem 0.45rem", whiteSpace: "nowrap" }}>
-                      {isSurfCompliant ? `✓ ${previewTextLocale.surface_ok}` : `❌ ${previewTextLocale.surface_nok}`}
-                    </span>
-                  </div>
+                      {/* Surface Row */}
+                      <div style={{ 
+                        display: "flex", 
+                        justifyContent: "space-between", 
+                        alignItems: "center", 
+                        background: "var(--bg-app)", 
+                        padding: "0.4rem 0.65rem", 
+                        borderRadius: "0.4rem", 
+                        fontSize: "0.8rem",
+                        borderLeft: isSurfCompliant ? "3px solid #10b981" : "3px solid #ef4444" 
+                      }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", flexWrap: "wrap" }}>
+                          <span style={{ fontWeight: 600 }}>Surface :</span>
+                          <strong style={{ color: "var(--text-main)" }}>{simSurface} m²</strong>
+                          <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>(requis : {reqSurf} m²)</span>
+                        </div>
+                        <span className={`badge ${isSurfCompliant ? "badge-approved" : "badge-rejected"}`} style={{ fontSize: "0.72rem", padding: "0.15rem 0.45rem", whiteSpace: "nowrap" }}>
+                          {isSurfCompliant ? `✓ ${previewTextLocale.surface_ok}` : `❌ ${previewTextLocale.surface_nok}`}
+                        </span>
+                      </div>
+                    </>
+                  )}
 
                 </div>
               </div>
