@@ -26,6 +26,22 @@ export const initializeDatabase = async () => {
     await pool.query("SELECT 1");
     console.log("PostgreSQL connection verified.");
 
+    console.log("Ensuring PII columns accommodate AES-256 encrypted cipherstrings...");
+    try {
+      await pool.query(`
+        ALTER TABLE users ALTER COLUMN first_name TYPE TEXT;
+        ALTER TABLE users ALTER COLUMN last_name TYPE TEXT;
+        ALTER TABLE users ALTER COLUMN phone TYPE TEXT;
+        ALTER TABLE users ALTER COLUMN city TYPE TEXT;
+        ALTER TABLE users ALTER COLUMN department TYPE TEXT;
+        ALTER TABLE users ALTER COLUMN address TYPE TEXT;
+      `);
+      console.log("✅ PII column types updated to TEXT.");
+    } catch (alterErr) {
+      // Table might not exist yet before first migration
+      console.log("Note: PII column alter skipped (table will be created by migrations).");
+    }
+
     console.log("Running Knex database migrations...");
     const environment = process.env.NODE_ENV || "development";
     const db = knex(knexConfig[environment]);
