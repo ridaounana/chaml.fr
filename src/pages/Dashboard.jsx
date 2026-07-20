@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { getTranslation } from "../utils/i18n";
 import AlertBanner from "../components/AlertBanner";
 import { FranceFlag, MoroccoFlag } from "../components/Flag";
@@ -108,6 +109,17 @@ export default function Dashboard({ lang, user }) {
   useEffect(() => {
     loadDossierData();
   }, []);
+
+  useEffect(() => {
+    if (showUpgradeModal) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [showUpgradeModal]);
 
   if (loading) {
     return (
@@ -625,33 +637,47 @@ export default function Dashboard({ lang, user }) {
         )}
       </div>
 
-      {/* 🌟 Premium Upgrade Modal (Glassmorphism design) */}
-      {showUpgradeModal && (
-        <div style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: "rgba(15, 23, 42, 0.8)", // Dark backdrop
-          backdropFilter: "blur(8px)",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          zIndex: 1000,
-          padding: "1rem",
-        }}>
-          <div className="glass-card" style={{
-            maxWidth: "500px",
-            width: "100%",
-            padding: "2.25rem",
-            position: "relative",
+      {/* 🌟 Premium Upgrade Modal (Glassmorphism design rendered via Portal) */}
+      {showUpgradeModal && createPortal(
+        <div 
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: "100vw",
+            height: "100vh",
+            background: "rgba(15, 23, 42, 0.8)", // Dark backdrop
+            backdropFilter: "blur(8px)",
+            WebkitBackdropFilter: "blur(8px)",
             display: "flex",
-            flexDirection: "column",
-            gap: "1.5rem",
-            border: "1px solid rgba(255, 255, 255, 0.1)",
-            boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.5), 0 8px 10px -6px rgb(0 0 0 / 0.5)"
-          }}>
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 99999,
+            padding: "1rem",
+            boxSizing: "border-box"
+          }}
+          onClick={() => setShowUpgradeModal(false)}
+        >
+          <div 
+            className="glass-card" 
+            style={{
+              maxWidth: "500px",
+              width: "100%",
+              maxHeight: "90vh",
+              overflowY: "auto",
+              padding: "clamp(1.5rem, 4vw, 2.25rem)",
+              position: "relative",
+              display: "flex",
+              flexDirection: "column",
+              gap: "1.5rem",
+              margin: "auto",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
+              boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.5), 0 8px 10px -6px rgb(0 0 0 / 0.5)"
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
             <button 
               onClick={() => setShowUpgradeModal(false)}
               style={{
@@ -750,7 +776,8 @@ export default function Dashboard({ lang, user }) {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

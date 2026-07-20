@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { getTranslation } from "../utils/i18n";
 import { FranceFlag, MoroccoFlag } from "../components/Flag";
 
@@ -156,6 +157,17 @@ export default function Landing({ lang, onNavigate }) {
   const text = LANDING_TEXT[lang] || LANDING_TEXT.fr;
   const [showLegalModal, setShowLegalModal] = useState(false);
   const [activeFaq, setActiveFaq] = useState(null);
+
+  useEffect(() => {
+    if (showLegalModal) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [showLegalModal]);
 
   // Previews States
   const [previewTab, setPreviewTab] = useState("simulator"); // "simulator" | "checklist"
@@ -1103,33 +1115,45 @@ export default function Landing({ lang, onNavigate }) {
         <p style={{ marginTop: "0.25rem" }}>&copy; 2026 Chaml.fr. {text.copyright_text}</p>
       </footer>
 
-      {/* Legal & GDPR Modal */}
-      {showLegalModal && (
-        <div style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: "rgba(0, 0, 0, 0.75)",
-          backdropFilter: "blur(8px)",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          zIndex: 1000,
-          padding: "1rem"
-        }}>
-          <div className="glass-card" style={{
-            maxWidth: "700px",
-            width: "100%",
-            maxHeight: "85vh",
-            overflowY: "auto",
-            padding: "2.5rem",
-            position: "relative",
+      {/* Legal & GDPR Modal (Rendered directly via Portal into document.body for instant viewport alignment) */}
+      {showLegalModal && createPortal(
+        <div 
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: "100vw",
+            height: "100vh",
+            background: "rgba(0, 0, 0, 0.8)",
+            backdropFilter: "blur(8px)",
+            WebkitBackdropFilter: "blur(8px)",
             display: "flex",
-            flexDirection: "column",
-            gap: "1.5rem"
-          }}>
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 99999,
+            padding: "1rem",
+            boxSizing: "border-box"
+          }}
+          onClick={() => setShowLegalModal(false)}
+        >
+          <div 
+            className="glass-card" 
+            style={{
+              maxWidth: "700px",
+              width: "100%",
+              maxHeight: "85vh",
+              overflowY: "auto",
+              padding: "clamp(1.25rem, 4vw, 2.5rem)",
+              position: "relative",
+              display: "flex",
+              flexDirection: "column",
+              gap: "1.5rem",
+              margin: "auto"
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
             <button 
               onClick={() => setShowLegalModal(false)}
               style={{
@@ -1160,7 +1184,6 @@ export default function Landing({ lang, onNavigate }) {
             <hr style={{ border: "none", borderTop: "1px solid var(--border-card)", margin: 0 }} />
 
             <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem", fontSize: "0.88rem", lineHeight: "1.6", color: "var(--text-muted)" }}>
-              
               <div>
                 <h3 style={{ color: "var(--text-main)", fontSize: "1.05rem", marginBottom: "0.4rem" }}>{text.legal_sec1_title}</h3>
                 <p>
@@ -1196,7 +1219,6 @@ export default function Landing({ lang, onNavigate }) {
                   {text.legal_sec4_desc}
                 </p>
               </div>
-
             </div>
 
             <hr style={{ border: "none", borderTop: "1px solid var(--border-card)", margin: 0 }} />
@@ -1211,7 +1233,8 @@ export default function Landing({ lang, onNavigate }) {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
     </div>
