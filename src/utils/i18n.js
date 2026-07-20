@@ -10,7 +10,7 @@ export const TRANSLATIONS = {
   fr: {
     // Brand
     brand_tagline: "Réunir votre famille, sans frontières",
-    
+
     // Login
     login_title: "Portail de Connexion",
     login_subtitle: "Accédez à votre dossier de regroupement familial Chaml",
@@ -24,7 +24,7 @@ export const TRANSLATIONS = {
     or: "ou",
     login_gmail: "Se connecter avec Gmail",
     forgot_password_link: "Mot de passe oublié ?",
-    
+
     // Register / Subscription
     reg_title: "📝 Inscription / Création de dossier",
     reg_subtitle: "Créez votre dossier de regroupement familial. L'adresse email sera vérifiée et le dossier devra être approuvé.",
@@ -40,23 +40,23 @@ export const TRANSLATIONS = {
     reg_surface: "Surface Habitable (m²)",
     reg_btn_submit: "✓ S'inscrire & envoyer le lien email",
     reg_btn_back_login: "Retour à la connexion",
-    
+
     // Unverified / Invite / Approval
     unverified_title: "Vérification de l'adresse email",
     unverified_desc: "Un lien de vérification a été envoyé à l'adresse {email}. Veuillez valider votre e-mail avant de continuer.",
     unverified_sim_title: "Simulation de boîte de réception :",
     unverified_sim_desc: "Pour tester le parcours sans serveur d'email réel, cliquez sur le bouton ci-dessous pour simuler l'ouverture du lien d'activation.",
     unverified_sim_btn: "🔗 Simuler le clic sur le lien d'activation email",
-    
+
     invite_title: "Créer votre mot de passe conjoint",
     invite_welcome: "Bienvenue sur Chaml.fr ! Votre conjoint(e) vous a invité(e) à rejoindre son dossier de regroupement familial partagé.",
     invite_email_lbl: "Adresse E-mail (Conjoint invité)",
     invite_pass_lbl: "Choisissez votre mot de passe*",
     invite_btn: "✓ Activer mon compte & se connecter",
-    
+
     unapproved_title: "Compte en attente d'approbation",
     unapproved_desc: "Votre adresse e-mail a été vérifiée avec succès. Un administrateur de la plateforme doit maintenant valider votre compte.",
-    
+
     // Navigation
     nav_dashboard: "Tableau de Bord",
     nav_simulators: "Simulateurs",
@@ -65,7 +65,7 @@ export const TRANSLATIONS = {
     nav_logout: "Déconnexion",
     nav_welcome: "Bienvenue",
     nav_partner: "Conjoint(e) :",
-    
+
     // Common / Status
     status_draft: "Brouillon",
     status_submitted: "Déposé à l'OFII / Préfecture",
@@ -81,13 +81,13 @@ export const TRANSLATIONS = {
     btn_delete: "Supprimer",
     btn_edit: "Modifier",
     btn_close: "Fermer",
-    
+
     // Simulators
     sim_title: "Simulateurs de Conformité Officielle",
     sim_desc: "Vérifiez instantanément si vos conditions de ressources et de logement correspondent aux exigences du CESEDA.",
     sim_tab_housing: "Logement (Surface)",
     sim_tab_resources: "Ressources (SMIC)",
-    
+
     sim_house_title: "Simulateur de Surface Habitable",
     sim_house_desc: "Le logement doit disposer d'une surface minimale décente selon sa zone géographique.",
     sim_lbl_zone: "Zone Géographique (France)",
@@ -98,7 +98,7 @@ export const TRANSLATIONS = {
     sim_res_current: "Surface déclarée :",
     sim_status_success: "Conforme aux exigences de la préfecture !",
     sim_status_failed: "Attention : Surface insuffisante pour cette zone.",
-    
+
     sim_res_title: "Simulateur de Suffisance de Ressources",
     sim_res_desc: "Vos ressources nettes moyennes sur les 12 derniers mois doivent être supérieures ou égales au SMIC net. (Les aides sociales APL/RSA sont exclues).",
     sim_lbl_salary: "Salaire net perçu pour le mois",
@@ -106,7 +106,7 @@ export const TRANSLATIONS = {
     sim_res_threshold: "Seuil requis (SMIC ajusté à la taille de la famille) :",
     sim_res_status_success: "Ressources suffisantes et stables !",
     sim_res_status_failed: "Attention : Vos revenus sont en dessous du seuil exigé.",
-    
+
     // Dashboard
     dash_title: "Dossier de Regroupement Familial",
     dash_subtitle: "Espace partagé pour rassembler vos pièces justificatives.",
@@ -123,7 +123,7 @@ export const TRANSLATIONS = {
     dash_btn_submit_dossier: "Soumettre à l'Administration (OFII / ANEF)",
     dash_submit_confirm: "Êtes-vous sûr de vouloir envoyer votre dossier complet à l'administration française (OFII / ANEF) ? Cela démarrera le délai légal de 6 mois pour obtenir une réponse.",
     dash_submitted_on: "Soumis le :",
-    
+
     // Alert / Contestation
     alert_title: "Alerte de Contestation (Délai de 6 mois dépassé)",
     alert_body: "Votre dossier a été soumis le {date} (il y a plus de 6 mois) et aucune décision préfectorale ne vous a été notifiée. La loi considère ce silence comme un refus implicite. Vous disposez de 2 mois pour contester cette décision.",
@@ -135,13 +135,13 @@ export const TRANSLATIONS = {
     alert_recours_contentieux: "Recours Contentieux (Devant le Tribunal Administratif)",
     btn_copy_letter: "Copier la lettre dans le presse-papier",
     letter_copied: "Lettre copiée !",
-    
+
     // Steps Guide
     guide_title: "Parcours de Regroupement Familial pas à pas",
     guide_desc: "Comprendre toutes les étapes administratives en France et au Maroc pour ramener votre conjoint(e).",
-    guide_france_tab: "Étapes en France (OFII & Préfecture)",
-    guide_morocco_tab: "Étapes au Maroc (Consulat & OFII Casablanca)",
-    
+    guide_france_tab: "Étapes en France",
+    guide_morocco_tab: "Étapes au Maroc",
+
     // Documents keys
     doc_fr_identity: "Titre de Séjour valide du demandeur (recto-verso)",
     doc_fr_cerfa: "Formulaire officiel CERFA n° 11436*05 rempli et signé",
@@ -150,7 +150,7 @@ export const TRANSLATIONS = {
     doc_fr_tax: "Dernier avis d'imposition sur le revenu",
     doc_fr_housing: "Bail de location de plus de 1 an + quittance de loyer récente",
     doc_fr_surface: "Attestation de mesurage/diagnostic de surface (si demandé)",
-    
+
     doc_ma_identity: "Passeport en cours de validité du conjoint bénéficiaire",
     doc_ma_birth: "Copie intégrale de l'acte de naissance du conjoint",
     doc_ma_marriage: "Acte de mariage marocain original (en arabe)",
@@ -184,11 +184,11 @@ export const TRANSLATIONS = {
     admin_change_date_help: "Pour tester l'alerte de contestation après 6 mois, changez la date de soumission du dossier ci-dessous :",
     admin_submission_date: "Date de soumission du dossier"
   },
-  
+
   ar: {
     // Brand
     brand_tagline: "لم شمل عائلتكم، بدون حدود",
-    
+
     // Login
     login_title: "بوابة تسجيل الدخول",
     login_subtitle: "الولوج إلى ملف لم الشمل العائلي الخاص بكم عبر شمل",
@@ -202,7 +202,7 @@ export const TRANSLATIONS = {
     or: "أو",
     login_gmail: "تسجيل الدخول عبر Gmail",
     forgot_password_link: "نسيت كلمة المرور؟",
-    
+
     // Register / Subscription
     reg_title: "📝 التسجيل / إنشاء حساب جديد",
     reg_subtitle: "أنشئوا ملف لم الشمل العائلي الخاص بكم. سيتم التحقق من بريدكم الإلكتروني واعتماد الملف.",
@@ -218,23 +218,23 @@ export const TRANSLATIONS = {
     reg_surface: "المساحة السكنية (بالمتر المربع)",
     reg_btn_submit: "✓ التسجيل وإرسال رابط التفعيل",
     reg_btn_back_login: "العودة إلى تسجيل الدخول",
-    
+
     // Unverified / Invite / Approval
     unverified_title: "التحقق من البريد الإلكتروني",
     unverified_desc: "تم إرسال رابط التفعيل إلى البريد الإلكتروني {email}. يرجى تأكيد بريدكم قبل المتابعة.",
     unverified_sim_title: "محاكاة صندوق الوارد:",
     unverified_sim_desc: "لاختبار الحساب بدون سيرفر بريد إلكتروني حقيقي، اضغطوا على الزر أسفله لمحاكاة فتح رابط التفعيل.",
     unverified_sim_btn: "🔗 محاكاة النقر على رابط التفعيل عبر البريد",
-    
+
     invite_title: "إنشاء كلمة مرور الحساب المشترك",
     invite_welcome: "مرحبًا بكم في شمل! قام زوجكم/زوجتكم بدعوتكم للانضمام إلى ملف لم الشمل العائلي المشترك.",
     invite_email_lbl: "البريد الإلكتروني (الزوج المستدعى)",
     invite_pass_lbl: "اختر كلمة المرور الخاصة بك*",
     invite_btn: "✓ تفعيل حسابي وتسجيل الدخول",
-    
+
     unapproved_title: "الحساب في انتظار موافقة المشرف",
     unapproved_desc: "تم التحقق من بريدكم الإلكتروني بنجاح. يتوجب الآن على مشرف المنصة اعتماد ملفكم.",
-    
+
     // Navigation
     nav_dashboard: "لوحة التحكم",
     nav_simulators: "المحاكيات",
@@ -243,7 +243,7 @@ export const TRANSLATIONS = {
     nav_logout: "تسجيل الخروج",
     nav_welcome: "مرحبًا",
     nav_partner: "الزوج(ة):",
-    
+
     // Common / Status
     status_draft: "مسودة",
     status_submitted: "تم إيداعه لدى OFII / المحافظة",
@@ -259,13 +259,13 @@ export const TRANSLATIONS = {
     btn_delete: "حذف",
     btn_edit: "تعديل",
     btn_close: "إغلاق",
-    
+
     // Simulators
     sim_title: "محاكيات المطابقة الرسمية",
     sim_desc: "تحقق فورًا من مطابقة شروط السكن والدخل الخاصة بك مع متطلبات قانون دخول وإقامة الأجانب ولجوئهم (CESEDA).",
     sim_tab_housing: "السكن (المساحة)",
     sim_tab_resources: "الموارد المادية (الحد الأدنى للأجور)",
-    
+
     sim_house_title: "محاكي المساحة السكنية",
     sim_house_desc: "يجب أن يتوفر السكن على حد أدنى من المساحة اللائقة حسب المنطقة الجغرافية المتواجد بها.",
     sim_lbl_zone: "المنطقة الجغرافية (فرنسا)",
@@ -276,7 +276,7 @@ export const TRANSLATIONS = {
     sim_res_current: "المساحة المصرح بها:",
     sim_status_success: "مطابق تمامًا لمتطلبات المحافظة!",
     sim_status_failed: "تنبيه: المساحة غير كافية بالنسبة لهذه المنطقة.",
-    
+
     sim_res_title: "محاكي كفاية الموارد المادية",
     sim_res_desc: "يجب أن يكون متوسط دخلك الصافي خلال الـ12 شهرًا الماضية مساويًا أو أكبر من الحد الأدنى للأجور (SMIC). (تُستثنى المساعدات الاجتماعية مثل APL وRSA).",
     sim_lbl_salary: "الراتب الصافي لشهر",
@@ -284,7 +284,7 @@ export const TRANSLATIONS = {
     sim_res_threshold: "الحد الأدنى المطلوب (معدل حسب حجم الأسرة):",
     sim_res_status_success: "الموارد المادية كافية ومستقرة!",
     sim_res_status_failed: "تنبيه: دخلك الشهري أقل من الحد المطلوب.",
-    
+
     // Dashboard
     dash_title: "ملف لم الشمل العائلي",
     dash_subtitle: "فضاء مشترك لجمع الوثائق الإثباتية الخاصة بكم.",
@@ -301,7 +301,7 @@ export const TRANSLATIONS = {
     dash_btn_submit_dossier: "إرسال الملف إلى الإدارة الفرنسية (OFII / ANEF)",
     dash_submit_confirm: "هل أنت متأكد من إرسال ملفك الكامل إلى الإدارة الفرنسية (OFII / ANEF)؟ سيبدأ احتساب مهلة الـ 6 أشهر للرد القانونi.",
     dash_submitted_on: "تاريخ الإيداع:",
-    
+
     // Alert / Contestation
     alert_title: "تنبيه الطعن والاعتراض (تجاوز مهلة 6 أشهر)",
     alert_body: "تم إرسال ملفكم بتاريخ {date} (منذ أكثر من 6 أشهر) ولم تتلقوا أي رد من المحافظة. يعتبر القانون هذا الصمت بمثابة رفض ضمني للملف. لديكم مهلة شهرين لتقديم طعن إداري.",
@@ -313,13 +313,13 @@ export const TRANSLATIONS = {
     alert_recours_contentieux: "طعن قضائي (أمام المحكمة الإدارية)",
     btn_copy_letter: "نسخ الرسالة إلى الحافظة",
     letter_copied: "تم نسخ الرسالة بنجاح!",
-    
+
     // Steps Guide
     guide_title: "خطوات لم الشمل خطوة بخطوة",
     guide_desc: "فهم شامل لجميع المراحل الإدارية في فرنسا والمغرب للالتحاق بزوجكم.",
-    guide_france_tab: "المراحل في فرنسا (OFII والمحافظة)",
-    guide_morocco_tab: "المراحل في المغرب (القنصلية وOFII بالدار البيضاء)",
-    
+    guide_france_tab: "المراحل في فرنسا",
+    guide_morocco_tab: "المراحل في المغرب",
+
     // Documents keys
     doc_fr_identity: "بطاقة الإقامة الخاصة بصاحب الطلب (الوجه والظهر)",
     doc_fr_cerfa: "استمارة CERFA الرسمية رقم 11436*05 معبأة وموقعة",
@@ -328,7 +328,7 @@ export const TRANSLATIONS = {
     doc_fr_tax: "آخر إشعار بالضريبة على الدخل",
     doc_fr_housing: "عقد كراء لأكثر من سنة + كشف أداء الكراء الأخير",
     doc_fr_surface: "شهادة قياس ومساحة السكن (عند الطلب)",
-    
+
     doc_ma_identity: "جواز سفر ساري المفعول للزوج(ة) المستفيد(ة)",
     doc_ma_birth: "نسخة كاملة من رسم الولادة للزوج(ة)",
     doc_ma_marriage: "عقد الزواج المغربي الأصلي (باللغة العربية)",
@@ -362,11 +362,11 @@ export const TRANSLATIONS = {
     admin_change_date_help: "لاختبار تنبيه الـ6 أشهر، غير تاريخ إرسال الملف أسفله:",
     admin_submission_date: "تاريخ إرسال الملف"
   },
-  
+
   en: {
     // Brand
     brand_tagline: "Reuniting your family, without borders",
-    
+
     // Login
     login_title: "Login Portal",
     login_subtitle: "Access your Chaml family reunification file",
@@ -380,7 +380,7 @@ export const TRANSLATIONS = {
     or: "or",
     login_gmail: "Sign in with Gmail",
     forgot_password_link: "Forgot password?",
-    
+
     // Register / Subscription
     reg_title: "📝 Registration / Account Creation",
     reg_subtitle: "Create your family reunification dossier. Your email will be verified and approved.",
@@ -396,23 +396,7 @@ export const TRANSLATIONS = {
     reg_surface: "Living Surface (m²)",
     reg_btn_submit: "✓ Sign up & send email link",
     reg_btn_back_login: "Back to login",
-    
-    // Unverified / Invite / Approval
-    unverified_title: "Email Address Verification",
-    unverified_desc: "A verification link was sent to {email}. Please verify your email before continuing.",
-    unverified_sim_title: "Inbox Simulation:",
-    unverified_sim_desc: "To test without a real SMTP server, click the button below to simulate clicking the activation email link.",
-    unverified_sim_btn: "🔗 Simulate clicking email activation link",
-    
-    invite_title: "Create your spouse password",
-    invite_welcome: "Welcome to Chaml.fr! Your spouse invited you to join their shared family reunification file.",
-    invite_email_lbl: "Email Address (Invited spouse)",
-    invite_pass_lbl: "Choose your password*",
-    invite_btn: "✓ Activate account & log in",
-    
-    unapproved_title: "Account pending approval",
-    unapproved_desc: "Your email has been verified. A platform administrator must now approve your account.",
-    
+
     // Navigation
     nav_dashboard: "Dashboard",
     nav_simulators: "Simulators",
@@ -421,7 +405,7 @@ export const TRANSLATIONS = {
     nav_logout: "Logout",
     nav_welcome: "Welcome",
     nav_partner: "Spouse:",
-    
+
     // Common / Status
     status_draft: "Draft",
     status_submitted: "Submitted to OFII / Prefecture",
@@ -437,13 +421,13 @@ export const TRANSLATIONS = {
     btn_delete: "Delete",
     btn_edit: "Edit",
     btn_close: "Close",
-    
+
     // Simulators
     sim_title: "Official Compliance Simulators",
     sim_desc: "Instantly check if your income and housing conditions match the official requirements of the CESEDA.",
     sim_tab_housing: "Housing (Surface)",
     sim_tab_resources: "Resources (SMIC)",
-    
+
     sim_house_title: "Living Surface Simulator",
     sim_house_desc: "The dwelling must have a minimum decent size depending on its geographical zone in France.",
     sim_lbl_zone: "Geographical Zone (France)",
@@ -454,7 +438,7 @@ export const TRANSLATIONS = {
     sim_res_current: "Declared surface area:",
     sim_status_success: "Complies with prefectural requirements!",
     sim_status_failed: "Warning: Insufficient surface area for this zone.",
-    
+
     sim_res_title: "Resource Sufficiency Simulator",
     sim_res_desc: "Your average net income over the past 12 months must be equal to or greater than the French SMIC. (Social benefits like APL/RSA are excluded).",
     sim_lbl_salary: "Net salary received for",
@@ -462,7 +446,7 @@ export const TRANSLATIONS = {
     sim_res_threshold: "Required threshold (SMIC adjusted for family size):",
     sim_res_status_success: "Sufficient and stable resources!",
     sim_res_status_failed: "Warning: Your income is below the required threshold.",
-    
+
     // Dashboard
     dash_title: "Family Reunification File",
     dash_subtitle: "Shared workspace to gather all required documents.",
@@ -479,7 +463,7 @@ export const TRANSLATIONS = {
     dash_btn_submit_dossier: "Submit to French Administration (OFII / ANEF)",
     dash_submit_confirm: "Are you sure you want to send your completed application file to the French administration (OFII / ANEF)? This will start the legal 6-month response timer.",
     dash_submitted_on: "Submitted on:",
-    
+
     // Alert / Contestation
     alert_title: "Contestation Alert (6-Month Deadline Exceeded)",
     alert_body: "Your file was submitted on {date} (over 6 months ago) and no decision has been notified to you. By French law, this silence is treated as an implicit rejection. You have 2 months to appeal.",
@@ -491,13 +475,13 @@ export const TRANSLATIONS = {
     alert_recours_contentieux: "Recours Contentieux (Before the Administrative Court)",
     btn_copy_letter: "Copy letter to clipboard",
     letter_copied: "Letter copied!",
-    
+
     // Steps Guide
     guide_title: "Step-by-Step Reunification Journey",
     guide_desc: "Understand the administrative process in France and Morocco to bring your spouse.",
-    guide_france_tab: "Steps in France (OFII & Prefecture)",
-    guide_morocco_tab: "Steps in Morocco (Consulate & OFII Casablanca)",
-    
+    guide_france_tab: "Steps in France",
+    guide_morocco_tab: "Steps in Morocco",
+
     // Documents keys
     doc_fr_identity: "Valid French Residence Permit (recto-verso)",
     doc_fr_cerfa: "Official CERFA form n° 11436*05 filled and signed",
@@ -506,7 +490,7 @@ export const TRANSLATIONS = {
     doc_fr_tax: "Latest income tax statement",
     doc_fr_housing: "Rental lease agreement (> 1 year) + recent rent receipt",
     doc_fr_surface: "Official surface area measurement certificate (if requested)",
-    
+
     doc_ma_identity: "Valid passport of the beneficiary spouse",
     doc_ma_birth: "Full birth certificate (copie intégrale) of the spouse",
     doc_ma_marriage: "Original Moroccan marriage certificate (in Arabic)",
@@ -545,10 +529,10 @@ export const TRANSLATIONS = {
 export const getTranslation = (lang, key, replacements = {}) => {
   const dict = TRANSLATIONS[lang] || TRANSLATIONS.fr;
   let text = dict[key] || TRANSLATIONS.fr[key] || key;
-  
+
   Object.keys(replacements).forEach(placeholder => {
     text = text.replace(`{${placeholder}}`, replacements[placeholder]);
   });
-  
+
   return text;
 };
