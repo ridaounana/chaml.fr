@@ -377,12 +377,12 @@ export default function Landing({ lang, onNavigate }) {
 
   const incPercent = isAahExempt ? 100 : Math.min(100, Math.round((activeIncomeVal / reqInc) * 100));
   const surfPercent = isAahExempt ? 100 : Math.min(100, Math.round((simSurface / reqSurf) * 100));
-  
+
   let rawScore = Math.floor((incPercent + surfPercent) / 2);
   if (!isFullyCompliant && rawScore >= 100) {
     rawScore = 98;
   }
-  
+
   const compliancePercent = isAahExempt ? 100 : (isFullyCompliant ? 100 : Math.min(98, rawScore));
 
   const handleSaveAndRegister = () => {
@@ -752,10 +752,10 @@ export default function Landing({ lang, onNavigate }) {
             gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
             gap: "1.25rem"
           }}>
-            
+
             {/* Left Inputs column */}
             <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
-              
+
               <div className="form-group" style={{ marginBottom: 0 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "0.82rem" }}>
                   <label className="form-label" style={{ fontWeight: "bold", margin: 0, fontSize: "0.82rem", display: "inline-flex", alignItems: "center", gap: "0.3rem" }}>
@@ -764,12 +764,12 @@ export default function Landing({ lang, onNavigate }) {
                   </label>
                   <span style={{ color: "var(--primary)", fontWeight: "bold" }}>{simFamilySize} {previewTextLocale.people}</span>
                 </div>
-                <input 
-                  type="range" 
-                  min="2" 
-                  max="10" 
-                  value={simFamilySize} 
-                  onChange={e => setSimFamilySize(Number(e.target.value))} 
+                <input
+                  type="range"
+                  min="2"
+                  max="10"
+                  value={simFamilySize}
+                  onChange={e => setSimFamilySize(Number(e.target.value))}
                   style={{ width: "100%", accentColor: "var(--primary)", height: "4px", borderRadius: "2px", cursor: "pointer", margin: "0.2rem 0 0 0" }}
                 />
               </div>
@@ -780,18 +780,18 @@ export default function Landing({ lang, onNavigate }) {
                   <label className="form-label" style={{ fontWeight: "bold", margin: 0, fontSize: "0.82rem" }}>
                     {simIncomeMode === "net" ? previewTextLocale.income_net_label : previewTextLocale.income_brut_label}
                   </label>
-                  
+
                   {/* Mode Selector Toggle */}
                   <div style={{ display: "flex", gap: "0.15rem", background: "rgba(148, 163, 184, 0.12)", padding: "0.15rem", borderRadius: "0.4rem" }}>
-                    <button 
-                      type="button" 
-                      onClick={() => { setSimIncomeMode("net"); if (simIncome > 3500) setSimIncome(1800); }} 
-                      style={{ 
-                        padding: "0.15rem 0.45rem", 
-                        fontSize: "0.72rem", 
-                        borderRadius: "0.3rem", 
-                        border: "none", 
-                        background: simIncomeMode === "net" ? "var(--primary)" : "transparent", 
+                    <button
+                      type="button"
+                      onClick={() => { setSimIncomeMode("net"); if (simIncome > 3500) setSimIncome(1800); }}
+                      style={{
+                        padding: "0.15rem 0.45rem",
+                        fontSize: "0.72rem",
+                        borderRadius: "0.3rem",
+                        border: "none",
+                        background: simIncomeMode === "net" ? "var(--primary)" : "transparent",
                         color: simIncomeMode === "net" ? "white" : "var(--text-muted)",
                         fontWeight: 600,
                         cursor: "pointer"
@@ -799,15 +799,15 @@ export default function Landing({ lang, onNavigate }) {
                     >
                       {previewTextLocale.mode_net}
                     </button>
-                    <button 
-                      type="button" 
-                      onClick={() => { setSimIncomeMode("brut"); if (simIncome < 1200) setSimIncome(2100); }} 
-                      style={{ 
-                        padding: "0.15rem 0.45rem", 
-                        fontSize: "0.72rem", 
-                        borderRadius: "0.3rem", 
-                        border: "none", 
-                        background: simIncomeMode === "brut" ? "var(--primary)" : "transparent", 
+                    <button
+                      type="button"
+                      onClick={() => { setSimIncomeMode("brut"); if (simIncome < 1200) setSimIncome(2100); }}
+                      style={{
+                        padding: "0.15rem 0.45rem",
+                        fontSize: "0.72rem",
+                        borderRadius: "0.3rem",
+                        border: "none",
+                        background: simIncomeMode === "brut" ? "var(--primary)" : "transparent",
                         color: simIncomeMode === "brut" ? "white" : "var(--text-muted)",
                         fontWeight: 600,
                         cursor: "pointer"
@@ -825,13 +825,13 @@ export default function Landing({ lang, onNavigate }) {
                   </span>
                 </div>
 
-                <input 
-                  type="range" 
-                  min={simIncomeMode === "net" ? "1000" : "1200"} 
-                  max={simIncomeMode === "net" ? "3500" : "4500"} 
+                <input
+                  type="range"
+                  min={simIncomeMode === "net" ? "1000" : "1200"}
+                  max={simIncomeMode === "net" ? "3500" : "4500"}
                   step="25"
-                  value={simIncome} 
-                  onChange={e => setSimIncome(Number(e.target.value))} 
+                  value={simIncome}
+                  onChange={e => setSimIncome(Number(e.target.value))}
                   style={{ width: "100%", accentColor: "var(--primary)", height: "4px", borderRadius: "2px", cursor: "pointer", margin: "0.2rem 0 0 0" }}
                 />
               </div>
@@ -842,22 +842,22 @@ export default function Landing({ lang, onNavigate }) {
                   <label className="form-label" style={{ fontWeight: "bold", margin: 0, fontSize: "0.82rem" }}>{previewTextLocale.surface}</label>
                   <span style={{ color: "var(--primary)", fontWeight: "bold" }}>{simSurface} m²</span>
                 </div>
-                <input 
-                  type="range" 
-                  min="15" 
-                  max="100" 
-                  value={simSurface} 
-                  onChange={e => setSimSurface(Number(e.target.value))} 
+                <input
+                  type="range"
+                  min="15"
+                  max="100"
+                  value={simSurface}
+                  onChange={e => setSimSurface(Number(e.target.value))}
                   style={{ width: "100%", accentColor: "var(--primary)", height: "4px", borderRadius: "2px", cursor: "pointer", margin: "0.2rem 0 0 0" }}
                 />
               </div>
 
               <div className="form-group" style={{ marginBottom: 0 }}>
                 <label className="form-label" style={{ fontWeight: "bold", marginBottom: "0.25rem", fontSize: "0.82rem" }}>{previewTextLocale.zone}</label>
-                <select 
-                  className="select-dropdown" 
-                  style={{ width: "100%", padding: "0.45rem 0.65rem", borderRadius: "0.4rem", fontSize: "0.82rem" }} 
-                  value={simZone} 
+                <select
+                  className="select-dropdown"
+                  style={{ width: "100%", padding: "0.45rem 0.65rem", borderRadius: "0.4rem", fontSize: "0.82rem" }}
+                  value={simZone}
                   onChange={e => setSimZone(e.target.value)}
                 >
                   <option value="A">{previewTextLocale.zone_a}</option>
@@ -867,18 +867,18 @@ export default function Landing({ lang, onNavigate }) {
               </div>
 
               {/* Option C: AAH Exemption Checkbox */}
-              <div style={{ 
-                background: "rgba(13, 148, 136, 0.08)", 
-                border: "1px solid rgba(13, 148, 136, 0.25)", 
-                borderRadius: "0.5rem", 
-                padding: "0.45rem 0.65rem", 
-                marginTop: "0.25rem" 
+              <div style={{
+                background: "rgba(13, 148, 136, 0.08)",
+                border: "1px solid rgba(13, 148, 136, 0.25)",
+                borderRadius: "0.5rem",
+                padding: "0.45rem 0.65rem",
+                marginTop: "0.25rem"
               }}>
                 <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", fontSize: "0.78rem", color: "var(--text-main)", fontWeight: 600 }}>
-                  <input 
-                    type="checkbox" 
-                    checked={isAahExempt} 
-                    onChange={e => setIsAahExempt(e.target.checked)} 
+                  <input
+                    type="checkbox"
+                    checked={isAahExempt}
+                    onChange={e => setIsAahExempt(e.target.checked)}
                     style={{ accentColor: "var(--primary)", width: "16px", height: "16px", cursor: "pointer" }}
                   />
                   <span>♿ {previewTextLocale.aah_checkbox}</span>
@@ -898,7 +898,7 @@ export default function Landing({ lang, onNavigate }) {
               gap: "0.75rem",
               justifyContent: "space-between"
             }}>
-              
+
               <div>
                 {/* Inline Diagnostic Header */}
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.35rem" }}>
@@ -929,12 +929,12 @@ export default function Landing({ lang, onNavigate }) {
 
                   {isAahExempt ? (
                     <div style={{ display: "flex", flexDirection: "column", gap: "0.45rem" }}>
-                      <div style={{ 
-                        background: "rgba(16, 185, 129, 0.12)", 
-                        color: "#10b981", 
-                        padding: "0.55rem 0.75rem", 
-                        borderRadius: "0.4rem", 
-                        fontSize: "0.8rem", 
+                      <div style={{
+                        background: "rgba(16, 185, 129, 0.12)",
+                        color: "#10b981",
+                        padding: "0.55rem 0.75rem",
+                        borderRadius: "0.4rem",
+                        fontSize: "0.8rem",
                         fontWeight: "bold",
                         textAlign: "center",
                         border: "1px solid rgba(16, 185, 129, 0.3)",
@@ -947,10 +947,10 @@ export default function Landing({ lang, onNavigate }) {
                       </div>
 
                       {/* Legal Disclaimer & Légifrance Official Link */}
-                      <div style={{ 
-                        background: "rgba(255, 255, 255, 0.03)", 
-                        border: "1px solid var(--border-card)", 
-                        borderRadius: "0.4rem", 
+                      <div style={{
+                        background: "rgba(255, 255, 255, 0.03)",
+                        border: "1px solid var(--border-card)",
+                        borderRadius: "0.4rem",
                         padding: "0.45rem 0.65rem",
                         fontSize: "0.74rem",
                         color: "var(--text-muted)",
@@ -959,10 +959,10 @@ export default function Landing({ lang, onNavigate }) {
                         <p style={{ margin: "0 0 0.3rem 0" }}>
                           ℹ️ {previewTextLocale.aah_legal_info}
                         </p>
-                        <a 
-                          href="https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000042772714" 
-                          target="_blank" 
-                          rel="noopener noreferrer" 
+                        <a
+                          href="https://www.legifrance.gouv.fr/codes/id/LEGIARTI000042776324/2026-07-20?isSuggest=true"
+                          target="_blank"
+                          rel="noopener noreferrer"
                           style={{ color: "var(--primary)", fontWeight: "bold", textDecoration: "underline", display: "inline-block" }}
                         >
                           {previewTextLocale.aah_link_text}
@@ -972,15 +972,15 @@ export default function Landing({ lang, onNavigate }) {
                   ) : (
                     <>
                       {/* Income Row */}
-                      <div style={{ 
-                        display: "flex", 
-                        justifyContent: "space-between", 
-                        alignItems: "center", 
-                        background: "var(--bg-app)", 
-                        padding: "0.4rem 0.65rem", 
-                        borderRadius: "0.4rem", 
+                      <div style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        background: "var(--bg-app)",
+                        padding: "0.4rem 0.65rem",
+                        borderRadius: "0.4rem",
                         fontSize: "0.8rem",
-                        borderLeft: isIncCompliant ? "3px solid #10b981" : "3px solid #ef4444" 
+                        borderLeft: isIncCompliant ? "3px solid #10b981" : "3px solid #ef4444"
                       }}>
                         <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", flexWrap: "wrap" }}>
                           <span style={{ fontWeight: 600 }}>Revenus :</span>
@@ -993,15 +993,15 @@ export default function Landing({ lang, onNavigate }) {
                       </div>
 
                       {/* Surface Row */}
-                      <div style={{ 
-                        display: "flex", 
-                        justifyContent: "space-between", 
-                        alignItems: "center", 
-                        background: "var(--bg-app)", 
-                        padding: "0.4rem 0.65rem", 
-                        borderRadius: "0.4rem", 
+                      <div style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        background: "var(--bg-app)",
+                        padding: "0.4rem 0.65rem",
+                        borderRadius: "0.4rem",
                         fontSize: "0.8rem",
-                        borderLeft: isSurfCompliant ? "3px solid #10b981" : "3px solid #ef4444" 
+                        borderLeft: isSurfCompliant ? "3px solid #10b981" : "3px solid #ef4444"
                       }}>
                         <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", flexWrap: "wrap" }}>
                           <span style={{ fontWeight: 600 }}>Surface :</span>
@@ -1019,16 +1019,16 @@ export default function Landing({ lang, onNavigate }) {
               </div>
 
               {/* Save CTA */}
-              <button 
+              <button
                 onClick={handleSaveAndRegister}
                 className="btn btn-primary"
-                style={{ 
-                  width: "100%", 
-                  padding: "0.65rem 1rem", 
-                  fontWeight: "bold", 
-                  fontSize: "0.88rem", 
+                style={{
+                  width: "100%",
+                  padding: "0.65rem 1rem",
+                  fontWeight: "bold",
+                  fontSize: "0.88rem",
                   marginTop: "0.4rem",
-                  justifyContent: "center" 
+                  justifyContent: "center"
                 }}
               >
                 {previewTextLocale.cta_save}
@@ -1107,12 +1107,12 @@ export default function Landing({ lang, onNavigate }) {
                   <label className="form-label" style={{ fontWeight: "bold", margin: 0, fontSize: "0.82rem" }}>{previewTextLocale.fam_size}</label>
                   <span style={{ color: "var(--primary)", fontWeight: "bold" }}>{simFamilySize} {previewTextLocale.people}</span>
                 </div>
-                <input 
-                  type="range" 
-                  min="2" 
-                  max="10" 
-                  value={simFamilySize} 
-                  onChange={e => setSimFamilySize(Number(e.target.value))} 
+                <input
+                  type="range"
+                  min="2"
+                  max="10"
+                  value={simFamilySize}
+                  onChange={e => setSimFamilySize(Number(e.target.value))}
                   style={{ width: "100%", accentColor: "var(--primary)", height: "4px", borderRadius: "2px", cursor: "pointer", margin: "0.2rem 0 0 0" }}
                 />
               </div>
@@ -1145,9 +1145,9 @@ export default function Landing({ lang, onNavigate }) {
 
                 {/* Score bar */}
                 <div style={{ width: "100%", height: "5px", background: "rgba(148, 163, 184, 0.15)", borderRadius: "3px", overflow: "hidden", marginBottom: "0.75rem" }}>
-                  <div style={{ 
-                    width: `${incPercent}%`, 
-                    height: "100%", 
+                  <div style={{
+                    width: `${incPercent}%`,
+                    height: "100%",
                     background: incPercent >= 100 ? "#10b981" : "#ef4444",
                     transition: "width 0.3s ease"
                   }}></div>
@@ -1173,15 +1173,15 @@ export default function Landing({ lang, onNavigate }) {
                 </div>
               </div>
 
-              <button 
+              <button
                 onClick={handleSaveAndRegister}
                 className="btn btn-primary"
-                style={{ 
-                  width: "100%", 
-                  padding: "0.65rem 1rem", 
-                  fontWeight: "bold", 
-                  fontSize: "0.88rem", 
-                  justifyContent: "center" 
+                style={{
+                  width: "100%",
+                  padding: "0.65rem 1rem",
+                  fontWeight: "bold",
+                  fontSize: "0.88rem",
+                  justifyContent: "center"
                 }}
               >
                 {previewTextLocale.cta_save}
