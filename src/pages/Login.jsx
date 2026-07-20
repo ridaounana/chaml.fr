@@ -265,13 +265,21 @@ export default function Login({
       });
   };
 
-  const handleSimulateEmailVerify = () => {
+  const [resendSuccess, setResendSuccess] = useState("");
+  const [resendLoading, setResendLoading] = useState(false);
+
+  const handleResendVerification = () => {
+    setResendLoading(true);
+    setResendSuccess("");
     verifyEmail(pendingCoupleId)
       .then(() => {
-        setView("unapproved");
+        setResendSuccess(getTranslation(lang, "unverified_resend_success", { email: pendingEmail }));
       })
       .catch(err => {
-        setError(err.message || "Verification failed.");
+        setError(err.message || "Resend failed.");
+      })
+      .finally(() => {
+        setResendLoading(false);
       });
   };
 
@@ -601,25 +609,27 @@ export default function Login({
               {getTranslation(lang, "unverified_desc", { email: pendingEmail })}
             </p>
 
-            <div style={{
-              background: "rgba(217, 119, 6, 0.08)",
-              border: "1px solid rgba(217, 119, 6, 0.2)",
-              padding: "1rem",
-              borderRadius: "0.75rem",
-              marginBottom: "1.5rem",
-              fontSize: "0.85rem",
-              textAlign: "left"
-            }}>
-              💡 <strong>{getTranslation(lang, "unverified_sim_title")}</strong><br />
-              {getTranslation(lang, "unverified_sim_desc")}
-            </div>
+            {resendSuccess && (
+              <div style={{
+                background: "rgba(16, 185, 129, 0.1)",
+                color: "var(--success)",
+                padding: "0.8rem",
+                borderRadius: "0.5rem",
+                marginBottom: "1rem",
+                fontSize: "0.85rem",
+                fontWeight: 600
+              }}>
+                ✓ {resendSuccess}
+              </div>
+            )}
 
             <button 
               className="btn btn-primary" 
-              onClick={handleSimulateEmailVerify}
+              onClick={handleResendVerification}
+              disabled={resendLoading}
               style={{ width: "100%", padding: "0.8rem", marginBottom: "1rem" }}
             >
-              {getTranslation(lang, "unverified_sim_btn")}
+              {resendLoading ? "⏳..." : getTranslation(lang, "unverified_resend_btn")}
             </button>
 
             <button 

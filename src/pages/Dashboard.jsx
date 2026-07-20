@@ -44,12 +44,12 @@ export default function Dashboard({ lang, user }) {
         if (data.url) {
           window.location.href = data.url;
         } else {
-          alert("Erreur lors de la création de la session Stripe.");
+          alert(getTranslation(lang, "alert_stripe_session_error"));
         }
       })
       .catch(err => {
         console.error("Stripe Checkout Error:", err);
-        alert("Erreur lors de la redirection vers Stripe.");
+        alert(getTranslation(lang, "alert_stripe_redirect_error"));
       })
       .finally(() => {
         setUpgradeLoading(false);
@@ -178,9 +178,8 @@ export default function Dashboard({ lang, user }) {
       setShowUpgradeModal(true);
       return;
     }
-
     if (!e2eeKey) {
-      alert("Veuillez d'abord configurer et valider votre clé de chiffrement privée en haut de la page.");
+      alert(getTranslation(lang, "alert_e2ee_key_required"));
       return;
     }
 
@@ -199,14 +198,14 @@ export default function Dashboard({ lang, user }) {
           setShowUpgradeModal(true);
           return;
         }
-        alert(`Échec du chiffrement ou du transfert : ${err.message}`);
+        alert(getTranslation(lang, "alert_upload_failed", { msg: err.message }));
       });
   };
 
   // Client-side download and AES-GCM decryption
   const handleDownloadDoc = async (docId, fileName) => {
     if (!e2eeKey) {
-      alert("Veuillez saisir votre clé de chiffrement en haut du tableau de bord pour déverrouiller ce document.");
+      alert(getTranslation(lang, "alert_download_key_required"));
       return;
     }
     
@@ -230,19 +229,19 @@ export default function Dashboard({ lang, user }) {
       setTimeout(() => URL.revokeObjectURL(localUrl), 100);
     } catch (err) {
       console.error("Déchiffrement échoué:", err);
-      alert("Erreur de déchiffrement. Votre clé de chiffrement est probablement incorrecte.");
+      alert(getTranslation(lang, "alert_decrypt_failed"));
     }
   };
 
   // File Delete Handler
   const handleDocDelete = (docId) => {
-    if (!window.confirm("Are you sure you want to delete this document?")) return;
+    if (!window.confirm(getTranslation(lang, "alert_delete_doc_confirm"))) return;
     deleteDocument(docId)
       .then(() => {
         loadDossierData();
       })
       .catch(err => {
-        alert(`Deletion failed: ${err.message}`);
+        alert(getTranslation(lang, "alert_delete_doc_failed", { msg: err.message }));
       });
   };
 
@@ -259,7 +258,7 @@ export default function Dashboard({ lang, user }) {
         loadDossierData();
       })
       .catch(err => {
-        alert(`Dossier submission failed: ${err.message}`);
+        alert(getTranslation(lang, "alert_submit_failed", { msg: err.message }));
       });
   };
 
@@ -468,7 +467,7 @@ export default function Dashboard({ lang, user }) {
                     style={{ padding: "0.45rem", fontSize: "0.8rem", fontWeight: "bold" }}
                     onClick={() => {
                       if (!tempKeyInput || tempKeyInput.length < 6) {
-                        alert("Veuillez choisir un code PIN ou mot de passe d'au moins 6 caractères pour plus de sécurité.");
+                        alert(getTranslation(lang, "alert_e2ee_key_min_len"));
                         return;
                       }
                       setE2eeKey(tempKeyInput);

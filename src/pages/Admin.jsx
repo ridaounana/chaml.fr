@@ -174,7 +174,7 @@ export default function Admin({ lang, config, onConfigUpdated }) {
         onConfigUpdated(); // Reload global app configuration
         loadAdminData();
       })
-      .catch(err => alert(`Failed to save settings: ${err.message}`));
+      .catch(err => alert(getTranslation(lang, "alert_admin_save_settings_failed", { msg: err.message })));
   };
 
   // Change submission date to help test 6-month warning alert
@@ -183,7 +183,7 @@ export default function Admin({ lang, config, onConfigUpdated }) {
       .then(() => {
         loadAdminData();
       })
-      .catch(err => alert(`Failed to update date: ${err.message}`));
+      .catch(err => alert(getTranslation(lang, "alert_admin_update_date_failed", { msg: err.message })));
   };
 
   // Toggle user account frozen/suspend status
@@ -192,7 +192,7 @@ export default function Admin({ lang, config, onConfigUpdated }) {
       .then(() => {
         loadAdminData();
       })
-      .catch(err => alert(`Operation failed: ${err.message}`));
+      .catch(err => alert(getTranslation(lang, "alert_admin_op_failed", { msg: err.message })));
   };
 
   // Approve couple account
@@ -201,12 +201,12 @@ export default function Admin({ lang, config, onConfigUpdated }) {
       .then(() => {
         loadAdminData();
       })
-      .catch(err => alert(`Approval failed: ${err.message}`));
+      .catch(err => alert(getTranslation(lang, "alert_admin_approval_failed", { msg: err.message })));
   };
 
   // Delete couple account pairing
   const handleDeleteCoupleAccount = (coupleId) => {
-    if (!window.confirm(`Are you sure you want to permanently delete couple ID ${coupleId}? All their documents will be lost.`)) {
+    if (!window.confirm(getTranslation(lang, "alert_admin_delete_couple_confirm", { id: coupleId }))) {
       return;
     }
     deleteCoupleAccount(coupleId)
@@ -214,19 +214,19 @@ export default function Admin({ lang, config, onConfigUpdated }) {
         setSelectedCoupleId("");
         loadAdminData();
       })
-      .catch(err => alert(`Deletion failed: ${err.message}`));
+      .catch(err => alert(getTranslation(lang, "alert_delete_doc_failed", { msg: err.message })));
   };
 
   // Admin delete document file
   const handleDeleteFile = (docId) => {
-    if (!window.confirm("Are you sure you want to delete this file?")) {
+    if (!window.confirm(getTranslation(lang, "alert_admin_delete_file_confirm"))) {
       return;
     }
     deleteDocumentAdmin(selectedCoupleId, docId)
       .then(() => {
         loadAdminData();
       })
-      .catch(err => alert(`Deletion failed: ${err.message}`));
+      .catch(err => alert(getTranslation(lang, "alert_delete_doc_failed", { msg: err.message })));
   };
 
   // Document review (Approve / Reject / Comment)
@@ -238,13 +238,13 @@ export default function Admin({ lang, config, onConfigUpdated }) {
         setDocComments(prev => ({ ...prev, [docId]: "" }));
         loadAdminData();
       })
-      .catch(err => alert(`Review submission failed: ${err.message}`));
+      .catch(err => alert(getTranslation(lang, "alert_admin_review_failed", { msg: err.message })));
   };
 
   const handleCreateCouple = (e) => {
     e.preventDefault();
     if (!frEmail || !frFirstName || !frLastName) {
-      alert("Please fill in the required name and email.");
+      alert(getTranslation(lang, "alert_admin_required_fields"));
       return;
     }
 
@@ -275,7 +275,7 @@ export default function Admin({ lang, config, onConfigUpdated }) {
           setFrDep("");
         }
       })
-      .catch(err => alert(`Failed to create couple accounts: ${err.message}`));
+      .catch(err => alert(getTranslation(lang, "alert_admin_create_couple_failed", { msg: err.message })));
   };
 
   const handlePasswordChangeSubmit = (e) => {

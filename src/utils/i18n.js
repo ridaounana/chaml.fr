@@ -43,19 +43,39 @@ export const TRANSLATIONS = {
 
     // Unverified / Invite / Approval
     unverified_title: "Vérification de l'adresse email",
-    unverified_desc: "Un lien de vérification a été envoyé à l'adresse {email}. Veuillez valider votre e-mail avant de continuer.",
-    unverified_sim_title: "Simulation de boîte de réception :",
-    unverified_sim_desc: "Pour tester le parcours sans serveur d'email réel, cliquez sur le bouton ci-dessous pour simuler l'ouverture du lien d'activation.",
-    unverified_sim_btn: "🔗 Simuler le clic sur le lien d'activation email",
-
+    unverified_desc: "Un lien de vérification a été envoyé à l'adresse {email}. Veuillez valider votre e-mail en cliquant sur le lien reçu.",
+    unverified_resend_btn: "📩 Renvoyer l'e-mail de vérification",
+    unverified_resend_success: "Un nouvel e-mail de vérification a été envoyé à {email}.",
+    
     invite_title: "Créer votre mot de passe conjoint",
     invite_welcome: "Bienvenue sur Chaml.fr ! Votre conjoint(e) vous a invité(e) à rejoindre son dossier de regroupement familial partagé.",
     invite_email_lbl: "Adresse E-mail (Conjoint invité)",
     invite_pass_lbl: "Choisissez votre mot de passe*",
     invite_btn: "✓ Activer mon compte & se connecter",
-
+    
     unapproved_title: "Compte en attente d'approbation",
     unapproved_desc: "Votre adresse e-mail a été vérifiée avec succès. Un administrateur de la plateforme doit maintenant valider votre compte.",
+    
+    // Alerts & Confirmations
+    alert_stripe_session_error: "Erreur lors de la création de la session Stripe.",
+    alert_stripe_redirect_error: "Erreur lors de la redirection vers Stripe.",
+    alert_e2ee_key_required: "Veuillez d'abord configurer et valider votre clé de chiffrement privée en haut de la page.",
+    alert_e2ee_key_min_len: "Veuillez choisir un code PIN ou mot de passe d'au moins 6 caractères pour plus de sécurité.",
+    alert_upload_failed: "Échec du chiffrement ou du transfert : {msg}",
+    alert_download_key_required: "Veuillez saisir votre clé de chiffrement en haut du tableau de bord pour déverrouiller ce document.",
+    alert_decrypt_failed: "Erreur de déchiffrement. Votre clé de chiffrement est probablement incorrecte.",
+    alert_delete_doc_confirm: "Êtes-vous sûr de vouloir supprimer ce document ?",
+    alert_delete_doc_failed: "Échec de la suppression : {msg}",
+    alert_submit_failed: "Échec de la soumission du dossier : {msg}",
+    alert_admin_delete_couple_confirm: "Êtes-vous sûr de vouloir supprimer définitivement le compte du couple ID {id} ? Tous leurs documents seront perdus.",
+    alert_admin_delete_file_confirm: "Êtes-vous sûr de vouloir supprimer ce fichier ?",
+    alert_admin_required_fields: "Veuillez remplir le nom et l'adresse email requis.",
+    alert_admin_save_settings_failed: "Échec de l'enregistrement des paramètres : {msg}",
+    alert_admin_update_date_failed: "Échec de la mise à jour de la date : {msg}",
+    alert_admin_op_failed: "L'opération a échoué : {msg}",
+    alert_admin_approval_failed: "Échec de l'approbation : {msg}",
+    alert_admin_review_failed: "Échec de la soumission de l'avis : {msg}",
+    alert_admin_create_couple_failed: "Échec de la création des comptes du couple : {msg}",
 
     // Navigation
     nav_dashboard: "Tableau de Bord",
@@ -221,19 +241,39 @@ export const TRANSLATIONS = {
 
     // Unverified / Invite / Approval
     unverified_title: "التحقق من البريد الإلكتروني",
-    unverified_desc: "تم إرسال رابط التفعيل إلى البريد الإلكتروني {email}. يرجى تأكيد بريدكم قبل المتابعة.",
-    unverified_sim_title: "محاكاة صندوق الوارد:",
-    unverified_sim_desc: "لاختبار الحساب بدون سيرفر بريد إلكتروني حقيقي، اضغطوا على الزر أسفله لمحاكاة فتح رابط التفعيل.",
-    unverified_sim_btn: "🔗 محاكاة النقر على رابط التفعيل عبر البريد",
-
+    unverified_desc: "تم إرسال رابط التفعيل إلى البريد الإلكتروني {email}. يرجى الضغط على الرابط المرسل لتأكيد بريدكم.",
+    unverified_resend_btn: "📩 إعادة إرسال رابط التفعيل",
+    unverified_resend_success: "تم إعادة إرسال رابط التفعيل إلى {email}.",
+    
     invite_title: "إنشاء كلمة مرور الحساب المشترك",
     invite_welcome: "مرحبًا بكم في شمل! قام زوجكم/زوجتكم بدعوتكم للانضمام إلى ملف لم الشمل العائلي المشترك.",
     invite_email_lbl: "البريد الإلكتروني (الزوج المستدعى)",
     invite_pass_lbl: "اختر كلمة المرور الخاصة بك*",
     invite_btn: "✓ تفعيل حسابي وتسجيل الدخول",
-
+    
     unapproved_title: "الحساب في انتظار موافقة المشرف",
     unapproved_desc: "تم التحقق من بريدكم الإلكتروني بنجاح. يتوجب الآن على مشرف المنصة اعتماد ملفكم.",
+    
+    // Alerts & Confirmations
+    alert_stripe_session_error: "خطأ أثناء إنشاء جلسة الدفع عبر Stripe.",
+    alert_stripe_redirect_error: "خطأ أثناء التحويل إلى بوابة Stripe.",
+    alert_e2ee_key_required: "يرجى إدخال وتأكيد مفتاح التشفير الخاص بكم في أعلى الصفحة أولاً.",
+    alert_e2ee_key_min_len: "يرجى اختيار رمز PIN أو كلمة مرور من 6 أحرف على الأقل لمزيد من الأمان.",
+    alert_upload_failed: "فشل التشفير أو التحميل: {msg}",
+    alert_download_key_required: "يرجى إدخال مفتاح التشفير في أعلى لوحة التحكم لفتح هذه الوثيقة.",
+    alert_decrypt_failed: "خطأ في فك التشفير. مفتاح التشفير الخاص بكم غير صحيح.",
+    alert_delete_doc_confirm: "هل أنت متأكد من رغبتك في حذف هذه الوثيقة؟",
+    alert_delete_doc_failed: "فشل الحذف: {msg}",
+    alert_submit_failed: "فشل تقديم الملف: {msg}",
+    alert_admin_delete_couple_confirm: "هل أنت متأكد من حذف حساب الزوجين رقم {id} بشكل نهائي؟ ستفقد جميع وثائقهما.",
+    alert_admin_delete_file_confirm: "هل أنت متأكد من حذف هذا الملف؟",
+    alert_admin_required_fields: "يرجى إدخال الاسم والبريد الإلكتروني المطلوبين.",
+    alert_admin_save_settings_failed: "فشل حفظ الإعدادات: {msg}",
+    alert_admin_update_date_failed: "فشل تحديث التاريخ: {msg}",
+    alert_admin_op_failed: "فشلت العملية: {msg}",
+    alert_admin_approval_failed: "فشلت الموافقة: {msg}",
+    alert_admin_review_failed: "فشل تقديم المراجعة: {msg}",
+    alert_admin_create_couple_failed: "فشل إنشاء حسابات الزوجين: {msg}",
 
     // Navigation
     nav_dashboard: "لوحة التحكم",
@@ -396,6 +436,42 @@ export const TRANSLATIONS = {
     reg_surface: "Living Surface (m²)",
     reg_btn_submit: "✓ Sign up & send email link",
     reg_btn_back_login: "Back to login",
+
+    // Unverified / Invite / Approval
+    unverified_title: "Email Verification",
+    unverified_desc: "A verification link was sent to {email}. Please click the link in your inbox to verify your email.",
+    unverified_resend_btn: "📩 Resend verification email",
+    unverified_resend_success: "A new verification email was sent to {email}.",
+
+    invite_title: "Create Joint Account Password",
+    invite_welcome: "Welcome to Chaml.fr! Your spouse invited you to join their shared family reunification file.",
+    invite_email_lbl: "Email Address (Invited Spouse)",
+    invite_pass_lbl: "Choose your password*",
+    invite_btn: "✓ Activate my account & log in",
+
+    unapproved_title: "Account Pending Approval",
+    unapproved_desc: "Your email has been verified. A platform administrator must now approve your account.",
+
+    // Alerts & Confirmations
+    alert_stripe_session_error: "Error creating Stripe checkout session.",
+    alert_stripe_redirect_error: "Error redirecting to Stripe.",
+    alert_e2ee_key_required: "Please set and validate your private encryption key at the top of the page first.",
+    alert_e2ee_key_min_len: "Please choose a PIN or password of at least 6 characters for better security.",
+    alert_upload_failed: "Encryption or upload failed: {msg}",
+    alert_download_key_required: "Please enter your encryption key at the top of the dashboard to unlock this document.",
+    alert_decrypt_failed: "Decryption error. Your encryption key is incorrect.",
+    alert_delete_doc_confirm: "Are you sure you want to delete this document?",
+    alert_delete_doc_failed: "Deletion failed: {msg}",
+    alert_submit_failed: "Dossier submission failed: {msg}",
+    alert_admin_delete_couple_confirm: "Are you sure you want to permanently delete couple account ID {id}? All their documents will be lost.",
+    alert_admin_delete_file_confirm: "Are you sure you want to delete this file?",
+    alert_admin_required_fields: "Please fill in the required name and email.",
+    alert_admin_save_settings_failed: "Failed to save settings: {msg}",
+    alert_admin_update_date_failed: "Failed to update date: {msg}",
+    alert_admin_op_failed: "Operation failed: {msg}",
+    alert_admin_approval_failed: "Approval failed: {msg}",
+    alert_admin_review_failed: "Review submission failed: {msg}",
+    alert_admin_create_couple_failed: "Failed to create couple account: {msg}",
 
     // Navigation
     nav_dashboard: "Dashboard",
