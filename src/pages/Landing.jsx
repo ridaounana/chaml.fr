@@ -403,10 +403,9 @@ export default function Landing({ lang, onNavigate }) {
               className="btn btn-primary" 
               onClick={() => onNavigate("register")}
               style={{ 
-                padding: "0.9rem 1.5rem", 
-                fontSize: "1rem", 
+                padding: "0.75rem 1.25rem", 
+                fontSize: "0.95rem", 
                 fontWeight: "bold", 
-                flex: "1 1 200px", 
                 justifyContent: "center",
                 boxShadow: "0 10px 20px -5px rgba(var(--primary-rgb), 0.3)" 
               }}
@@ -417,10 +416,9 @@ export default function Landing({ lang, onNavigate }) {
               className="btn btn-secondary" 
               onClick={() => onNavigate("login")}
               style={{ 
-                padding: "0.9rem 1.5rem", 
-                fontSize: "1rem", 
+                padding: "0.75rem 1.25rem", 
+                fontSize: "0.95rem", 
                 fontWeight: "bold", 
-                flex: "1 1 200px", 
                 justifyContent: "center" 
               }}
             >
