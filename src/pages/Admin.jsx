@@ -502,70 +502,72 @@ export default function Admin({ lang, config, onConfigUpdated }) {
                 </form>
               )}
               
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>{getTranslation(lang, "admin_col_couple")}</th>
-                    <th>{getTranslation(lang, "admin_col_role")} (FR / MA)</th>
-                    <th>Uploaded Files</th>
-                    <th>Couple Account actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {couples.map(c => (
-                    <tr key={c.id} style={{
-                      cursor: "pointer",
-                      background: selectedCoupleId === c.id ? "rgba(var(--primary-rgb), 0.08)" : "none"
-                    }} onClick={() => setSelectedCoupleId(c.id)}>
-                      <td>
-                        <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "0.4rem" }}>
-                          <strong>{c.demandeur.firstName} & {c.beneficiaire?.firstName || "Pending Invite"}</strong>
-                          {!c.demandeur.isApproved && (
-                            <span className="badge badge-pending" style={{ padding: "0.15rem 0.4rem", fontSize: "0.65rem" }}>
-                              Awaiting Approval
-                            </span>
-                          )}
-                          {!c.demandeur.isEmailVerified && (
-                            <span className="badge badge-rejected" style={{ padding: "0.15rem 0.4rem", fontSize: "0.65rem", background: "rgba(239, 68, 68, 0.1)", color: "#ef4444" }}>
-                              Unverified Email
-                            </span>
-                          )}
-                        </div>
-                        <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>ID: {c.id}</div>
-                      </td>
-                      <td>
-                        <div style={{ fontSize: "0.85rem", display: "flex", alignItems: "center", gap: "0.35rem" }}>
-                          <FranceFlag size={14} /> {c.demandeur.email} {c.demandeur.isFrozen && <span style={{ color: "var(--danger)", fontWeight: "bold" }}>(Frozen)</span>}
-                        </div>
-                        <div style={{ fontSize: "0.85rem", display: "flex", alignItems: "center", gap: "0.35rem" }}>
-                          <MoroccoFlag size={14} /> {c.beneficiaire ? (
-                            <>
-                              {c.beneficiaire.email} {c.beneficiaire.isFrozen && <span style={{ color: "var(--danger)", fontWeight: "bold" }}>(Frozen)</span>}
-                            </>
-                          ) : (
-                            <span style={{ fontStyle: "italic", color: "var(--text-muted)" }}>Not invited yet</span>
-                          )}
-                        </div>
-                      </td>
-                      <td>
-                        <strong>{getDossierTotalFiles(c)} / 12</strong>
-                      </td>
-                      <td>
-                        <button 
-                          className="btn btn-danger" 
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteCoupleAccount(c.id);
-                          }}
-                          style={{ padding: "0.3rem 0.6rem", fontSize: "0.75rem" }}
-                        >
-                          🗑️ Delete Account
-                        </button>
-                      </td>
+              <div className="admin-table-wrapper">
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>{getTranslation(lang, "admin_col_couple")}</th>
+                      <th>{getTranslation(lang, "admin_col_role")} (FR / MA)</th>
+                      <th>Uploaded Files</th>
+                      <th>Couple Account actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {couples.map(c => (
+                      <tr key={c.id} style={{
+                        cursor: "pointer",
+                        background: selectedCoupleId === c.id ? "rgba(var(--primary-rgb), 0.08)" : "none"
+                      }} onClick={() => setSelectedCoupleId(c.id)}>
+                        <td>
+                          <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "0.4rem" }}>
+                            <strong>{c.demandeur.firstName} & {c.beneficiaire?.firstName || "Pending Invite"}</strong>
+                            {!c.demandeur.isApproved && (
+                              <span className="badge badge-pending" style={{ padding: "0.15rem 0.4rem", fontSize: "0.65rem" }}>
+                                Awaiting Approval
+                              </span>
+                            )}
+                            {!c.demandeur.isEmailVerified && (
+                              <span className="badge badge-rejected" style={{ padding: "0.15rem 0.4rem", fontSize: "0.65rem", background: "rgba(239, 68, 68, 0.1)", color: "#ef4444" }}>
+                                Unverified Email
+                              </span>
+                            )}
+                          </div>
+                          <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>ID: {c.id}</div>
+                        </td>
+                        <td>
+                          <div style={{ fontSize: "0.85rem", display: "flex", alignItems: "center", gap: "0.35rem" }}>
+                            <FranceFlag size={14} /> {c.demandeur.email} {c.demandeur.isFrozen && <span style={{ color: "var(--danger)", fontWeight: "bold" }}>(Frozen)</span>}
+                          </div>
+                          <div style={{ fontSize: "0.85rem", display: "flex", alignItems: "center", gap: "0.35rem" }}>
+                            <MoroccoFlag size={14} /> {c.beneficiaire ? (
+                              <>
+                                {c.beneficiaire.email} {c.beneficiaire.isFrozen && <span style={{ color: "var(--danger)", fontWeight: "bold" }}>(Frozen)</span>}
+                              </>
+                            ) : (
+                              <span style={{ fontStyle: "italic", color: "var(--text-muted)" }}>Not invited yet</span>
+                            )}
+                          </div>
+                        </td>
+                        <td>
+                          <strong>{getDossierTotalFiles(c)} / 12</strong>
+                        </td>
+                        <td>
+                          <button 
+                            className="btn btn-danger" 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteCoupleAccount(c.id);
+                            }}
+                            style={{ padding: "0.3rem 0.6rem", fontSize: "0.75rem" }}
+                          >
+                            🗑️ Delete Account
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
 
               {selectedCouple && (
                 <div style={{

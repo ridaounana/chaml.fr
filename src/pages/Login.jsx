@@ -479,7 +479,7 @@ export default function Login({
                   <input className="input-field" type="password" value={frPassword} onChange={e => setFrPassword(e.target.value)} required />
                 </div>
               )}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
+              <div className="form-row-2col">
                 <div className="form-group">
                   <label className="form-label">Prénom*</label>
                   <input className="input-field" type="text" value={frFirstName} onChange={e => setFrFirstName(e.target.value)} required />
@@ -544,7 +544,7 @@ export default function Login({
                 <label className="form-label">Téléphone</label>
                 <input className="input-field" type="text" placeholder="+33 6..." value={frPhone} onChange={e => setFrPhone(e.target.value)} />
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "0.5rem" }}>
+              <div className="form-row-3col">
                 <div className="form-group">
                   <label className="form-label">Ville</label>
                   <input className="input-field" type="text" placeholder="Paris" value={frCity} onChange={e => setFrCity(e.target.value)} />
@@ -568,8 +568,8 @@ export default function Login({
               </div>
             </div>
 
-            <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
-              <button type="submit" className="btn btn-primary" style={{ padding: "0.8rem 1.5rem" }}>
+            <div className="form-action-group">
+              <button type="submit" className="btn btn-primary" style={{ padding: "0.8rem 1.5rem", flex: 1 }}>
                 ✓ S'inscrire & envoyer le lien email
               </button>
               <button type="button" className="btn btn-secondary" onClick={() => { setView("login"); setError(""); }}>

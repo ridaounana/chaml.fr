@@ -381,7 +381,6 @@ export default function Landing({ lang, onNavigate }) {
             </span>
           </div>
           <h1 style={{
-            fontSize: "3rem",
             fontWeight: 850,
             lineHeight: "1.15",
             letterSpacing: "-0.03em",
@@ -392,22 +391,22 @@ export default function Landing({ lang, onNavigate }) {
             {text.hero_title}
           </h1>
           <p style={{
-            fontSize: "1.15rem",
+            fontSize: "clamp(0.95rem, 2vw, 1.15rem)",
             lineHeight: "1.6",
             color: "var(--text-muted)",
             maxWidth: "520px"
           }}>
             {text.hero_desc}
           </p>
-          <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", marginTop: "1rem" }}>
+          <div className="form-action-group" style={{ marginTop: "1rem" }}>
             <button 
               className="btn btn-primary" 
               onClick={() => onNavigate("register")}
               style={{ 
-                padding: "0.9rem 1.8rem", 
+                padding: "0.9rem 1.5rem", 
                 fontSize: "1rem", 
                 fontWeight: "bold", 
-                minWidth: "220px", 
+                flex: "1 1 200px", 
                 justifyContent: "center",
                 boxShadow: "0 10px 20px -5px rgba(var(--primary-rgb), 0.3)" 
               }}
@@ -418,10 +417,10 @@ export default function Landing({ lang, onNavigate }) {
               className="btn btn-secondary" 
               onClick={() => onNavigate("login")}
               style={{ 
-                padding: "0.9rem 1.8rem", 
+                padding: "0.9rem 1.5rem", 
                 fontSize: "1rem", 
                 fontWeight: "bold", 
-                minWidth: "220px", 
+                flex: "1 1 200px", 
                 justifyContent: "center" 
               }}
             >
@@ -437,9 +436,8 @@ export default function Landing({ lang, onNavigate }) {
           overflow: "hidden",
           border: "1px solid var(--border-card)",
           boxShadow: "0 20px 40px -15px rgba(0, 0, 0, 0.25)",
-          aspectRatio: "16/10",
           background: "#0f172a",
-          padding: "1.5rem",
+          padding: "clamp(1rem, 3vw, 1.5rem)",
           color: "#f8fafc",
           display: "flex",
           flexDirection: "column",

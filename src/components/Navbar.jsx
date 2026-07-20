@@ -32,7 +32,7 @@ export default function Navbar({
         </span>
         <div>
           <span className="brand-name">{config.appName || "Chaml"}</span>
-          <p style={{ fontSize: "0.75rem", opacity: 0.8, fontWeight: 500, margin: 0 }}>
+          <p className="brand-tagline">
             {getTranslation(lang, "brand_tagline")}
           </p>
         </div>
@@ -44,7 +44,7 @@ export default function Navbar({
           className="select-dropdown" 
           value={lang} 
           onChange={handleLangChange}
-          style={{ padding: "0.4rem 0.8rem", fontSize: "0.85rem" }}
+          style={{ padding: "0.35rem 0.65rem", fontSize: "0.85rem" }}
         >
           <option value="fr">Français</option>
           <option value="ar">العربية</option>
@@ -55,7 +55,7 @@ export default function Navbar({
         <button 
           className="btn btn-secondary" 
           onClick={toggleTheme}
-          style={{ padding: "0.4rem 0.8rem", fontSize: "1.1rem" }}
+          style={{ padding: "0.35rem 0.65rem", fontSize: "1.05rem", minHeight: "40px" }}
           title="Toggle Light/Dark Theme"
         >
           {theme === "light" ? "🌙" : "☀️"}
@@ -63,11 +63,11 @@ export default function Navbar({
 
         {/* Logged in Info */}
         {user && (
-          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-            <span style={{ fontSize: "0.9rem", fontWeight: 600 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
+            <span style={{ fontSize: "0.85rem", fontWeight: 600 }}>
               👤 {user.firstName} ({role === "admin" ? getTranslation(lang, "nav_admin") : role === "demandeur" ? "France" : "Maroc"})
             </span>
-            <button className="btn btn-danger" onClick={onLogout} style={{ padding: "0.4rem 0.8rem", fontSize: "0.85rem" }}>
+            <button className="btn btn-danger" onClick={onLogout} style={{ padding: "0.35rem 0.65rem", fontSize: "0.8rem", minHeight: "36px" }}>
               {getTranslation(lang, "nav_logout")}
             </button>
           </div>
