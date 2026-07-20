@@ -1045,23 +1045,23 @@ export default function Landing({ lang, onNavigate }) {
             gap: "1.25rem"
           }}>
             {/* Left Inputs Column */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.65rem" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
               <div>
-                <h3 style={{ fontSize: "0.95rem", fontWeight: "bold", margin: "0 0 0.25rem 0" }}>
+                <h3 style={{ fontSize: "0.95rem", fontWeight: "bold", margin: "0 0 0.2rem 0" }}>
                   {previewTextLocale.calc12_title}
                 </h3>
-                <p style={{ fontSize: "0.78rem", color: "var(--text-muted)", margin: "0 0 0.65rem 0" }}>
+                <p style={{ fontSize: "0.78rem", color: "var(--text-muted)", margin: "0 0 0.45rem 0" }}>
                   {previewTextLocale.calc12_desc}
                 </p>
               </div>
 
               {/* Calculation Mode selector buttons */}
-              <div style={{ display: "flex", gap: "0.5rem" }}>
+              <div style={{ display: "flex", gap: "0.35rem" }}>
                 <button
                   type="button"
                   onClick={() => setCalc12Mode("tax")}
                   className={`btn ${calc12Mode === "tax" ? "btn-primary" : "btn-secondary"}`}
-                  style={{ flex: 1, padding: "0.45rem 0.65rem", fontSize: "0.78rem", fontWeight: "bold" }}
+                  style={{ flex: 1, padding: "0.35rem 0.5rem", fontSize: "0.76rem", fontWeight: "bold" }}
                 >
                   {previewTextLocale.calc12_mode_tax}
                 </button>
@@ -1069,7 +1069,7 @@ export default function Landing({ lang, onNavigate }) {
                   type="button"
                   onClick={() => setCalc12Mode("payslip")}
                   className={`btn ${calc12Mode === "payslip" ? "btn-primary" : "btn-secondary"}`}
-                  style={{ flex: 1, padding: "0.45rem 0.65rem", fontSize: "0.78rem", fontWeight: "bold" }}
+                  style={{ flex: 1, padding: "0.35rem 0.5rem", fontSize: "0.76rem", fontWeight: "bold" }}
                 >
                   {previewTextLocale.calc12_mode_payslip}
                 </button>
@@ -1077,26 +1077,38 @@ export default function Landing({ lang, onNavigate }) {
 
               {calc12Mode === "tax" ? (
                 <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label className="form-label" style={{ fontWeight: "bold", fontSize: "0.82rem", marginBottom: "0.25rem" }}>
-                    {previewTextLocale.calc12_tax_label}
-                  </label>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.2rem" }}>
+                    <label className="form-label" style={{ fontWeight: "bold", fontSize: "0.8rem", margin: 0 }}>
+                      {previewTextLocale.calc12_tax_label}
+                    </label>
+                    <span style={{ fontSize: "0.78rem", color: "var(--primary)", fontWeight: "bold" }}>
+                      = {calc12MonthlyInc} €/mois
+                    </span>
+                  </div>
                   <input
                     type="number"
+                    step="100"
                     value={calc12TaxAnnual}
                     onChange={e => setCalc12TaxAnnual(e.target.value)}
-                    style={{ width: "100%", padding: "0.5rem 0.75rem", borderRadius: "0.4rem", border: "1px solid var(--border-card)", background: "var(--bg-app)", color: "var(--text-main)", fontSize: "0.9rem" }}
+                    style={{ width: "100%", padding: "0.45rem 0.65rem", borderRadius: "0.4rem", border: "1px solid var(--border-card)", background: "var(--bg-app)", color: "var(--text-main)", fontSize: "0.85rem" }}
                   />
                 </div>
               ) : (
                 <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label className="form-label" style={{ fontWeight: "bold", fontSize: "0.82rem", marginBottom: "0.25rem" }}>
-                    {previewTextLocale.calc12_payslip_label}
-                  </label>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.2rem" }}>
+                    <label className="form-label" style={{ fontWeight: "bold", fontSize: "0.8rem", margin: 0 }}>
+                      {previewTextLocale.calc12_payslip_label}
+                    </label>
+                    <span style={{ fontSize: "0.78rem", color: "var(--primary)", fontWeight: "bold" }}>
+                      = {calc12MonthlyInc} €/mois
+                    </span>
+                  </div>
                   <input
                     type="number"
+                    step="100"
                     value={calc12PayslipDec}
                     onChange={e => setCalc12PayslipDec(e.target.value)}
-                    style={{ width: "100%", padding: "0.5rem 0.75rem", borderRadius: "0.4rem", border: "1px solid var(--border-card)", background: "var(--bg-app)", color: "var(--text-main)", fontSize: "0.9rem" }}
+                    style={{ width: "100%", padding: "0.45rem 0.65rem", borderRadius: "0.4rem", border: "1px solid var(--border-card)", background: "var(--bg-app)", color: "var(--text-main)", fontSize: "0.85rem" }}
                   />
                 </div>
               )}
@@ -1107,22 +1119,71 @@ export default function Landing({ lang, onNavigate }) {
                   <label className="form-label" style={{ fontWeight: "bold", margin: 0, fontSize: "0.82rem" }}>{previewTextLocale.fam_size}</label>
                   <span style={{ color: "var(--primary)", fontWeight: "bold" }}>{simFamilySize} {previewTextLocale.people}</span>
                 </div>
-                <input
-                  type="range"
-                  min="2"
-                  max="10"
-                  value={simFamilySize}
-                  onChange={e => setSimFamilySize(Number(e.target.value))}
+                <input 
+                  type="range" 
+                  min="2" 
+                  max="10" 
+                  value={simFamilySize} 
+                  onChange={e => setSimFamilySize(Number(e.target.value))} 
                   style={{ width: "100%", accentColor: "var(--primary)", height: "4px", borderRadius: "2px", cursor: "pointer", margin: "0.2rem 0 0 0" }}
                 />
               </div>
 
-              <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", background: "rgba(255,255,255,0.03)", padding: "0.45rem 0.65rem", borderRadius: "0.4rem", margin: 0 }}>
+              {/* Surface & Zone */}
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "0.82rem" }}>
+                  <label className="form-label" style={{ fontWeight: "bold", margin: 0, fontSize: "0.82rem" }}>{previewTextLocale.surface}</label>
+                  <span style={{ color: "var(--primary)", fontWeight: "bold" }}>{simSurface} m²</span>
+                </div>
+                <input 
+                  type="range" 
+                  min="15" 
+                  max="100" 
+                  value={simSurface} 
+                  onChange={e => setSimSurface(Number(e.target.value))} 
+                  style={{ width: "100%", accentColor: "var(--primary)", height: "4px", borderRadius: "2px", cursor: "pointer", margin: "0.2rem 0 0 0" }}
+                />
+              </div>
+
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label className="form-label" style={{ fontWeight: "bold", marginBottom: "0.25rem", fontSize: "0.82rem" }}>{previewTextLocale.zone}</label>
+                <select 
+                  className="select-dropdown" 
+                  style={{ width: "100%", padding: "0.45rem 0.65rem", borderRadius: "0.4rem", fontSize: "0.82rem" }} 
+                  value={simZone} 
+                  onChange={e => setSimZone(e.target.value)}
+                >
+                  <option value="A">{previewTextLocale.zone_a}</option>
+                  <option value="B">{previewTextLocale.zone_b}</option>
+                  <option value="C">{previewTextLocale.zone_c}</option>
+                </select>
+              </div>
+
+              {/* Option C: AAH Exemption Checkbox */}
+              <div style={{ 
+                background: "rgba(13, 148, 136, 0.08)", 
+                border: "1px solid rgba(13, 148, 136, 0.25)", 
+                borderRadius: "0.5rem", 
+                padding: "0.45rem 0.65rem", 
+                marginTop: "0.2rem" 
+              }}>
+                <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", fontSize: "0.78rem", color: "var(--text-main)", fontWeight: 600 }}>
+                  <input 
+                    type="checkbox" 
+                    checked={isAahExempt} 
+                    onChange={e => setIsAahExempt(e.target.checked)} 
+                    style={{ accentColor: "var(--primary)", width: "16px", height: "16px", cursor: "pointer" }}
+                  />
+                  <span>♿ {previewTextLocale.aah_checkbox}</span>
+                </label>
+              </div>
+
+              <p style={{ fontSize: "0.73rem", color: "var(--text-muted)", background: "rgba(255,255,255,0.03)", padding: "0.35rem 0.55rem", borderRadius: "0.4rem", margin: 0 }}>
                 {previewTextLocale.calc12_legal_note}
               </p>
             </div>
 
-            {/* Right Outcomes Column */}
+            {/* Right Outcomes Column (Complete Diagnostic Card) */}
             <div style={{
               background: "rgba(var(--primary-rgb), 0.02)",
               border: "1px solid var(--border-card)",
@@ -1134,54 +1195,133 @@ export default function Landing({ lang, onNavigate }) {
               justifyContent: "space-between"
             }}>
               <div>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
-                  <span style={{ fontSize: "0.82rem", fontWeight: "bold", color: "var(--text-muted)" }}>
-                    {previewTextLocale.calc12_monthly_avg}
+                {/* Inline Diagnostic Header */}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.35rem" }}>
+                  <h3 style={{ fontSize: "0.95rem", fontWeight: "bold", margin: 0, display: "flex", alignItems: "center", gap: "0.3rem" }}>
+                    📊 Diagnostic de conformité
+                  </h3>
+                  <span style={{ 
+                    fontSize: "0.9rem", 
+                    fontWeight: "800", 
+                    color: compliancePercent >= 100 ? "#10b981" : compliancePercent >= 75 ? "#f59e0b" : "#ef4444" 
+                  }}>
+                    {compliancePercent}%
                   </span>
-                  <strong style={{ fontSize: "1.1rem", color: "var(--primary)" }}>
-                    {calc12MonthlyInc} € / mois
-                  </strong>
                 </div>
 
-                {/* Score bar */}
-                <div style={{ width: "100%", height: "5px", background: "rgba(148, 163, 184, 0.15)", borderRadius: "3px", overflow: "hidden", marginBottom: "0.75rem" }}>
-                  <div style={{
-                    width: `${incPercent}%`,
-                    height: "100%",
-                    background: incPercent >= 100 ? "#10b981" : "#ef4444",
+                {/* Thin Progress Bar */}
+                <div style={{ width: "100%", height: "5px", background: "rgba(148, 163, 184, 0.15)", borderRadius: "3px", overflow: "hidden", marginBottom: "0.65rem" }}>
+                  <div style={{ 
+                    width: `${compliancePercent}%`, 
+                    height: "100%", 
+                    background: compliancePercent >= 100 ? "linear-gradient(90deg, #10b981 0%, #059669 100%)" : compliancePercent >= 75 ? "linear-gradient(90deg, #f59e0b 0%, #d97706 100%)" : "linear-gradient(90deg, #ef4444 0%, #dc2626 100%)",
                     transition: "width 0.3s ease"
                   }}></div>
                 </div>
 
-                <div style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  background: "var(--bg-app)",
-                  padding: "0.6rem 0.75rem",
-                  borderRadius: "0.4rem",
-                  fontSize: "0.82rem",
-                  borderLeft: isIncCompliant ? "4px solid #10b981" : "4px solid #ef4444"
-                }}>
-                  <div>
-                    <span style={{ fontSize: "0.75rem", color: "var(--text-muted)", display: "block" }}>{previewTextLocale.req_income}</span>
-                    <strong style={{ fontSize: "0.95rem" }}>{reqInc} € / mois (SMIC)</strong>
-                  </div>
-                  <span className={`badge ${isIncCompliant ? "badge-approved" : "badge-rejected"}`} style={{ fontSize: "0.78rem" }}>
-                    {isIncCompliant ? `✓ ${previewTextLocale.income_ok}` : `❌ ${previewTextLocale.income_nok}`}
-                  </span>
+                {/* Criteria Result Rows */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.45rem" }}>
+                  {isAahExempt ? (
+                    <div style={{ display: "flex", flexDirection: "column", gap: "0.45rem" }}>
+                      <div style={{ 
+                        background: "rgba(16, 185, 129, 0.12)", 
+                        color: "#10b981", 
+                        padding: "0.55rem 0.75rem", 
+                        borderRadius: "0.4rem", 
+                        fontSize: "0.8rem", 
+                        fontWeight: "bold",
+                        textAlign: "center",
+                        border: "1px solid rgba(16, 185, 129, 0.3)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "0.35rem"
+                      }}>
+                        {previewTextLocale.aah_badge}
+                      </div>
+
+                      {/* Legal Disclaimer & Légifrance Official Link */}
+                      <div style={{ 
+                        background: "rgba(255, 255, 255, 0.03)", 
+                        border: "1px solid var(--border-card)", 
+                        borderRadius: "0.4rem", 
+                        padding: "0.45rem 0.65rem",
+                        fontSize: "0.74rem",
+                        color: "var(--text-muted)",
+                        lineHeight: "1.4"
+                      }}>
+                        <p style={{ margin: "0 0 0.3rem 0" }}>
+                          ℹ️ {previewTextLocale.aah_legal_info}
+                        </p>
+                        <a 
+                          href="https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000042772714" 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          style={{ color: "var(--primary)", fontWeight: "bold", textDecoration: "underline", display: "inline-block" }}
+                        >
+                          {previewTextLocale.aah_link_text}
+                        </a>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      {/* Income Row */}
+                      <div style={{ 
+                        display: "flex", 
+                        justifyContent: "space-between", 
+                        alignItems: "center", 
+                        background: "var(--bg-app)", 
+                        padding: "0.4rem 0.65rem", 
+                        borderRadius: "0.4rem", 
+                        fontSize: "0.8rem",
+                        borderLeft: isIncCompliant ? "3px solid #10b981" : "3px solid #ef4444" 
+                      }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", flexWrap: "wrap" }}>
+                          <span style={{ fontWeight: 600 }}>Revenus (12m) :</span>
+                          <strong style={{ color: "var(--text-main)" }}>{calc12MonthlyInc} €/mois</strong>
+                          <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>(exigé : {reqInc} €)</span>
+                        </div>
+                        <span className={`badge ${isIncCompliant ? "badge-approved" : "badge-rejected"}`} style={{ fontSize: "0.72rem", padding: "0.15rem 0.45rem", whiteSpace: "nowrap" }}>
+                          {isIncCompliant ? `✓ ${previewTextLocale.income_ok}` : `❌ ${previewTextLocale.income_nok}`}
+                        </span>
+                      </div>
+
+                      {/* Surface Row */}
+                      <div style={{ 
+                        display: "flex", 
+                        justifyContent: "space-between", 
+                        alignItems: "center", 
+                        background: "var(--bg-app)", 
+                        padding: "0.4rem 0.65rem", 
+                        borderRadius: "0.4rem", 
+                        fontSize: "0.8rem",
+                        borderLeft: isSurfCompliant ? "3px solid #10b981" : "3px solid #ef4444" 
+                      }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", flexWrap: "wrap" }}>
+                          <span style={{ fontWeight: 600 }}>Surface :</span>
+                          <strong style={{ color: "var(--text-main)" }}>{simSurface} m²</strong>
+                          <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>(requis : {reqSurf} m²)</span>
+                        </div>
+                        <span className={`badge ${isSurfCompliant ? "badge-approved" : "badge-rejected"}`} style={{ fontSize: "0.72rem", padding: "0.15rem 0.45rem", whiteSpace: "nowrap" }}>
+                          {isSurfCompliant ? `✓ ${previewTextLocale.surface_ok}` : `❌ ${previewTextLocale.surface_nok}`}
+                        </span>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
 
-              <button
+              {/* Save CTA */}
+              <button 
                 onClick={handleSaveAndRegister}
                 className="btn btn-primary"
-                style={{
-                  width: "100%",
-                  padding: "0.65rem 1rem",
-                  fontWeight: "bold",
-                  fontSize: "0.88rem",
-                  justifyContent: "center"
+                style={{ 
+                  width: "100%", 
+                  padding: "0.65rem 1rem", 
+                  fontWeight: "bold", 
+                  fontSize: "0.88rem", 
+                  marginTop: "0.4rem",
+                  justifyContent: "center" 
                 }}
               >
                 {previewTextLocale.cta_save}
