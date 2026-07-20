@@ -1205,6 +1205,45 @@ app.post("/api/dossier/submit", authenticateUser, async (req, res) => {
   try {
     await query("UPDATE couples SET dossier_status = 'submitted', submitted_at = CURRENT_TIMESTAMP WHERE id = $1", [coupleId]);
     await logAction("Dossier Submitted", `Dossier submitted to authorities for couple ID: ${coupleId}`, req.user.email);
+
+    // Fetch user details for sending confirmation email
+    const userRes = await query("SELECT email, first_name, last_name FROM users WHERE id = $1", [req.user.id]);
+    if (userRes.rows.length > 0) {
+      const u = decryptUserObject(userRes.rows[0]);
+      const userEmail = u.email;
+      const firstName = u.first_name || u.firstName || "Demandeur";
+
+      if (isSMTPAvailable) {
+        try {
+          const subject = "🚀 Chaml.fr - Confirmation de soumission de votre dossier";
+          const textMsg = `Bonjour ${firstName},\n\nFélicitations ! Votre dossier de regroupement familial a été marqué comme soumis avec succès sur Chaml.fr.\n\nProchaines étapes recommandées :\n1. Connectez-vous sur le portail officiel ANEF (https://administration-etrangers-en-france.interieur.gouv.fr) pour effectuer votre téléprocédure en ligne ou transmettez votre dossier complet par courrier AR à l'OFII de votre département.\n2. Téléchargez votre fiche récapitulative et vos pièces justificatives certifiées depuis votre tableau de bord.\n\nNotre équipe reste à votre entière disposition pour tout accompagnement.\n\nCordialement,\nL'équipe Chaml.fr`;
+          
+          const htmlMsg = `
+            <div style="font-family: Arial, sans-serif; line-height: 1.6; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; background-color: #ffffff;">
+              <h2 style="color: #0d9488; text-align: center; margin-top: 0;">🚀 Dossier soumis avec succès !</h2>
+              <p>Bonjour <strong>${firstName}</strong>,</p>
+              <p>Félicitations ! Votre dossier de regroupement familial a été validé et marqué comme <strong>soumis</strong> sur la plateforme Chaml.fr.</p>
+              <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; padding: 15px; border-radius: 6px; margin: 20px 0;">
+                <h4 style="color: #166534; margin-top: 0;">📌 Prochaines étapes de votre démarche :</h4>
+                <ol style="margin-bottom: 0; padding-left: 20px; color: #166534;">
+                  <li>Déposez votre demande officielle sur le site de l'État : <a href="https://administration-etrangers-en-france.interieur.gouv.fr" target="_blank" style="color: #0d9488; font-weight: bold;">Portail ANEF</a> ou envoyez votre dossier par recommandé avec AR à votre direction territoriale de l'OFII.</li>
+                  <li>Téléchargez à tout moment vos pièces justificatives et votre récapitulatif certifié depuis votre tableau de bord Chaml.fr.</li>
+                </ol>
+              </div>
+              <p style="text-align: center; color: #64748b; font-size: 0.85em; margin-top: 25px;">
+                L'équipe Chaml.fr vous souhaite une excellente suite dans vos démarches.
+              </p>
+            </div>
+          `;
+
+          await sendSystemEmail(userEmail, subject, textMsg, htmlMsg);
+          console.log(`✉️ Submission confirmation email sent to ${userEmail}`);
+        } catch (emailErr) {
+          console.error("❌ Failed to send submission email:", emailErr.message);
+        }
+      }
+    }
+
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
