@@ -289,7 +289,8 @@ export default function Login({
           style={{
             position: "absolute",
             top: "1.25rem",
-            left: "1.25rem",
+            left: lang === "ar" ? "auto" : "1.25rem",
+            right: lang === "ar" ? "1.25rem" : "auto",
             background: "rgba(255,255,255,0.03)",
             border: "1px solid var(--border-card)",
             borderRadius: "0.5rem",
@@ -311,7 +312,7 @@ export default function Login({
             e.currentTarget.style.background = "rgba(255,255,255,0.03)";
           }}
         >
-          ← Accueil
+          {getTranslation(lang, "back_home")}
         </button>
 
         {/* Brand Logo Header */}
@@ -356,7 +357,7 @@ export default function Login({
                   className="input-field"
                   type="email"
                   required
-                  placeholder="anass@chaml.fr"
+                  placeholder="conjoint@chaml.fr"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
@@ -370,7 +371,7 @@ export default function Login({
                     onClick={() => { setView("forgot_password"); setError(""); }} 
                     style={{ background: "none", border: "none", color: "var(--primary)", fontSize: "0.8rem", cursor: "pointer", textDecoration: "underline", padding: 0 }}
                   >
-                    {lang === "ar" ? "نسيت كلمة المرور؟" : lang === "en" ? "Forgot password?" : "Mot de passe oublié ?"}
+                    {getTranslation(lang, "forgot_password_link")}
                   </button>
                 </div>
                 <input
@@ -390,12 +391,12 @@ export default function Login({
 
             <div style={{ textAlign: "center", marginTop: "1.5rem", fontSize: "0.85rem", display: "flex", flexDirection: "column", gap: "0.75rem", alignItems: "center" }}>
               <div>
-                Pas encore de compte ?{" "}
+                {getTranslation(lang, "no_account_yet")}{" "}
                 <button 
                   onClick={() => { setView("register"); setError(""); }} 
                   style={{ background: "none", border: "none", color: "var(--primary)", fontWeight: "bold", cursor: "pointer", textDecoration: "underline" }}
                 >
-                  Créer un compte (Sign Up)
+                  {getTranslation(lang, "create_account")}
                 </button>
               </div>
             </div>
@@ -404,7 +405,7 @@ export default function Login({
             <div style={{ marginTop: "1.5rem", display: "flex", flexDirection: "column", gap: "1rem", alignItems: "center" }}>
               <div style={{ display: "flex", alignItems: "center", width: "100%", gap: "1rem" }}>
                 <hr style={{ flex: 1, border: "none", borderTop: "1px solid var(--border-card)" }} />
-                <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>ou</span>
+                <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>{getTranslation(lang, "or")}</span>
                 <hr style={{ flex: 1, border: "none", borderTop: "1px solid var(--border-card)" }} />
               </div>
 
@@ -442,7 +443,7 @@ export default function Login({
                   <path fill="#FBBC05" d="M3.97 10.7a5.4 5.4 0 0 1 0-3.4V4.98H.95a9 9 0 0 0 0 8.04l3.02-2.32z"/>
                   <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35L15 2.1A9 9 0 0 0 .95 4.98l3.02 2.32C4.68 5.16 6.66 3.58 9 3.58z"/>
                 </svg>
-                Se connecter avec Gmail
+                {getTranslation(lang, "login_gmail")}
               </a>
             </div>
           </>
@@ -450,18 +451,18 @@ export default function Login({
 
         {view === "register" && (
           <form onSubmit={handleRegister} className="fade-in" style={{ display: "flex", flexDirection: "column", gap: "1.5rem", maxWidth: "500px", margin: "0 auto" }}>
-            <h2 style={{ fontSize: "1.3rem" }}>📝 Inscription / Subscription (SaaS)</h2>
+            <h2 style={{ fontSize: "1.3rem" }}>{getTranslation(lang, "reg_title")}</h2>
             <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", marginTop: "-1rem" }}>
-              Créez votre dossier de regroupement familial. L'adresse email sera vérifiée et le dossier devra être approuvé par l'admin.
+              {getTranslation(lang, "reg_subtitle")}
             </p>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
               <h3 style={{ color: "var(--primary)", fontSize: "1.05rem", borderBottom: "1px solid var(--border-card)", paddingBottom: "0.25rem", display: "flex", alignItems: "center", gap: "0.35rem" }}>
-                <FranceFlag size={16} /> Conjoint(e) en France (Demandeur)
+                <FranceFlag size={16} /> {getTranslation(lang, "reg_applicant_header")}
               </h3>
               
               <div className="form-group">
-                <label className="form-label">Email*</label>
+                <label className="form-label">{getTranslation(lang, "email_label")}*</label>
                 <input 
                   className="input-field" 
                   type="email" 
@@ -475,26 +476,26 @@ export default function Login({
               </div>
               {!isGoogleSignup && (
                 <div className="form-group">
-                  <label className="form-label">Mot de passe*</label>
+                  <label className="form-label">{getTranslation(lang, "password_label")}*</label>
                   <input className="input-field" type="password" value={frPassword} onChange={e => setFrPassword(e.target.value)} required />
                 </div>
               )}
               <div className="form-row-2col">
                 <div className="form-group">
-                  <label className="form-label">Prénom*</label>
+                  <label className="form-label">{getTranslation(lang, "reg_firstname")}</label>
                   <input className="input-field" type="text" value={frFirstName} onChange={e => setFrFirstName(e.target.value)} required />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Nom*</label>
+                  <label className="form-label">{getTranslation(lang, "reg_lastname")}</label>
                   <input className="input-field" type="text" value={frLastName} onChange={e => setFrLastName(e.target.value)} required />
                 </div>
               </div>
               <div className="form-group" style={{ position: "relative" }}>
-                <label className="form-label">Adresse complète en France*</label>
+                <label className="form-label">{getTranslation(lang, "reg_address")}</label>
                 <input 
                   className="input-field" 
                   type="text" 
-                  placeholder="Saisissez votre adresse (ex: 10 Rue de Paris...)" 
+                  placeholder={getTranslation(lang, "reg_address_placeholder")} 
                   value={frAddress} 
                   onChange={e => handleAddressChange(e.target.value)} 
                   required 
@@ -541,20 +542,20 @@ export default function Login({
               </div>
 
               <div className="form-group">
-                <label className="form-label">Téléphone</label>
+                <label className="form-label">{getTranslation(lang, "reg_phone")}</label>
                 <input className="input-field" type="text" placeholder="+33 6..." value={frPhone} onChange={e => setFrPhone(e.target.value)} />
               </div>
               <div className="form-row-3col">
                 <div className="form-group">
-                  <label className="form-label">Ville</label>
+                  <label className="form-label">{getTranslation(lang, "reg_city")}</label>
                   <input className="input-field" type="text" placeholder="Paris" value={frCity} onChange={e => setFrCity(e.target.value)} />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Département</label>
+                  <label className="form-label">{getTranslation(lang, "reg_department")}</label>
                   <input className="input-field" type="text" placeholder="75" value={frDep} onChange={e => setFrDep(e.target.value)} />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Zone</label>
+                  <label className="form-label">{getTranslation(lang, "reg_zone")}</label>
                   <select className="select-dropdown" style={{ padding: "0.7rem" }} value={frZone} onChange={e => setFrZone(e.target.value)}>
                     <option value="A">Zone A</option>
                     <option value="B">Zone B</option>
@@ -563,17 +564,17 @@ export default function Login({
                 </div>
               </div>
               <div className="form-group">
-                <label className="form-label">Surface Habitable (m²)</label>
+                <label className="form-label">{getTranslation(lang, "reg_surface")}</label>
                 <input className="input-field" type="number" value={frSurface} onChange={e => setFrSurface(e.target.value)} />
               </div>
             </div>
 
             <div className="form-action-group">
               <button type="submit" className="btn btn-primary" style={{ padding: "0.8rem 1.5rem", flex: 1 }}>
-                ✓ S'inscrire & envoyer le lien email
+                {getTranslation(lang, "reg_btn_submit")}
               </button>
               <button type="button" className="btn btn-secondary" onClick={() => { setView("login"); setError(""); }}>
-                Retour à la connexion
+                {getTranslation(lang, "reg_btn_back_login")}
               </button>
             </div>
           </form>
@@ -582,9 +583,9 @@ export default function Login({
         {view === "unverified" && (
           <div className="fade-in" style={{ textAlign: "center", padding: "1rem" }}>
             <span style={{ fontSize: "3rem", display: "block", marginBottom: "1rem" }}>📧</span>
-            <h2 style={{ fontSize: "1.4rem", marginBottom: "0.5rem" }}>Vérification de l'adresse email</h2>
+            <h2 style={{ fontSize: "1.4rem", marginBottom: "0.5rem" }}>{getTranslation(lang, "unverified_title")}</h2>
             <p style={{ color: "var(--text-muted)", fontSize: "0.9rem", lineHeight: "1.5", marginBottom: "1.5rem" }}>
-              Un lien de vérification a été envoyé à l'adresse <strong>{pendingEmail}</strong>. Veuillez valider votre e-mail avant de continuer.
+              {getTranslation(lang, "unverified_desc", { email: pendingEmail })}
             </p>
 
             <div style={{
@@ -596,8 +597,8 @@ export default function Login({
               fontSize: "0.85rem",
               textAlign: "left"
             }}>
-              💡 <strong>Simulation de boîte de réception :</strong><br />
-              Pour tester le parcours sans serveur d'email réel, cliquez sur le bouton ci-dessous pour simuler l'ouverture du lien d'activation reçu dans votre boîte de réception.
+              💡 <strong>{getTranslation(lang, "unverified_sim_title")}</strong><br />
+              {getTranslation(lang, "unverified_sim_desc")}
             </div>
 
             <button 
@@ -605,7 +606,7 @@ export default function Login({
               onClick={handleSimulateEmailVerify}
               style={{ width: "100%", padding: "0.8rem", marginBottom: "1rem" }}
             >
-              🔗 Simuler le clic sur le lien d'activation email
+              {getTranslation(lang, "unverified_sim_btn")}
             </button>
 
             <button 
@@ -613,7 +614,7 @@ export default function Login({
               onClick={() => setView("login")}
               style={{ width: "100%", padding: "0.8rem" }}
             >
-              Retour à la connexion
+              {getTranslation(lang, "reg_btn_back_login")}
             </button>
           </div>
         )}
@@ -625,9 +626,9 @@ export default function Login({
               <span style={{ fontSize: "2rem" }}>🤝</span>
               <FranceFlag size={36} />
             </div>
-            <h2 style={{ fontSize: "1.3rem", textAlign: "center" }}>Créer votre mot de passe conjoint</h2>
+            <h2 style={{ fontSize: "1.3rem", textAlign: "center" }}>{getTranslation(lang, "invite_title")}</h2>
             <p style={{ color: "var(--text-muted)", fontSize: "0.88rem", textAlign: "center", lineHeight: "1.5" }}>
-              Bienvenue sur Chaml.fr ! Votre conjoint(e) vous a invité(e) à rejoindre son dossier de regroupement familial partagé.
+              {getTranslation(lang, "invite_welcome")}
             </p>
 
             {inviteSuccess && (
@@ -637,12 +638,12 @@ export default function Login({
             )}
 
             <div className="form-group">
-              <label className="form-label">Adresse E-mail (Conjoint invité)</label>
+              <label className="form-label">{getTranslation(lang, "invite_email_lbl")}</label>
               <input className="input-field" type="email" value={frEmail} disabled />
             </div>
 
             <div className="form-group">
-              <label className="form-label">Choisissez votre mot de passe*</label>
+              <label className="form-label">{getTranslation(lang, "invite_pass_lbl")}</label>
               <input 
                 className="input-field" 
                 type="password" 
@@ -654,7 +655,7 @@ export default function Login({
 
             <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
               <button type="submit" className="btn btn-primary" style={{ width: "100%", padding: "0.8rem" }}>
-                ✓ Activer mon compte & se connecter
+                {getTranslation(lang, "invite_btn")}
               </button>
             </div>
           </form>
@@ -663,9 +664,9 @@ export default function Login({
         {view === "unapproved" && (
           <div className="fade-in" style={{ textAlign: "center", padding: "1rem" }}>
             <span style={{ fontSize: "3.5rem", display: "block", marginBottom: "1rem", animation: "pulse 2s infinite" }}>⏳</span>
-            <h2 style={{ fontSize: "1.4rem", marginBottom: "0.5rem" }}>Compte en attente d'approbation</h2>
+            <h2 style={{ fontSize: "1.4rem", marginBottom: "0.5rem" }}>{getTranslation(lang, "unapproved_title")}</h2>
             <p style={{ color: "var(--text-muted)", fontSize: "0.95rem", lineHeight: "1.5", marginBottom: "1.5rem" }}>
-              Votre adresse e-mail a été vérifiée avec succès. Un administrateur de la plateforme <strong>{config.appName}</strong> doit maintenant valider votre compte.
+              {getTranslation(lang, "unapproved_desc")}
             </p>
 
             <div style={{
@@ -687,7 +688,7 @@ export default function Login({
               onClick={() => setView("login")}
               style={{ width: "100%", padding: "0.8rem" }}
             >
-              Retour à la connexion
+              {getTranslation(lang, "reg_btn_back_login")}
             </button>
           </div>
         )}

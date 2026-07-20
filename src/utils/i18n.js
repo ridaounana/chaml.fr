@@ -17,9 +17,45 @@ export const TRANSLATIONS = {
     email_label: "Adresse Email",
     password_label: "Mot de passe",
     btn_login: "Se Connecter",
-    login_error: "Identifiants incorrects. Veuillez réessayer.",
-    login_help_title: "Aide à la connexion :",
-    login_help_desc: "1. Connectez-vous avec les identifiants créés lors de l'inscription.",
+    // Auth & Subscription
+    back_home: "← Accueil",
+    no_account_yet: "Pas encore de compte ?",
+    create_account: "Créer un compte",
+    or: "ou",
+    login_gmail: "Se connecter avec Gmail",
+    forgot_password_link: "Mot de passe oublié ?",
+    
+    // Register / Subscription
+    reg_title: "📝 Inscription / Création de dossier",
+    reg_subtitle: "Créez votre dossier de regroupement familial. L'adresse email sera vérifiée et le dossier devra être approuvé.",
+    reg_applicant_header: "Conjoint(e) en France (Demandeur)",
+    reg_firstname: "Prénom*",
+    reg_lastname: "Nom*",
+    reg_address: "Adresse complète en France*",
+    reg_address_placeholder: "Saisissez votre adresse (ex: 10 Rue de Paris...)",
+    reg_phone: "Téléphone",
+    reg_city: "Ville",
+    reg_department: "Département",
+    reg_zone: "Zone",
+    reg_surface: "Surface Habitable (m²)",
+    reg_btn_submit: "✓ S'inscrire & envoyer le lien email",
+    reg_btn_back_login: "Retour à la connexion",
+    
+    // Unverified / Invite / Approval
+    unverified_title: "Vérification de l'adresse email",
+    unverified_desc: "Un lien de vérification a été envoyé à l'adresse {email}. Veuillez valider votre e-mail avant de continuer.",
+    unverified_sim_title: "Simulation de boîte de réception :",
+    unverified_sim_desc: "Pour tester le parcours sans serveur d'email réel, cliquez sur le bouton ci-dessous pour simuler l'ouverture du lien d'activation.",
+    unverified_sim_btn: "🔗 Simuler le clic sur le lien d'activation email",
+    
+    invite_title: "Créer votre mot de passe conjoint",
+    invite_welcome: "Bienvenue sur Chaml.fr ! Votre conjoint(e) vous a invité(e) à rejoindre son dossier de regroupement familial partagé.",
+    invite_email_lbl: "Adresse E-mail (Conjoint invité)",
+    invite_pass_lbl: "Choisissez votre mot de passe*",
+    invite_btn: "✓ Activer mon compte & se connecter",
+    
+    unapproved_title: "Compte en attente d'approbation",
+    unapproved_desc: "Votre adresse e-mail a été vérifiée avec succès. Un administrateur de la plateforme doit maintenant valider votre compte.",
     
     // Navigation
     nav_dashboard: "Tableau de Bord",
@@ -159,9 +195,45 @@ export const TRANSLATIONS = {
     email_label: "البريد الإلكتروني",
     password_label: "كلمة المرور",
     btn_login: "تسجيل الدخول",
-    login_error: "بيانات الدخول غير صحيحة. يرجى المحاولة مجددًا.",
-    login_help_title: "مساعدة تسجيل الدخول:",
-    login_help_desc: "1. يرجى تسجيل الدخول بالبيانات التي استخدمتموها عند التسجيل.\n2. المشرف: admin@chaml.fr (يتم عرض كلمة المرور المؤقتة في سجلات الخادم عند التشغيل الأول).",
+    // Auth & Subscription
+    back_home: "← الرئيسية",
+    no_account_yet: "ليس لديك حساب بعد؟",
+    create_account: "إنشاء حساب جديد",
+    or: "أو",
+    login_gmail: "تسجيل الدخول عبر Gmail",
+    forgot_password_link: "نسيت كلمة المرور؟",
+    
+    // Register / Subscription
+    reg_title: "📝 التسجيل / إنشاء حساب جديد",
+    reg_subtitle: "أنشئوا ملف لم الشمل العائلي الخاص بكم. سيتم التحقق من بريدكم الإلكتروني واعتماد الملف.",
+    reg_applicant_header: "الزوج(ة) في فرنسا (صاحب الطلب)",
+    reg_firstname: "الاسم الشخصي*",
+    reg_lastname: "الاسم العائلي*",
+    reg_address: "العنوان الكامل في فرنسا*",
+    reg_address_placeholder: "أدخل عنوانك الكامل (مثال: 10 شارع باريس...)",
+    reg_phone: "الهاتف",
+    reg_city: "المدينة",
+    reg_department: "الإقليم (Département)",
+    reg_zone: "المنطقة (Zone)",
+    reg_surface: "المساحة السكنية (بالمتر المربع)",
+    reg_btn_submit: "✓ التسجيل وإرسال رابط التفعيل",
+    reg_btn_back_login: "العودة إلى تسجيل الدخول",
+    
+    // Unverified / Invite / Approval
+    unverified_title: "التحقق من البريد الإلكتروني",
+    unverified_desc: "تم إرسال رابط التفعيل إلى البريد الإلكتروني {email}. يرجى تأكيد بريدكم قبل المتابعة.",
+    unverified_sim_title: "محاكاة صندوق الوارد:",
+    unverified_sim_desc: "لاختبار الحساب بدون سيرفر بريد إلكتروني حقيقي، اضغطوا على الزر أسفله لمحاكاة فتح رابط التفعيل.",
+    unverified_sim_btn: "🔗 محاكاة النقر على رابط التفعيل عبر البريد",
+    
+    invite_title: "إنشاء كلمة مرور الحساب المشترك",
+    invite_welcome: "مرحبًا بكم في شمل! قام زوجكم/زوجتكم بدعوتكم للانضمام إلى ملف لم الشمل العائلي المشترك.",
+    invite_email_lbl: "البريد الإلكتروني (الزوج المستدعى)",
+    invite_pass_lbl: "اختر كلمة المرور الخاصة بك*",
+    invite_btn: "✓ تفعيل حسابي وتسجيل الدخول",
+    
+    unapproved_title: "الحساب في انتظار موافقة المشرف",
+    unapproved_desc: "تم التحقق من بريدكم الإلكتروني بنجاح. يتوجب الآن على مشرف المنصة اعتماد ملفكم.",
     
     // Navigation
     nav_dashboard: "لوحة التحكم",
@@ -301,9 +373,45 @@ export const TRANSLATIONS = {
     email_label: "Email Address",
     password_label: "Password",
     btn_login: "Login",
-    login_error: "Invalid credentials. Please try again.",
-    login_help_title: "Login Help:",
-    login_help_desc: "1. Log in with the credentials you created during sign up.\n2. Administrator: admin@chaml.fr (Temporary password is printed in the server console logs during first run).",
+    // Auth & Subscription
+    back_home: "← Home",
+    no_account_yet: "Don't have an account yet?",
+    create_account: "Create an account",
+    or: "or",
+    login_gmail: "Sign in with Gmail",
+    forgot_password_link: "Forgot password?",
+    
+    // Register / Subscription
+    reg_title: "📝 Registration / Account Creation",
+    reg_subtitle: "Create your family reunification dossier. Your email will be verified and approved.",
+    reg_applicant_header: "Spouse in France (Applicant)",
+    reg_firstname: "First Name*",
+    reg_lastname: "Last Name*",
+    reg_address: "Full Address in France*",
+    reg_address_placeholder: "Enter your address (e.g., 10 Rue de Paris...)",
+    reg_phone: "Phone Number",
+    reg_city: "City",
+    reg_department: "Department",
+    reg_zone: "Zone",
+    reg_surface: "Living Surface (m²)",
+    reg_btn_submit: "✓ Sign up & send email link",
+    reg_btn_back_login: "Back to login",
+    
+    // Unverified / Invite / Approval
+    unverified_title: "Email Address Verification",
+    unverified_desc: "A verification link was sent to {email}. Please verify your email before continuing.",
+    unverified_sim_title: "Inbox Simulation:",
+    unverified_sim_desc: "To test without a real SMTP server, click the button below to simulate clicking the activation email link.",
+    unverified_sim_btn: "🔗 Simulate clicking email activation link",
+    
+    invite_title: "Create your spouse password",
+    invite_welcome: "Welcome to Chaml.fr! Your spouse invited you to join their shared family reunification file.",
+    invite_email_lbl: "Email Address (Invited spouse)",
+    invite_pass_lbl: "Choose your password*",
+    invite_btn: "✓ Activate account & log in",
+    
+    unapproved_title: "Account pending approval",
+    unapproved_desc: "Your email has been verified. A platform administrator must now approve your account.",
     
     // Navigation
     nav_dashboard: "Dashboard",
