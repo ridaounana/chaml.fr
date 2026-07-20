@@ -253,7 +253,7 @@ export default function Dashboard({ lang, user }) {
     }
     if (!window.confirm(getTranslation(lang, "dash_submit_confirm"))) return;
 
-    submitDossier()
+    submitDossier(lang)
       .then(() => {
         loadDossierData();
       })

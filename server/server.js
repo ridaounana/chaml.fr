@@ -1202,6 +1202,8 @@ app.get("/api/dossier/download/:coupleId/:docKey", authenticateUser, async (req,
 // Submit Dossier
 app.post("/api/dossier/submit", authenticateUser, async (req, res) => {
   const coupleId = req.user.coupleId;
+  const { lang = "fr" } = req.body;
+
   try {
     await query("UPDATE couples SET dossier_status = 'submitted', submitted_at = CURRENT_TIMESTAMP WHERE id = $1", [coupleId]);
     await logAction("Dossier Submitted", `Dossier submitted to authorities for couple ID: ${coupleId}`, req.user.email);
@@ -1212,32 +1214,157 @@ app.post("/api/dossier/submit", authenticateUser, async (req, res) => {
       const u = decryptUserObject(userRes.rows[0]);
       const userEmail = u.email;
       const firstName = u.first_name || u.firstName || "Demandeur";
+      const lastName = u.last_name || u.lastName || "";
+      const fullName = `${firstName} ${lastName}`.trim();
 
       if (isSMTPAvailable) {
         try {
-          const subject = "🚀 Chaml.fr - Confirmation de soumission de votre dossier";
-          const textMsg = `Bonjour ${firstName},\n\nFélicitations ! Votre dossier de regroupement familial a été marqué comme soumis avec succès sur Chaml.fr.\n\nProchaines étapes recommandées :\n1. Connectez-vous sur le portail officiel ANEF (https://administration-etrangers-en-france.interieur.gouv.fr) pour effectuer votre téléprocédure en ligne ou transmettez votre dossier complet par courrier AR à l'OFII de votre département.\n2. Téléchargez votre fiche récapitulative et vos pièces justificatives certifiées depuis votre tableau de bord.\n\nNotre équipe reste à votre entière disposition pour tout accompagnement.\n\nCordialement,\nL'équipe Chaml.fr`;
-          
+          const isAr = lang === "ar";
+          const isEn = lang === "en";
+
+          const subject = isAr 
+            ? "🚀 Chaml.fr - تأكيد تقديم ملفكم بنجاح (الجمع العائلي)"
+            : isEn
+            ? "🚀 Chaml.fr - Application Submission Confirmation (Family Reunification)"
+            : "🚀 Chaml.fr - Confirmation de soumission de votre dossier (Regroupement Familial)";
+
+          const textMsg = isAr
+            ? `مرحباً ${firstName}،\n\nتهانينا! تم تأكيد وتقديم ملفكم الخاص بالجمع العائلي بنجاح على منصة Chaml.fr.\n\nالخطوات التالية الموصى بها:\n1. تقديم طلبكم الرسمي على بوابة الدولة: https://administration-etrangers-en-france.interieur.gouv.fr (ANEF) أو إرساله عبر البريد المضمون إلى مكتب الهجرة (OFII).\n2. تحميل ملخص ملفكم والوثائق الموثقة من لوحة التحكم الخاصة بكم.\n\nرابط لوحة التحكم: https://chaml.fr/?view=login\n\nفريق Chaml.fr`
+            : isEn
+            ? `Hello ${firstName},\n\nCongratulations! Your family reunification application has been successfully marked as submitted on Chaml.fr.\n\nRecommended Next Steps:\n1. File your official application on the state portal: https://administration-etrangers-en-france.interieur.gouv.fr (ANEF) or mail your file via registered mail to your territorial OFII office.\n2. Download your certified summary and documents from your dashboard.\n\nDashboard link: https://chaml.fr/?view=login\n\nBest regards,\nThe Chaml.fr Team`
+            : `Bonjour ${firstName},\n\nFélicitations ! Votre dossier de regroupement familial a été marqué comme soumis avec succès sur Chaml.fr.\n\nProchaines étapes recommandées :\n1. Déposez votre demande officielle sur le portail ANEF (https://administration-etrangers-en-france.interieur.gouv.fr) ou transmettez votre dossier par courrier AR à l'OFII de votre département.\n2. Téléchargez votre fiche récapitulative et vos pièces justificatives certifiées depuis votre tableau de bord.\n\nAccéder au Tableau de Bord : https://chaml.fr/?view=login\n\nCordialement,\nL'équipe Chaml.fr`;
+
+          const dir = isAr ? "rtl" : "ltr";
+          const textAlign = isAr ? "right" : "left";
+
           const htmlMsg = `
-            <div style="font-family: Arial, sans-serif; line-height: 1.6; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; background-color: #ffffff;">
-              <h2 style="color: #0d9488; text-align: center; margin-top: 0;">🚀 Dossier soumis avec succès !</h2>
-              <p>Bonjour <strong>${firstName}</strong>,</p>
-              <p>Félicitations ! Votre dossier de regroupement familial a été validé et marqué comme <strong>soumis</strong> sur la plateforme Chaml.fr.</p>
-              <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; padding: 15px; border-radius: 6px; margin: 20px 0;">
-                <h4 style="color: #166534; margin-top: 0;">📌 Prochaines étapes de votre démarche :</h4>
-                <ol style="margin-bottom: 0; padding-left: 20px; color: #166534;">
-                  <li>Déposez votre demande officielle sur le site de l'État : <a href="https://administration-etrangers-en-france.interieur.gouv.fr" target="_blank" style="color: #0d9488; font-weight: bold;">Portail ANEF</a> ou envoyez votre dossier par recommandé avec AR à votre direction territoriale de l'OFII.</li>
-                  <li>Téléchargez à tout moment vos pièces justificatives et votre récapitulatif certifié depuis votre tableau de bord Chaml.fr.</li>
-                </ol>
-              </div>
-              <p style="text-align: center; color: #64748b; font-size: 0.85em; margin-top: 25px;">
-                L'équipe Chaml.fr vous souhaite une excellente suite dans vos démarches.
-              </p>
-            </div>
+            <!DOCTYPE html>
+            <html lang="${lang}" dir="${dir}">
+            <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            </head>
+            <body style="margin: 0; padding: 0; background-color: #0f172a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #334155;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #0f172a; padding: 30px 10px;">
+                <tr>
+                  <td align="center">
+                    <table role="presentation" width="100%" style="max-width: 620px; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3); text-align: ${textAlign};">
+                      
+                      <!-- Header Banner -->
+                      <tr>
+                        <td style="background: linear-gradient(135deg, #0f172a 0%, #0d9488 100%); padding: 32px 28px; text-align: center;">
+                          <div style="font-size: 32px; margin-bottom: 6px;">🕌</div>
+                          <h1 style="color: #ffffff; font-size: 24px; font-weight: 800; margin: 0; tracking: 0.5px;">Chaml.fr</h1>
+                          <p style="color: #99f6e4; font-size: 13px; margin: 4px 0 0 0; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">
+                            ${isAr ? "المنصة المستقلة للم الشمل العائلي" : isEn ? "Family Reunification Platform" : "Plateforme de Regroupement Familial"}
+                          </p>
+                        </td>
+                      </tr>
+
+                      <!-- Body Content -->
+                      <tr>
+                        <td style="padding: 32px 28px; direction: ${dir};">
+                          
+                          <!-- Status Badge -->
+                          <div style="background-color: #f0fdf4; border: 1px solid #6ee7b7; border-radius: 12px; padding: 16px; text-align: center; margin-bottom: 24px;">
+                            <span style="background-color: #10b981; color: #ffffff; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; display: inline-block; margin-bottom: 8px;">
+                              ✓ ${isAr ? "ملف موثق ومقدم" : isEn ? "Certified & Submitted File" : "Dossier Certifié & Soumis"}
+                            </span>
+                            <h2 style="color: #065f46; font-size: 20px; margin: 6px 0 0 0; font-weight: 800;">
+                              ${isAr ? "تهانينا! تم تأكيد تقديم ملفكم بنجاح" : isEn ? "Congratulations! Application Submitted Successfully" : "Félicitations ! Dossier soumis avec succès"}
+                            </h2>
+                          </div>
+
+                          <p style="font-size: 16px; line-height: 1.6; color: #1e293b; margin-top: 0;">
+                            ${isAr ? `مرحباً <strong>${fullName}</strong>،` : isEn ? `Hello <strong>${fullName}</strong>,` : `Bonjour <strong>${fullName}</strong>,`}
+                          </p>
+
+                          <p style="font-size: 15px; line-height: 1.6; color: #334155;">
+                            ${isAr 
+                              ? "يسرنا إبلاغكم بأن جميع الوثائق المطلوبة لملفكم قد تم فحصها وتوثيقها، وتم تسجيل تقديم ملفكم بنجاح على منصة Chaml.fr." 
+                              : isEn 
+                              ? "We are pleased to inform you that all required documents for your application have been verified, certified, and officially marked as submitted on Chaml.fr." 
+                              : "Nous avons le plaisir de vous informer que toutes les pièces justificatives de votre dossier ont été vérifiées, certifiées et enregistrées comme <strong>soumises</strong> sur la plateforme Chaml.fr."}
+                          </p>
+
+                          <!-- Instructions Box -->
+                          <div style="background-color: #f8fafc; border-left: 4px solid #0d9488; border-radius: 8px; padding: 20px; margin: 24px 0;">
+                            <h3 style="color: #0f766e; font-size: 16px; margin: 0 0 12px 0;">
+                              📍 ${isAr ? "الخطوات النهائية لاستكمال معاملتكم لدى السلطات الفرنسية:" : isEn ? "Final Official Submission Steps:" : "Prochaines étapes officielles auprès de l'Administration :"}
+                            </h3>
+                            <ul style="margin: 0; padding-${isAr ? "right" : "left"}: 20px; color: #334155; font-size: 14px; line-height: 1.7;">
+                              <li style="margin-bottom: 10px;">
+                                <strong>${isAr ? "الخطوة 1 - البوابة الرسمية للدولة (ANEF):" : isEn ? "Step 1 - Official State Portal (ANEF):" : "Étape 1 - Portail Officiel ANEF :"}</strong><br />
+                                ${isAr 
+                                  ? "قم بإجراء طلبك الإلكتروني الرسمي عبر بوابة الدولة الفرنسية (ANEF) أو قم بإرسال الملف الورقي عبر البريد المضمون (LRAR) إلى المديرية الإقليمية لـ OFII التابع لها سكنك." 
+                                  : isEn 
+                                  ? "Submit your official application online on the French State Portal (ANEF) or mail your complete file via registered mail (LRAR) to your territorial OFII office." 
+                                  : "Effectuez votre télédéclaration officielle en ligne sur le portail de l'État (ANEF) ou transmettez votre dossier complet par courrier recommandé avec accusé de réception (LRAR) à la direction territoriale de l'OFII de votre logement."}
+                              </li>
+                              <li>
+                                <strong>${isAr ? "الخطوة 2 - لوحة التحكم والوثائق الموثقة:" : isEn ? "Step 2 - Dashboard & Certified Files:" : "Étape 2 - Fiche Récapitulative & Pièces Certifiées :"}</strong><br />
+                                ${isAr 
+                                  ? "يمكنك تحميل كشف الحساب الموثق وجميع مستنداتك المشفرة مباشرة من لوحة التحكم الخاصة بك في أي وقت." 
+                                  : isEn 
+                                  ? "Download your certified summary sheet and encrypted documents directly from your Chaml.fr dashboard at any time." 
+                                  : "Téléchargez votre fiche récapitulative certifiée et l'ensemble de vos documents chiffrés directement depuis votre espace client."}
+                              </li>
+                            </ul>
+                          </div>
+
+                          <!-- Call To Action Buttons -->
+                          <div style="text-align: center; margin: 32px 0 24px 0;">
+                            <a href="https://chaml.fr/?view=login" target="_blank" style="background-color: #0d9488; color: #ffffff; padding: 14px 28px; border-radius: 8px; font-weight: bold; font-size: 15px; text-decoration: none; display: inline-block; box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3); margin-bottom: 12px;">
+                              🚀 ${isAr ? "الدخول إلى لوحة التحكم Chaml.fr" : isEn ? "Access My Chaml.fr Dashboard" : "Accéder à mon Tableau de Bord Chaml.fr"}
+                            </a>
+                            <br />
+                            <a href="https://administration-etrangers-en-france.interieur.gouv.fr" target="_blank" style="color: #0d9488; font-size: 13px; font-weight: bold; text-decoration: underline; display: inline-block; margin-top: 6px;">
+                              🏛️ ${isAr ? "الانتقال إلى البوابة الرسمية للدولة (ANEF)" : isEn ? "Go to Official French State Portal (ANEF)" : "Accéder au Portail Officiel ANEF (État Français)"}
+                            </a>
+                          </div>
+
+                          <!-- Security Note -->
+                          <div style="background-color: #f1f5f9; border-radius: 8px; padding: 12px 16px; font-size: 12px; color: #64748b; text-align: center;">
+                            🔒 ${isAr ? "تشفير عالي الأمان AES-256 واحترام تام لخصوصية البيانات (RGPD)" : isEn ? "High Security AES-256 Encryption & GDPR Compliant" : "Sécurité accrue : Données chiffrées AES-256 & Conformité RGPD"}
+                          </div>
+
+                        </td>
+                      </tr>
+
+                      <!-- Footer -->
+                      <tr>
+                        <td style="background-color: #f8fafc; border-top: 1px solid #e2e8f0; padding: 24px 28px; text-align: center; font-size: 12px; color: #64748b; line-height: 1.6;">
+                          <p style="margin: 0 0 6px 0; font-weight: bold; color: #334155;">Chaml.fr</p>
+                          <p style="margin: 0 0 12px 0;">
+                            ${isAr 
+                              ? "منصة مرافقة معاملة الجمع العائلي في فرنسا" 
+                              : isEn 
+                              ? "Family Reunification Guidance Platform in France" 
+                              : "Plateforme d'accompagnement au regroupement familial en France"}
+                          </p>
+                          <p style="margin: 0; font-size: 11px; color: #94a3b8;">
+                            ${isAr 
+                              ? "تم إرسال هذا البريد الإلكتروني تلقائياً نتيجة تقديم ملفكم. للمساعدة، يرجى التواصل مع support@chaml.fr" 
+                              : isEn 
+                              ? "This email was automatically generated following your application submission. For assistance, contact support@chaml.fr" 
+                              : "Cet e-mail a été généré automatiquement suite à la soumission de votre dossier. Pour toute assistance, contactez support@chaml.fr"}
+                          </p>
+                          <p style="margin: 10px 0 0 0; font-size: 11px; color: #cbd5e1;">
+                            © 2026 Chaml.fr. Tous droits réservés.
+                          </p>
+                        </td>
+                      </tr>
+
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </body>
+            </html>
           `;
 
           await sendSystemEmail(userEmail, subject, textMsg, htmlMsg);
-          console.log(`✉️ Submission confirmation email sent to ${userEmail}`);
+          console.log(`✉️ Multilingual submission confirmation email sent to ${userEmail} (${lang})`);
         } catch (emailErr) {
           console.error("❌ Failed to send submission email:", emailErr.message);
         }
