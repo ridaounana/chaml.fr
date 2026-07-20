@@ -46,6 +46,12 @@ export const verifyEmail = (coupleId) =>
     body: { coupleId }
   });
 
+export const resendVerificationEmail = (coupleId, email) =>
+  request("/api/auth/resend-verification-email", {
+    method: "POST",
+    body: { coupleId, email }
+  });
+
 export const forgotPassword = (email) =>
   request("/api/auth/forgot-password", {
     method: "POST",

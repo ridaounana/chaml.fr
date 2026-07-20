@@ -45,6 +45,7 @@ export const TRANSLATIONS = {
     unverified_title: "Vérification de l'adresse email",
     unverified_desc: "Un lien de vérification a été envoyé à l'adresse {email}. Veuillez valider votre e-mail en cliquant sur le lien reçu.",
     unverified_resend_btn: "📩 Renvoyer l'e-mail de vérification",
+    unverified_resend_cooldown: "⏳ Patientez {sec}s avant de renvoyer",
     unverified_resend_success: "Un nouvel e-mail de vérification a été envoyé à {email}.",
     
     invite_title: "Créer votre mot de passe conjoint",
@@ -243,6 +244,7 @@ export const TRANSLATIONS = {
     unverified_title: "التحقق من البريد الإلكتروني",
     unverified_desc: "تم إرسال رابط التفعيل إلى البريد الإلكتروني {email}. يرجى الضغط على الرابط المرسل لتأكيد بريدكم.",
     unverified_resend_btn: "📩 إعادة إرسال رابط التفعيل",
+    unverified_resend_cooldown: "⏳ انتظر {sec} ثانية قبل الإعادة",
     unverified_resend_success: "تم إعادة إرسال رابط التفعيل إلى {email}.",
     
     invite_title: "إنشاء كلمة مرور الحساب المشترك",
@@ -441,6 +443,7 @@ export const TRANSLATIONS = {
     unverified_title: "Email Verification",
     unverified_desc: "A verification link was sent to {email}. Please click the link in your inbox to verify your email.",
     unverified_resend_btn: "📩 Resend verification email",
+    unverified_resend_cooldown: "⏳ Wait {sec}s before resending",
     unverified_resend_success: "A new verification email was sent to {email}.",
 
     invite_title: "Create Joint Account Password",

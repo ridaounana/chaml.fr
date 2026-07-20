@@ -654,9 +654,12 @@ app.post("/api/auth/register", async (req, res) => {
           user: c.smtp_user,
           pass: decryptedPassword
         }
-      });
-
-      const activationUrl = `https://www.chaml.fr/api/auth/verify-email?coupleId=${coupleId}`;
+      const protocol = req.headers["x-forwarded-proto"] || req.protocol;
+      const host = req.headers["x-forwarded-host"] || req.get("host");
+      let fallbackUrl = `${protocol}://${host}`;
+      if (host.includes("localhost:5000")) fallbackUrl = "http://localhost:5173";
+      const baseUrl = process.env.CLIENT_URL || fallbackUrl;
+      const activationUrl = `${baseUrl}/api/auth/verify-email?coupleId=${coupleId}`;
       const mailOptions = {
         from: `"${c.smtp_sender_name}" <${c.smtp_sender_email}>`,
         to: email,
@@ -874,18 +877,72 @@ app.get("/api/auth/verify-email", async (req, res) => {
   }
 });
 
-// Simulate Email Verification Link Click
-app.post("/api/auth/verify-email", async (req, res) => {
-  const { coupleId } = req.body;
-  if (!coupleId) return res.status(400).json({ error: "Missing couple ID." });
+// Resend Verification Email Endpoint with Rate Limiting (60s Cooldown)
+const resendCooldownMap = new Map();
+
+app.post("/api/auth/resend-verification-email", async (req, res) => {
+  const { coupleId, email } = req.body;
+  if (!coupleId && !email) {
+    return res.status(400).json({ error: "Missing couple ID or email." });
+  }
+
+  const lookupKey = coupleId || email;
+  const now = Date.now();
+  const lastSent = resendCooldownMap.get(lookupKey);
+
+  // Enforce 60-second cooldown between resends
+  if (lastSent && (now - lastSent < 60000)) {
+    const remainingSec = Math.ceil((60000 - (now - lastSent)) / 1000);
+    return res.status(429).json({ 
+      error: `Veuillez patienter ${remainingSec} secondes avant de renvoyer un nouvel e-mail.` 
+    });
+  }
+
   try {
-    // Set both email verified and approved automatically upon email confirmation
-    await query("UPDATE users SET is_email_verified = true, is_approved = true WHERE couple_id = $1", [coupleId]);
-    await query("UPDATE couples SET is_approved = true WHERE id = $1", [coupleId]);
-    await logAction("Email Verified", `Verified email and activated account simulation for couple: ${coupleId}`, "System");
-    res.json({ success: true });
+    const userRes = await query(
+      "SELECT id, email, first_name, last_name, couple_id, is_email_verified FROM users WHERE couple_id = $1 OR email = $2 ORDER BY created_at ASC LIMIT 1",
+      [coupleId || "", email || ""]
+    );
+
+    if (userRes.rows.length === 0) {
+      return res.status(404).json({ error: "Aucun compte correspondant n'a été trouvé." });
+    }
+
+    const user = userRes.rows[0];
+    if (user.is_email_verified) {
+      return res.status(400).json({ error: "Ce compte a déjà été vérifié." });
+    }
+
+    const protocol = req.headers["x-forwarded-proto"] || req.protocol;
+    const host = req.headers["x-forwarded-host"] || req.get("host");
+    let fallbackUrl = `${protocol}://${host}`;
+    if (host.includes("localhost:5000")) fallbackUrl = "http://localhost:5173";
+    const baseUrl = process.env.CLIENT_URL || fallbackUrl;
+    const activationUrl = `${baseUrl}/api/auth/verify-email?coupleId=${user.couple_id}`;
+
+    await sendSystemEmail(
+      user.email,
+      "Chaml.fr - Activez votre compte de regroupement familial",
+      `Bonjour ${user.first_name},\n\nVeuillez activer votre dossier Chaml.fr en cliquant sur ce lien :\n${activationUrl}`,
+      `
+        <div style="font-family: Arial, sans-serif; line-height: 1.6; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
+          <h2 style="color: #0d9488; text-align: center;">🕌 Bienvenue sur Chaml.fr</h2>
+          <p>Bonjour <strong>${user.first_name} ${user.last_name}</strong>,</p>
+          <p>Voici votre nouveau lien de confirmation pour activer votre compte sur Chaml.fr :</p>
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${activationUrl}" style="background-color: #0d9488; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Activer mon compte</a>
+          </div>
+          <p style="font-size: 0.85rem; color: #64748b;">Si le bouton ne fonctionne pas, copiez-collez ce lien :<br/>${activationUrl}</p>
+        </div>
+      `
+    );
+
+    resendCooldownMap.set(lookupKey, now);
+    await logAction("Resend Activation Email", `Resent activation link to ${user.email}`, user.email);
+    res.json({ success: true, email: user.email });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("❌ Resend verification email failed:", err.message);
+    res.status(500).json({ error: err.message || "Impossible d'envoyer l'e-mail pour le moment." });
   }
 });
 

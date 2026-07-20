@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { getTranslation } from "../utils/i18n";
-import { loginUser, registerApplicant, verifyEmail, acceptInvite, forgotPassword, resetPassword } from "../utils/api";
+import { loginUser, registerApplicant, verifyEmail, resendVerificationEmail, acceptInvite, forgotPassword, resetPassword } from "../utils/api";
 import { FranceFlag, MoroccoFlag } from "../components/Flag";
 import { searchAddress, getZoneFromPostcode } from "../utils/address";
 
@@ -267,13 +267,28 @@ export default function Login({
 
   const [resendSuccess, setResendSuccess] = useState("");
   const [resendLoading, setResendLoading] = useState(false);
+  const [resendTimer, setResendTimer] = useState(0);
+
+  useEffect(() => {
+    let interval = null;
+    if (resendTimer > 0) {
+      interval = setInterval(() => {
+        setResendTimer(prev => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [resendTimer]);
 
   const handleResendVerification = () => {
+    if (resendLoading || resendTimer > 0) return;
     setResendLoading(true);
     setResendSuccess("");
-    verifyEmail(pendingCoupleId)
-      .then(() => {
-        setResendSuccess(getTranslation(lang, "unverified_resend_success", { email: pendingEmail }));
+    setError("");
+
+    resendVerificationEmail(pendingCoupleId, pendingEmail)
+      .then(res => {
+        setResendSuccess(getTranslation(lang, "unverified_resend_success", { email: res.email || pendingEmail }));
+        setResendTimer(60); // 60-second cooldown timer
       })
       .catch(err => {
         setError(err.message || "Resend failed.");
@@ -626,10 +641,21 @@ export default function Login({
             <button 
               className="btn btn-primary" 
               onClick={handleResendVerification}
-              disabled={resendLoading}
-              style={{ width: "100%", padding: "0.8rem", marginBottom: "1rem" }}
+              disabled={resendLoading || resendTimer > 0}
+              style={{ 
+                width: "100%", 
+                padding: "0.8rem", 
+                marginBottom: "1rem",
+                opacity: (resendLoading || resendTimer > 0) ? 0.65 : 1,
+                cursor: (resendLoading || resendTimer > 0) ? "not-allowed" : "pointer"
+              }}
             >
-              {resendLoading ? "⏳..." : getTranslation(lang, "unverified_resend_btn")}
+              {resendLoading 
+                ? "⏳..." 
+                : resendTimer > 0 
+                  ? getTranslation(lang, "unverified_resend_cooldown", { sec: resendTimer })
+                  : getTranslation(lang, "unverified_resend_btn")
+              }
             </button>
 
             <button 
