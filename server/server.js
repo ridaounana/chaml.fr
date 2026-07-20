@@ -654,6 +654,8 @@ app.post("/api/auth/register", async (req, res) => {
           user: c.smtp_user,
           pass: decryptedPassword
         }
+      });
+
       const protocol = req.headers["x-forwarded-proto"] || req.protocol;
       const host = req.headers["x-forwarded-host"] || req.get("host");
       let fallbackUrl = `${protocol}://${host}`;
