@@ -367,10 +367,17 @@ export default function Landing({ lang, onNavigate }) {
   // Option C: AAH / Invalidité Exemption override
   const isIncCompliant = isAahExempt || activeIncomeVal >= reqInc;
   const isSurfCompliant = isAahExempt || simSurface >= reqSurf;
+  const isFullyCompliant = isAahExempt || (isIncCompliant && isSurfCompliant);
 
   const incPercent = isAahExempt ? 100 : Math.min(100, Math.round((activeIncomeVal / reqInc) * 100));
   const surfPercent = isAahExempt ? 100 : Math.min(100, Math.round((simSurface / reqSurf) * 100));
-  const compliancePercent = isAahExempt ? 100 : Math.round((incPercent + surfPercent) / 2);
+  
+  let rawScore = Math.floor((incPercent + surfPercent) / 2);
+  if (!isFullyCompliant && rawScore >= 100) {
+    rawScore = 98;
+  }
+  
+  const compliancePercent = isAahExempt ? 100 : (isFullyCompliant ? 100 : Math.min(98, rawScore));
 
   const handleSaveAndRegister = () => {
     localStorage.setItem("prefill_surface", simSurface.toString());
