@@ -144,6 +144,11 @@ export const TRANSLATIONS = {
     dash_btn_submit_dossier: "Soumettre à l'Administration (OFII / ANEF)",
     dash_submit_confirm: "Êtes-vous sûr de vouloir envoyer votre dossier complet à l'administration française (OFII / ANEF) ? Cela démarrera le délai légal de 6 mois pour obtenir une réponse.",
     dash_submitted_on: "Soumis le :",
+    dash_btn_reopen_dossier: "🔓 Déverrouiller le dossier pour modification",
+    dash_reopen_confirm: "Êtes-vous sûr de vouloir déverrouiller votre dossier ? Le statut repassera en 'Brouillon' et vous pourrez modifier ou remplacer vos documents.",
+    dash_submitted_locked_note: "🔒 Ce dossier est actuellement verrouillé suite à sa soumission. Pour remplacer ou ajouter un document, vous pouvez le déverrouiller à tout moment.",
+    dash_beneficiaire_submit_notice: "ℹ️ Seul le conjoint en France (demandeur) est autorisé à valider et soumettre le dossier final auprès de l'administration.",
+    alert_reopen_failed: "Impossible de déverrouiller le dossier : {msg}",
 
     // Alert / Contestation
     alert_title: "Alerte de Contestation (Délai de 6 mois dépassé)",
@@ -343,6 +348,11 @@ export const TRANSLATIONS = {
     dash_btn_submit_dossier: "إرسال الملف إلى الإدارة الفرنسية (OFII / ANEF)",
     dash_submit_confirm: "هل أنت متأكد من إرسال ملفك الكامل إلى الإدارة الفرنسية (OFII / ANEF)؟ سيبدأ احتساب مهلة الـ 6 أشهر للرد القانونi.",
     dash_submitted_on: "تاريخ الإيداع:",
+    dash_btn_reopen_dossier: "🔓 فتح الملف للتعديل وإضافة الوثائق",
+    dash_reopen_confirm: "هل أنت متأكد من فتح ملفك للتعديل؟ ستعود حالة الملف إلى 'مسودة' ويمكنك تعديل أو تغيير الوثائق.",
+    dash_submitted_locked_note: "🔒 هذا الملف مغلق حالياً بسبب تقديمه رسمياً. لإعادة فتح الملف وتعديل الوثائق، يمكنك النقر على زر الفتح أدناه.",
+    dash_beneficiaire_submit_notice: "ℹ️ فقط الزوج(ة) المقيم(ة) في فرنسا هو المصرّح له بتقديم الملف النهائي لدى السلطات.",
+    alert_reopen_failed: "تعذر فتح الملف للتعديل: {msg}",
 
     // Alert / Contestation
     alert_title: "تنبيه الطعن والاعتراض (تجاوز مهلة 6 أشهر)",
@@ -542,6 +552,11 @@ export const TRANSLATIONS = {
     dash_btn_submit_dossier: "Submit to French Administration (OFII / ANEF)",
     dash_submit_confirm: "Are you sure you want to send your completed application file to the French administration (OFII / ANEF)? This will start the legal 6-month response timer.",
     dash_submitted_on: "Submitted on:",
+    dash_btn_reopen_dossier: "🔓 Unlock Application for Modification",
+    dash_reopen_confirm: "Are you sure you want to unlock your application for modification? Status will revert to 'Draft' so you can update or replace documents.",
+    dash_submitted_locked_note: "🔒 This application is currently locked following its submission. To update or replace a document, you can unlock it at any time.",
+    dash_beneficiaire_submit_notice: "ℹ️ Only the sponsor residing in France (demandeur) is authorized to validate and submit the final application.",
+    alert_reopen_failed: "Failed to unlock application: {msg}",
 
     // Alert / Contestation
     alert_title: "Contestation Alert (6-Month Deadline Exceeded)",

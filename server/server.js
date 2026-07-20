@@ -1123,7 +1123,14 @@ app.post("/api/dossier/upload", authenticateUser, upload.single("file"), async (
   const coupleId = req.user.coupleId;
 
   try {
-    const coupleRes = await query("SELECT is_premium FROM couples WHERE id = $1", [coupleId]);
+    const coupleRes = await query("SELECT is_premium, dossier_status FROM couples WHERE id = $1", [coupleId]);
+    if (coupleRes.rows[0]?.dossier_status === "submitted") {
+      if (req.file && fs.existsSync(req.file.path)) {
+        fs.unlinkSync(req.file.path);
+      }
+      return res.status(403).json({ error: "dossier_locked", message: "Le dossier est actuellement soumis et verrouillé. Déverrouillez-le pour pouvoir modifier les pièces." });
+    }
+
     if (owner === "beneficiaire" && !coupleRes.rows[0]?.is_premium) {
       if (req.file && fs.existsSync(req.file.path)) {
         fs.unlinkSync(req.file.path);
@@ -1151,6 +1158,11 @@ app.post("/api/dossier/delete", authenticateUser, async (req, res) => {
   if (!docKey) return res.status(400).json({ error: "Missing docKey parameter." });
 
   try {
+    const coupleRes = await query("SELECT dossier_status FROM couples WHERE id = $1", [coupleId]);
+    if (coupleRes.rows[0]?.dossier_status === "submitted") {
+      return res.status(403).json({ error: "dossier_locked", message: "Le dossier est actuellement soumis et verrouillé. Déverrouillez-le pour pouvoir modifier les pièces." });
+    }
+
     // Find file path to delete locally
     const fileRes = await query("SELECT file_path, file_name FROM documents WHERE couple_id = $1 AND doc_key = $2", [coupleId, docKey]);
     if (fileRes.rows.length > 0 && fileRes.rows[0].file_path) {
@@ -1203,6 +1215,10 @@ app.get("/api/dossier/download/:coupleId/:docKey", authenticateUser, async (req,
 app.post("/api/dossier/submit", authenticateUser, async (req, res) => {
   const coupleId = req.user.coupleId;
   const { lang = "fr" } = req.body;
+
+  if (req.user.role !== "demandeur") {
+    return res.status(403).json({ error: "demandeur_only", message: "Seul le demandeur en France est autorisé à soumettre le dossier." });
+  }
 
   try {
     await query("UPDATE couples SET dossier_status = 'submitted', submitted_at = CURRENT_TIMESTAMP WHERE id = $1", [coupleId]);
@@ -1371,6 +1387,22 @@ app.post("/api/dossier/submit", authenticateUser, async (req, res) => {
       }
     }
 
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Re-open / Unlock Dossier for modification
+app.post("/api/dossier/reopen", authenticateUser, async (req, res) => {
+  const coupleId = req.user.coupleId;
+  if (req.user.role !== "demandeur") {
+    return res.status(403).json({ error: "demandeur_only", message: "Seul le demandeur en France est autorisé à déverrouiller le dossier." });
+  }
+
+  try {
+    await query("UPDATE couples SET dossier_status = 'draft', submitted_at = NULL WHERE id = $1", [coupleId]);
+    await logAction("Dossier Reopened", `Dossier reopened for modification for couple ID: ${coupleId}`, req.user.email);
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });

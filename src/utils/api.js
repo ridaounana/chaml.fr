@@ -92,6 +92,9 @@ export const getDownloadUrl = (coupleId, docKey) => {
 export const submitDossier = (lang = "fr") => 
   request("/api/dossier/submit", { method: "POST", body: { lang } });
 
+export const reopenDossier = () => 
+  request("/api/dossier/reopen", { method: "POST" });
+
 // 3. Admin Moderation Services
 export const getAdminCouples = () => request("/api/admin/couples");
 

@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { getTranslation } from "../utils/i18n";
 import AlertBanner from "../components/AlertBanner";
 import { FranceFlag, MoroccoFlag } from "../components/Flag";
-import { getDossier, uploadDocument, deleteDocument, submitDossier, getDownloadUrl, inviteSpouse, verifyStripeSession } from "../utils/api";
+import { getDossier, uploadDocument, deleteDocument, submitDossier, reopenDossier, getDownloadUrl, inviteSpouse, verifyStripeSession } from "../utils/api";
 import { encryptFile, decryptFile } from "../utils/crypto";
 
 export default function Dashboard({ lang, user }) {
@@ -262,6 +262,19 @@ export default function Dashboard({ lang, user }) {
       });
   };
 
+  // Re-open dossier handler
+  const handleReopenDossier = () => {
+    if (!window.confirm(getTranslation(lang, "dash_reopen_confirm"))) return;
+
+    reopenDossier()
+      .then(() => {
+        loadDossierData();
+      })
+      .catch(err => {
+        alert(getTranslation(lang, "alert_reopen_failed", { msg: err.message }));
+      });
+  };
+
   const getStatusBadge = (doc) => {
     if (!doc.uploaded) {
       return <span className="badge badge-pending">{getTranslation(lang, "status_pending")}</span>;
@@ -356,7 +369,11 @@ export default function Dashboard({ lang, user }) {
 
                 {/* Upload Action buttons */}
                 {isOwnerLogged ? (
-                  !doc.uploaded ? (
+                  dossier && dossier.status === "submitted" ? (
+                    <span style={{ fontSize: "0.78rem", color: "var(--text-muted)", fontWeight: 600, padding: "0.3rem 0.65rem", background: "rgba(148, 163, 184, 0.1)", borderRadius: "0.4rem", border: "1px solid var(--border-card)" }}>
+                      🔒 Verrouillé
+                    </span>
+                  ) : !doc.uploaded ? (
                     <>
                       <input 
                         type="file" 
@@ -562,39 +579,69 @@ export default function Dashboard({ lang, user }) {
             <div className="progress-bar-fill" style={{ width: `${progressPercent}%` }}></div>
           </div>
 
-          {/* Submit entire dossier button relocated directly under progress bar */}
+          {/* Submit entire dossier button (Demandeur only) */}
           {dossier.status === "draft" && (
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.4rem", width: "100%", marginTop: "0.5rem" }}>
-              <button 
-                className="btn" 
-                onClick={handleSubmitDossier}
-                disabled={!allRequiredUploaded}
-                style={{ 
-                  width: "100%",
-                  padding: "0.85rem 1.25rem",
-                  fontSize: "0.95rem",
-                  background: allRequiredUploaded ? "var(--accent)" : "rgba(148, 163, 184, 0.15)",
-                  color: allRequiredUploaded ? "white" : "var(--text-muted)",
-                  cursor: allRequiredUploaded ? "pointer" : "not-allowed",
-                  border: "1px solid var(--border-card)",
-                  fontWeight: "bold",
-                  borderRadius: "0.5rem",
-                  boxShadow: allRequiredUploaded ? "0 4px 14px rgba(13, 148, 136, 0.3)" : "none"
-                }}
-              >
-                🚀 {getTranslation(lang, "dash_btn_submit_dossier")}
-              </button>
-              {!allRequiredUploaded && (
-                <span style={{ fontSize: "0.78rem", color: "var(--danger)", fontWeight: 600, textAlign: "center" }}>
-                  {lang === "ar" ? "⚠️ يرجى تحميل جميع الوثائق أولاً" : lang === "en" ? "⚠️ Please upload all documents first" : "⚠️ Téléverser tous les documents d'abord"}
-                </span>
-              )}
-            </div>
+            user && user.role === "demandeur" ? (
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.4rem", width: "100%", marginTop: "0.5rem" }}>
+                <button 
+                  className="btn" 
+                  onClick={handleSubmitDossier}
+                  disabled={!allRequiredUploaded}
+                  style={{ 
+                    width: "100%",
+                    padding: "0.85rem 1.25rem",
+                    fontSize: "0.95rem",
+                    background: allRequiredUploaded ? "var(--accent)" : "rgba(148, 163, 184, 0.15)",
+                    color: allRequiredUploaded ? "white" : "var(--text-muted)",
+                    cursor: allRequiredUploaded ? "pointer" : "not-allowed",
+                    border: "1px solid var(--border-card)",
+                    fontWeight: "bold",
+                    borderRadius: "0.5rem",
+                    boxShadow: allRequiredUploaded ? "0 4px 14px rgba(13, 148, 136, 0.3)" : "none"
+                  }}
+                >
+                  🚀 {getTranslation(lang, "dash_btn_submit_dossier")}
+                </button>
+                {!allRequiredUploaded && (
+                  <span style={{ fontSize: "0.78rem", color: "var(--danger)", fontWeight: 600, textAlign: "center" }}>
+                    {lang === "ar" ? "⚠️ يرجى تحميل جميع الوثائق أولاً" : lang === "en" ? "⚠️ Please upload all documents first" : "⚠️ Téléverser tous les documents d'abord"}
+                  </span>
+                )}
+              </div>
+            ) : (
+              <div style={{ padding: "0.85rem 1rem", background: "rgba(13, 148, 136, 0.08)", border: "1px solid rgba(13, 148, 136, 0.2)", borderRadius: "0.5rem", marginTop: "0.5rem", textAlign: "center", fontSize: "0.83rem", color: "var(--accent)", fontWeight: 600 }}>
+                {getTranslation(lang, "dash_beneficiaire_submit_notice")}
+              </div>
+            )
           )}
 
-          {dossier.status === "submitted" && dossier.submittedAt && (
-            <div style={{ fontSize: "0.85rem", color: "var(--success)", fontWeight: 600, textAlign: "center", marginTop: "0.5rem" }}>
-              ✓ {getTranslation(lang, "dash_submitted_on")} {new Date(dossier.submittedAt).toLocaleDateString()}
+          {dossier.status === "submitted" && (
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.75rem", width: "100%", marginTop: "0.75rem", padding: "1rem", background: "rgba(16, 185, 129, 0.06)", border: "1px solid rgba(16, 185, 129, 0.2)", borderRadius: "0.5rem" }}>
+              <div style={{ fontSize: "0.9rem", color: "var(--success)", fontWeight: "bold", textAlign: "center" }}>
+                ✓ {getTranslation(lang, "dash_submitted_on")} {dossier.submittedAt ? new Date(dossier.submittedAt).toLocaleDateString() : new Date().toLocaleDateString()}
+              </div>
+              <p style={{ margin: 0, fontSize: "0.8rem", color: "var(--text-muted)", textAlign: "center" }}>
+                {getTranslation(lang, "dash_submitted_locked_note")}
+              </p>
+              {user && user.role === "demandeur" && (
+                <button
+                  className="btn"
+                  onClick={handleReopenDossier}
+                  style={{
+                    padding: "0.6rem 1.25rem",
+                    fontSize: "0.85rem",
+                    background: "rgba(245, 158, 11, 0.15)",
+                    color: "#b45309",
+                    border: "1px solid rgba(245, 158, 11, 0.4)",
+                    fontWeight: "bold",
+                    borderRadius: "0.4rem",
+                    cursor: "pointer",
+                    transition: "all 0.2s ease"
+                  }}
+                >
+                  {getTranslation(lang, "dash_btn_reopen_dossier")}
+                </button>
+              )}
             </div>
           )}
         </div>
