@@ -175,6 +175,22 @@ export default function Dashboard({ lang, user }) {
     const file = e.target.files[0];
     if (!file) return;
 
+    // Strict PDF extension & type validation
+    const isPdf = file.name.toLowerCase().endsWith(".pdf") || file.type === "application/pdf";
+    if (!isPdf) {
+      alert(getTranslation(lang, "alert_pdf_only_error"));
+      e.target.value = "";
+      return;
+    }
+
+    // Strict 15 MB file size limit
+    const maxBytes = 15 * 1024 * 1024;
+    if (file.size > maxBytes) {
+      alert(getTranslation(lang, "alert_file_too_large"));
+      e.target.value = "";
+      return;
+    }
+
     if (owner === "beneficiaire" && couple && !couple.isPremium) {
       setShowUpgradeModal(true);
       return;
@@ -197,6 +213,14 @@ export default function Dashboard({ lang, user }) {
         console.error("Encryption or upload error:", err);
         if (err.message === "premium_required" || (err.payload && err.payload.error === "premium_required")) {
           setShowUpgradeModal(true);
+          return;
+        }
+        if (err.payload && err.payload.error === "pdf_only") {
+          alert(getTranslation(lang, "alert_pdf_only_error"));
+          return;
+        }
+        if (err.payload && err.payload.error === "file_too_large") {
+          alert(getTranslation(lang, "alert_file_too_large"));
           return;
         }
         alert(getTranslation(lang, "alert_upload_failed", { msg: err.message }));

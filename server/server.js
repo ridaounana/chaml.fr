@@ -112,7 +112,19 @@ const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, uploadsDir),
   filename: (req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`)
 });
-const upload = multer({ storage });
+const upload = multer({
+  storage,
+  limits: { fileSize: 15 * 1024 * 1024 }, // 15 MB Max per file
+  fileFilter: (req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (ext !== ".pdf") {
+      const err = new Error("Seuls les fichiers PDF (.pdf) sont autorisés.");
+      err.code = "ONLY_PDF_ALLOWED";
+      return cb(err, false);
+    }
+    cb(null, true);
+  }
+});
 
 // JWT Secret Key
 const JWT_SECRET = process.env.JWT_SECRET || "chaml_jwt_secret_token_vault_key_2026";
@@ -1115,12 +1127,32 @@ app.get("/api/dossier", authenticateUser, async (req, res) => {
 });
 
 // Upload Document File API
-app.post("/api/dossier/upload", authenticateUser, upload.single("file"), async (req, res) => {
+app.post("/api/dossier/upload", authenticateUser, (req, res, next) => {
+  upload.single("file")(req, res, (err) => {
+    if (err) {
+      if (err.code === "LIMIT_FILE_SIZE") {
+        return res.status(400).json({ error: "file_too_large", message: "La taille maximale du fichier est limitée à 15 Mo." });
+      }
+      if (err.code === "ONLY_PDF_ALLOWED" || err.message?.includes("PDF")) {
+        return res.status(400).json({ error: "pdf_only", message: "Seuls les fichiers au format PDF (.pdf) sont autorisés." });
+      }
+      return res.status(400).json({ error: err.message });
+    }
+    next();
+  });
+}, async (req, res) => {
   const { docKey, owner } = req.body;
   if (!docKey || !req.file) {
     return res.status(400).json({ error: "Missing document key or file payload." });
   }
   const coupleId = req.user.coupleId;
+
+  // Strict extension check
+  const ext = path.extname(req.file.originalname).toLowerCase();
+  if (ext !== ".pdf") {
+    if (req.file && fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+    return res.status(400).json({ error: "pdf_only", message: "Seuls les fichiers au format PDF (.pdf) sont autorisés." });
+  }
 
   try {
     const coupleRes = await query("SELECT is_premium, dossier_status FROM couples WHERE id = $1", [coupleId]);
@@ -1147,6 +1179,7 @@ app.post("/api/dossier/upload", authenticateUser, upload.single("file"), async (
     await logAction("Document Uploaded", `Uploaded file ${req.file.originalname} for document: ${docKey}`, req.user.email);
     res.json({ success: true, fileName: req.file.originalname });
   } catch (err) {
+    if (req.file && fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
     res.status(500).json({ error: err.message });
   }
 });

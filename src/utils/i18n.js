@@ -102,6 +102,8 @@ export const TRANSLATIONS = {
     btn_delete: "Supprimer",
     btn_edit: "Modifier",
     btn_close: "Fermer",
+    alert_pdf_only_error: "⚠️ Format invalide : Seuls les documents au format PDF (.pdf) sont acceptés.",
+    alert_file_too_large: "⚠️ Fichier trop volumineux : La taille maximale autorisée par document est de 15 Mo.",
 
     // Simulators
     sim_title: "Simulateurs de Conformité Officielle",
@@ -319,6 +321,8 @@ export const TRANSLATIONS = {
     btn_delete: "حذف",
     btn_edit: "تعديل",
     btn_close: "إغلاق",
+    alert_pdf_only_error: "⚠️ صيغة غير مقبولة: يُقبل فقط المستندات بصيغة PDF (.pdf).",
+    alert_file_too_large: "⚠️ الحجم كبير جداً: الحد الأقصى المسموح به لكل وثيقة هو 15 ميغابايت.",
 
     // Simulators
     sim_title: "محاكيات المطابقة الرسمية",
@@ -536,6 +540,8 @@ export const TRANSLATIONS = {
     btn_delete: "Delete",
     btn_edit: "Edit",
     btn_close: "Close",
+    alert_pdf_only_error: "⚠️ Invalid format: Only PDF documents (.pdf) are accepted.",
+    alert_file_too_large: "⚠️ File too large: The maximum allowed size per document is 15 MB.",
 
     // Simulators
     sim_title: "Official Compliance Simulators",
