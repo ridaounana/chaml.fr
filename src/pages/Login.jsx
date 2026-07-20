@@ -41,6 +41,7 @@ export default function Login({
 
   // Registration Form State
   const [isGoogleSignup, setIsGoogleSignup] = useState(false);
+  const [hpWebsiteCheck, setHpWebsiteCheck] = useState("");
   const [frEmail, setFrEmail] = useState("");
   const [frPassword, setFrPassword] = useState("");
   const [frFirstName, setFrFirstName] = useState("");
@@ -214,10 +215,12 @@ export default function Login({
       firstName: frFirstName,
       lastName: frLastName,
       phone: frPhone,
+      address: frAddress,
       city: frCity,
       department: frDep,
       zone: frZone,
       livingSurface: frSurface,
+      hp_website_check: hpWebsiteCheck,
       isGoogle: isGoogleSignup
     };
 
@@ -455,6 +458,16 @@ export default function Login({
             <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", marginTop: "-1rem" }}>
               {getTranslation(lang, "reg_subtitle")}
             </p>
+            {/* Honeypot field for bot trapping */}
+            <input 
+              type="text" 
+              name="hp_website_check" 
+              value={hpWebsiteCheck} 
+              onChange={e => setHpWebsiteCheck(e.target.value)} 
+              style={{ display: "none", position: "absolute", left: "-9999px" }} 
+              tabIndex={-1} 
+              autoComplete="off" 
+            />
 
             <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
               <h3 style={{ color: "var(--primary)", fontSize: "1.05rem", borderBottom: "1px solid var(--border-card)", paddingBottom: "0.25rem", display: "flex", alignItems: "center", gap: "0.35rem" }}>

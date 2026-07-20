@@ -552,6 +552,11 @@ app.get("/api/config", async (req, res) => {
 
 // Register new couple (SaaS SignUp)
 app.post("/api/auth/register", async (req, res) => {
+  // Honeypot anti-bot check
+  if (req.body.hp_website_check) {
+    return res.status(400).json({ error: "Invalid registration request." });
+  }
+
   if (!isSMTPAvailable) {
     return res.status(503).json({ error: "Les inscriptions sont temporairement suspendues car le serveur de messagerie (SMTP) n'est pas disponible ou est mal configuré. Veuillez contacter l'administrateur." });
   }
@@ -968,11 +973,11 @@ app.post("/api/dossier/upload", authenticateUser, upload.single("file"), async (
 
   try {
     const coupleRes = await query("SELECT is_premium FROM couples WHERE id = $1", [coupleId]);
-    if (!coupleRes.rows[0]?.is_premium) {
+    if (owner === "beneficiaire" && !coupleRes.rows[0]?.is_premium) {
       if (req.file && fs.existsSync(req.file.path)) {
         fs.unlinkSync(req.file.path);
       }
-      return res.status(402).json({ error: "premium_required", message: "Le statut Premium est requis pour téléverser des documents." });
+      return res.status(402).json({ error: "premium_required", message: "Le statut Premium est requis pour téléverser les pièces du conjoint." });
     }
 
     await query(`

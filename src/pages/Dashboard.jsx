@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { getTranslation } from "../utils/i18n";
 import AlertBanner from "../components/AlertBanner";
 import { FranceFlag, MoroccoFlag } from "../components/Flag";
-import { getDossier, uploadDocument, deleteDocument, submitDossier, getDownloadUrl, inviteSpouse } from "../utils/api";
+import { getDossier, uploadDocument, deleteDocument, submitDossier, getDownloadUrl, inviteSpouse, verifyStripeSession } from "../utils/api";
 import { encryptFile, decryptFile } from "../utils/crypto";
 
 export default function Dashboard({ lang, user }) {
@@ -28,7 +28,7 @@ export default function Dashboard({ lang, user }) {
   const [inviteError, setInviteError] = useState("");
   const [inviteSuccess, setInviteSuccess] = useState("");
 
-  // Premium upgrade states
+  // Upgrade Modal & Stripe Payment state
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [upgradeLoading, setUpgradeLoading] = useState(false);
 
@@ -36,23 +36,22 @@ export default function Dashboard({ lang, user }) {
     setUpgradeLoading(true);
     fetch("/api/payment/create-checkout-session", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
+      credentials: "include"
     })
-      .then(res => {
-        if (!res.ok) throw new Error("Échec de la création de la session de paiement.");
-        return res.json();
-      })
+      .then(res => res.json())
       .then(data => {
         if (data.url) {
           window.location.href = data.url;
         } else {
-          throw new Error("URL de paiement Stripe manquante.");
+          alert("Erreur lors de la création de la session Stripe.");
         }
       })
       .catch(err => {
-        alert(err.message);
+        console.error("Stripe Checkout Error:", err);
+        alert("Erreur lors de la redirection vers Stripe.");
+      })
+      .finally(() => {
         setUpgradeLoading(false);
       });
   };
@@ -81,6 +80,10 @@ export default function Dashboard({ lang, user }) {
         loadDossierData();
       })
       .catch(err => {
+        if (err.message === "premium_required" || (err.payload && err.payload.error === "premium_required")) {
+          setShowUpgradeModal(true);
+          return;
+        }
         setInviteError(err.message || "Erreur lors de l'envoi de l'invitation.");
       })
       .finally(() => {
@@ -108,6 +111,22 @@ export default function Dashboard({ lang, user }) {
 
   useEffect(() => {
     loadDossierData();
+
+    // Check Stripe return URL params for instant activation
+    const urlParams = new URLSearchParams(window.location.search);
+    const paymentStatus = urlParams.get("payment");
+    const sessionId = urlParams.get("session_id");
+
+    if (paymentStatus === "success" && sessionId) {
+      window.history.replaceState({}, document.title, window.location.pathname);
+      verifyStripeSession(sessionId)
+        .then(() => {
+          loadDossierData();
+        })
+        .catch(err => {
+          console.error("Stripe verification callback error:", err);
+        });
+    }
   }, []);
 
   useEffect(() => {
@@ -155,6 +174,11 @@ export default function Dashboard({ lang, user }) {
     const file = e.target.files[0];
     if (!file) return;
 
+    if (owner === "beneficiaire" && couple && !couple.isPremium) {
+      setShowUpgradeModal(true);
+      return;
+    }
+
     if (!e2eeKey) {
       alert("Veuillez d'abord configurer et valider votre clé de chiffrement privée en haut de la page.");
       return;
@@ -171,6 +195,10 @@ export default function Dashboard({ lang, user }) {
       })
       .catch(err => {
         console.error("Encryption or upload error:", err);
+        if (err.message === "premium_required" || (err.payload && err.payload.error === "premium_required")) {
+          setShowUpgradeModal(true);
+          return;
+        }
         alert(`Échec du chiffrement ou du transfert : ${err.message}`);
       });
   };
