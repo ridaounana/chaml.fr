@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { getTranslation } from "../utils/i18n";
 import AlertBanner from "../components/AlertBanner";
 import { FranceFlag, MoroccoFlag } from "../components/Flag";
-import { getDossier, uploadDocument, deleteDocument, submitDossier, reopenDossier, getDownloadUrl, inviteSpouse, verifyStripeSession } from "../utils/api";
+import { getDossier, uploadDocument, deleteDocument, submitDossier, reopenDossier, getDownloadUrl, inviteSpouse, cancelInvite, verifyStripeSession } from "../utils/api";
 import { encryptFile, decryptFile } from "../utils/crypto";
 
 export default function Dashboard({ lang, user }) {
@@ -18,6 +18,7 @@ export default function Dashboard({ lang, user }) {
   const [tempKeyInput, setTempKeyInput] = useState("");
   const [showKeyText, setShowKeyText] = useState(false);
   const [copiedKeySuccess, setCopiedKeySuccess] = useState(false);
+  const [copiedInviteLinkSuccess, setCopiedInviteLinkSuccess] = useState(false);
 
   // Invitation Form State
   const [inviteEmail, setInviteEmail] = useState("");
@@ -139,6 +140,20 @@ export default function Dashboard({ lang, user }) {
       })
       .finally(() => {
         setInviteLoading(false);
+      });
+  };
+
+  const handleCancelInvite = () => {
+    if (!window.confirm("Êtes-vous sûr de vouloir annuler l'invitation actuelle pour pouvoir en envoyer une nouvelle ?")) return;
+    cancelInvite()
+      .then(() => {
+        setInviteSuccess("");
+        setInviteError("");
+        setWhatsappUrlResult("");
+        loadDossierData();
+      })
+      .catch(err => {
+        alert("Erreur lors de l'annulation : " + err.message);
       });
   };
 
@@ -765,12 +780,69 @@ export default function Dashboard({ lang, user }) {
           "demandeur", 
           `${getTranslation(lang, "dash_applicant_section")} ${couple?.demandeur?.firstName || ""}`
         )}
-        {couple?.beneficiaire ? (
+        {couple?.beneficiaire && couple.beneficiaire.password_hash !== "INVITATION_PENDING" ? (
           renderChecklist(
             dossier.moroccoDocs, 
             "beneficiaire", 
-            `${getTranslation(lang, "dash_beneficiary_section")} ${couple?.beneficiaire?.firstName || ""}`
+            `${getTranslation(lang, "dash_beneficiary_section")} ${couple?.beneficiaire?.first_name || couple?.beneficiaire?.firstName || ""}`
           )
+        ) : couple?.beneficiaire && couple.beneficiaire.password_hash === "INVITATION_PENDING" ? (
+          <div className="glass-card" style={{ padding: "2rem", border: "2px solid var(--accent)", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+            <h3 style={{ color: "var(--accent)", fontSize: "1.2rem", margin: 0, display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <MoroccoFlag size={20} /> {getTranslation(lang, "invite_pending_card_title")}
+            </h3>
+            <p style={{ color: "var(--text-muted)", fontSize: "0.88rem", lineHeight: "1.5", margin: 0 }}>
+              {getTranslation(lang, "invite_pending_card_desc", { name: `${couple.beneficiaire.first_name || couple.beneficiaire.firstName || ""} ${couple.beneficiaire.last_name || couple.beneficiaire.lastName || ""}`.trim() })}
+            </p>
+
+            <div style={{ background: "rgba(13, 148, 136, 0.08)", border: "1px solid rgba(13, 148, 136, 0.2)", borderRadius: "0.5rem", padding: "1rem", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+              <div style={{ fontSize: "0.82rem", color: "var(--text-main)", fontWeight: 600 }}>
+                🔗 Lien direct d'invitation :
+              </div>
+              <div style={{ fontSize: "0.78rem", color: "var(--text-muted)", wordBreak: "break-all", background: "var(--bg-main)", padding: "0.5rem", borderRadius: "0.25rem", border: "1px solid var(--border-card)" }}>
+                {`https://www.chaml.fr/?inviteCoupleId=${couple.id}&inviteEmail=${encodeURIComponent(couple.beneficiaire.email || "")}`}
+              </div>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+              <button
+                className="btn btn-primary"
+                style={{ padding: "0.75rem 1rem", fontSize: "0.88rem", fontWeight: "bold" }}
+                onClick={() => {
+                  const link = `https://www.chaml.fr/?inviteCoupleId=${couple.id}&inviteEmail=${encodeURIComponent(couple.beneficiaire.email || "")}`;
+                  navigator.clipboard.writeText(link);
+                  setCopiedInviteLinkSuccess(true);
+                  setTimeout(() => setCopiedInviteLinkSuccess(false), 2500);
+                }}
+              >
+                {copiedInviteLinkSuccess ? getTranslation(lang, "invite_link_copied") : getTranslation(lang, "invite_btn_copy_link")}
+              </button>
+
+              <button
+                className="btn"
+                style={{ background: "#25D366", color: "white", padding: "0.75rem 1rem", fontSize: "0.88rem", fontWeight: "bold", border: "none" }}
+                onClick={() => {
+                  const link = `https://www.chaml.fr/?inviteCoupleId=${couple.id}&inviteEmail=${encodeURIComponent(couple.beneficiaire.email || "")}`;
+                  const cleanPhone = (couple.beneficiaire.phone || "").replace(/[^\d+]/g, "").replace("+", "");
+                  const text = `Bonjour ${couple.beneficiaire.first_name || couple.beneficiaire.firstName || ""}, vous êtes invité(e) à rejoindre notre dossier conjoint de regroupement familial sur Chaml.fr !\n\nCliquez sur ce lien pour configurer votre mot de passe :\n${link}`;
+                  const waUrl = cleanPhone 
+                    ? `https://wa.me/${cleanPhone}?text=${encodeURIComponent(text)}`
+                    : `https://wa.me/?text=${encodeURIComponent(text)}`;
+                  window.open(waUrl, "_blank");
+                }}
+              >
+                {getTranslation(lang, "invite_btn_resend_wa")}
+              </button>
+
+              <button
+                className="btn btn-secondary"
+                style={{ padding: "0.6rem 1rem", fontSize: "0.82rem", color: "var(--danger)" }}
+                onClick={handleCancelInvite}
+              >
+                {getTranslation(lang, "invite_btn_cancel_reinvite")}
+              </button>
+            </div>
+          </div>
         ) : (
           user.role === "demandeur" && (
             <div className="glass-card" style={{ padding: "2rem", border: "2px dashed var(--primary)", display: "flex", flexDirection: "column", gap: "1.25rem" }}>

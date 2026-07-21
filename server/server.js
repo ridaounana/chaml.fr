@@ -1061,7 +1061,7 @@ app.get("/api/dossier", authenticateUser, async (req, res) => {
   if (!coupleId) return res.status(400).json({ error: "No couple folder linked to this account." });
   try {
     const coupleRes = await query("SELECT * FROM couples WHERE id = $1", [coupleId]);
-    const usersRes = await query("SELECT first_name, last_name, role, city, department FROM users WHERE couple_id = $1", [coupleId]);
+    const usersRes = await query("SELECT first_name, last_name, role, city, department, email, phone, password_hash FROM users WHERE couple_id = $1", [coupleId]);
     const docsRes = await query("SELECT * FROM documents WHERE couple_id = $1 ORDER BY id ASC", [coupleId]);
 
     const decryptedUsers = usersRes.rows.map(decryptUserObject);
@@ -1930,19 +1930,58 @@ app.post("/api/dossier/invite-spouse", authenticateUser, async (req, res) => {
 app.post("/api/auth/accept-invite", async (req, res) => {
   const { coupleId, email, password } = req.body;
   if (!coupleId || !email || !password) {
-    return res.status(400).json({ error: "Missing coupleId, email, or password." });
+    return res.status(400).json({ error: "Champs requis manquants." });
   }
 
+  const cleanEmail = email.trim().toLowerCase();
+
   try {
-    const userRes = await query("SELECT id FROM users WHERE couple_id = $1 AND email = $2 AND password_hash = 'INVITATION_PENDING'", [coupleId, email]);
+    // Find pending spouse user by coupleId & role = 'beneficiaire' & password_hash = 'INVITATION_PENDING' or by email
+    const userRes = await query(
+      "SELECT id, email FROM users WHERE couple_id = $1 AND role = 'beneficiaire' AND (email = $2 OR password_hash = 'INVITATION_PENDING')",
+      [coupleId, cleanEmail]
+    );
+
     if (userRes.rows.length === 0) {
       return res.status(404).json({ error: "Invitation invalide ou expirée." });
     }
 
-    const hash = await bcrypt.hash(password, 10);
-    await query("UPDATE users SET password_hash = $1, is_email_verified = true WHERE couple_id = $2 AND email = $3", [hash, coupleId, email]);
+    const userId = userRes.rows[0].id;
 
-    await logAction("Spouse Activated", `Spouse completed setup for: ${email}`, email);
+    // Check if new email is taken by another account
+    if (userRes.rows[0].email !== cleanEmail) {
+      const existingEmail = await query("SELECT id FROM users WHERE email = $1 AND id != $2", [cleanEmail, userId]);
+      if (existingEmail.rows.length > 0) {
+        return res.status(400).json({ error: "Cette adresse e-mail est déjà associée à un autre compte." });
+      }
+    }
+
+    const hash = await bcrypt.hash(password, 10);
+    await query(
+      "UPDATE users SET email = $1, password_hash = $2, is_email_verified = true WHERE id = $3",
+      [cleanEmail, hash, userId]
+    );
+
+    await logAction("Spouse Activated", `Spouse completed account setup for: ${cleanEmail}`, cleanEmail);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Cancel / Reset Pending Spouse Invitation Route
+app.post("/api/dossier/cancel-invite", authenticateUser, async (req, res) => {
+  if (req.user.role !== "demandeur") {
+    return res.status(403).json({ error: "Seul le demandeur peut annuler l'invitation." });
+  }
+  const coupleId = req.user.coupleId;
+
+  try {
+    await query(
+      "DELETE FROM users WHERE couple_id = $1 AND role = 'beneficiaire' AND password_hash = 'INVITATION_PENDING'",
+      [coupleId]
+    );
+    await logAction("Spouse Invitation Cancelled", `Cancelled pending spouse invitation for couple: ${coupleId}`, req.user.email);
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });

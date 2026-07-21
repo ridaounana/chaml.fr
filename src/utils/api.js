@@ -162,3 +162,8 @@ export const verifyStripeSession = (sessionId) =>
     method: "POST",
     body: { sessionId }
   });
+
+export const cancelInvite = () => 
+  request("/api/dossier/cancel-invite", {
+    method: "POST"
+  });
