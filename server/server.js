@@ -1733,7 +1733,7 @@ app.post("/api/dossier/invite-spouse", authenticateUser, async (req, res) => {
     return res.status(403).json({ error: "Only the primary applicant can invite the spouse." });
   }
 
-  const { email, firstName, lastName, phone, city } = req.body;
+  const { email, firstName, lastName, phone, city, channel = "email" } = req.body;
   if (!email || !firstName || !lastName) {
     return res.status(400).json({ error: "Email, first name, and last name are required." });
   }
@@ -1759,7 +1759,6 @@ app.post("/api/dossier/invite-spouse", authenticateUser, async (req, res) => {
     const userId = `user_ma_${Date.now()}`;
 
     // Insert user in pending_invite state (password_hash = 'INVITATION_PENDING')
-    // Automatically set is_approved = true because the main account is already approved/reviewed!
     await query(`
       INSERT INTO users (id, email, password_hash, role, couple_id, first_name, last_name, phone, city, is_approved, is_email_verified)
       VALUES ($1, $2, 'INVITATION_PENDING', 'beneficiaire', $3, $4, $5, $6, $7, true, false)
@@ -1773,25 +1772,32 @@ app.post("/api/dossier/invite-spouse", authenticateUser, async (req, res) => {
       encryptPII(city || "")
     ]);
 
-    await logAction("Spouse Invited", `Invited spouse ${email} to join couple: ${req.user.coupleId}`, req.user.email);
+    await logAction("Spouse Invited", `Invited spouse ${email} via ${channel} to join couple: ${req.user.coupleId}`, req.user.email);
 
-    // Send real invitation email
-    if (isSMTPAvailable) {
+    // Fetch inviter's real decrypted name
+    const inviterRes = await query("SELECT first_name, last_name FROM users WHERE id = $1", [req.user.id]);
+    let inviterName = "Votre conjoint(e)";
+    if (inviterRes.rows.length > 0) {
+      const inviter = decryptUserObject(inviterRes.rows[0]);
+      if (inviter.first_name) {
+        inviterName = `${inviter.first_name} ${inviter.last_name || ""}`.trim();
+      }
+    }
+
+    const inviteUrl = `https://www.chaml.fr/?inviteCoupleId=${req.user.coupleId}&inviteEmail=${encodeURIComponent(email)}`;
+    const cleanPhone = (phone || "").replace(/[^\d+]/g, "");
+    const waText = `Bonjour ${firstName}, ${inviterName} vous invite à le/la rejoindre sur Chaml.fr pour préparer votre dossier de regroupement familial.\n\nCliquez sur ce lien pour activer votre accès :\n${inviteUrl}`;
+    const whatsappUrl = cleanPhone 
+      ? `https://wa.me/${cleanPhone.replace("+", "")}?text=${encodeURIComponent(waText)}` 
+      : `https://wa.me/?text=${encodeURIComponent(waText)}`;
+
+    // Send real invitation email if email or default channel
+    if (isSMTPAvailable && (channel === "email" || channel === "whatsapp" || channel === "sms")) {
       try {
         const configRes = await query("SELECT * FROM site_config WHERE id = 1");
         const c = configRes.rows[0];
         const decryptedPassword = decryptSMTPPassword(c.smtp_password);
         const secure = c.smtp_protocol === "SSL";
-
-        // Fetch inviter's real decrypted name
-        const inviterRes = await query("SELECT first_name, last_name FROM users WHERE id = $1", [req.user.id]);
-        let inviterName = "Votre conjoint(e)";
-        if (inviterRes.rows.length > 0) {
-          const inviter = decryptUserObject(inviterRes.rows[0]);
-          if (inviter.first_name) {
-            inviterName = `${inviter.first_name} ${inviter.last_name || ""}`.trim();
-          }
-        }
 
         const transporter = nodemailer.createTransport({
           host: c.smtp_host,
@@ -1803,7 +1809,6 @@ app.post("/api/dossier/invite-spouse", authenticateUser, async (req, res) => {
           }
         });
 
-        const inviteUrl = `https://www.chaml.fr/?inviteCoupleId=${req.user.coupleId}&inviteEmail=${encodeURIComponent(email)}`;
         const mailOptions = {
           from: `"${c.smtp_sender_name}" <${c.smtp_sender_email}>`,
           to: email,
@@ -1901,7 +1906,7 @@ app.post("/api/dossier/invite-spouse", authenticateUser, async (req, res) => {
       }
     }
 
-    res.json({ success: true });
+    res.json({ success: true, channel, whatsappUrl, inviteUrl });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

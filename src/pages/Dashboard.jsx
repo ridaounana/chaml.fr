@@ -28,6 +28,8 @@ export default function Dashboard({ lang, user }) {
   const [inviteLoading, setInviteLoading] = useState(false);
   const [inviteError, setInviteError] = useState("");
   const [inviteSuccess, setInviteSuccess] = useState("");
+  const [inviteChannel, setInviteChannel] = useState("email");
+  const [whatsappUrlResult, setWhatsappUrlResult] = useState("");
 
   // Upgrade Modal & Stripe Payment state
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
@@ -70,9 +72,15 @@ export default function Dashboard({ lang, user }) {
     setInviteLoading(true);
     setInviteError("");
     setInviteSuccess("");
-    inviteSpouse(inviteEmail, inviteFirstName, inviteLastName, invitePhone, inviteCity)
-      .then(() => {
-        setInviteSuccess("L'invitation a été envoyée avec succès à votre conjoint(e) !");
+    setWhatsappUrlResult("");
+    inviteSpouse(inviteEmail, inviteFirstName, inviteLastName, invitePhone, inviteCity, inviteChannel)
+      .then(res => {
+        if (res.whatsappUrl && inviteChannel === "whatsapp") {
+          setWhatsappUrlResult(res.whatsappUrl);
+          setInviteSuccess(getTranslation(lang, "invite_whatsapp_success"));
+        } else {
+          setInviteSuccess("L'invitation a été envoyée avec succès à votre conjoint(e) !");
+        }
         setInviteEmail("");
         setInviteFirstName("");
         setInviteLastName("");
@@ -716,8 +724,19 @@ export default function Dashboard({ lang, user }) {
               </p>
 
               {inviteSuccess && (
-                <div style={{ background: "var(--success-bg)", color: "var(--success)", padding: "0.75rem 1.25rem", borderRadius: "0.5rem", fontWeight: 600 }}>
-                  ✓ {inviteSuccess}
+                <div style={{ background: "var(--success-bg)", color: "var(--success)", padding: "0.75rem 1.25rem", borderRadius: "0.5rem", fontWeight: 600, display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+                  <div>✓ {inviteSuccess}</div>
+                  {whatsappUrlResult && (
+                    <a
+                      href={whatsappUrlResult}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn"
+                      style={{ background: "#25D366", color: "white", padding: "0.65rem 1rem", textDecoration: "none", fontWeight: "bold", borderRadius: "0.5rem", textAlign: "center", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "0.5rem", boxShadow: "0 4px 12px rgba(37, 211, 102, 0.3)" }}
+                    >
+                      {getTranslation(lang, "invite_btn_whatsapp_open")}
+                    </a>
+                  )}
                 </div>
               )}
 
@@ -728,6 +747,37 @@ export default function Dashboard({ lang, user }) {
               )}
 
               <form onSubmit={handleInviteSpouseSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                {/* Channel Selector */}
+                <div className="form-group">
+                  <label className="form-label">{getTranslation(lang, "invite_channel_lbl")}</label>
+                  <div style={{ display: "flex", gap: "0.5rem" }}>
+                    <button
+                      type="button"
+                      className={`btn ${inviteChannel === "email" ? "btn-primary" : "btn-secondary"}`}
+                      style={{ flex: 1, padding: "0.5rem", fontSize: "0.82rem", fontWeight: "bold" }}
+                      onClick={() => { setInviteChannel("email"); setWhatsappUrlResult(""); }}
+                    >
+                      {getTranslation(lang, "invite_channel_email")}
+                    </button>
+                    <button
+                      type="button"
+                      className={`btn ${inviteChannel === "whatsapp" ? "btn-primary" : "btn-secondary"}`}
+                      style={{ flex: 1, padding: "0.5rem", fontSize: "0.82rem", fontWeight: "bold", background: inviteChannel === "whatsapp" ? "#25D366" : undefined, borderColor: inviteChannel === "whatsapp" ? "#25D366" : undefined }}
+                      onClick={() => { setInviteChannel("whatsapp"); setWhatsappUrlResult(""); }}
+                    >
+                      {getTranslation(lang, "invite_channel_whatsapp")}
+                    </button>
+                    <button
+                      type="button"
+                      className={`btn ${inviteChannel === "sms" ? "btn-primary" : "btn-secondary"}`}
+                      style={{ flex: 1, padding: "0.5rem", fontSize: "0.82rem", fontWeight: "bold" }}
+                      onClick={() => { setInviteChannel("sms"); setWhatsappUrlResult(""); }}
+                    >
+                      {getTranslation(lang, "invite_channel_sms")}
+                    </button>
+                  </div>
+                </div>
+
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
                   <div className="form-group">
                     <label className="form-label">Prénom du conjoint*</label>
@@ -744,8 +794,8 @@ export default function Dashboard({ lang, user }) {
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
                   <div className="form-group">
-                    <label className="form-label">Téléphone</label>
-                    <input className="input-field" type="text" placeholder="+212 6..." value={invitePhone} onChange={e => setInvitePhone(e.target.value)} />
+                    <label className="form-label">Téléphone {inviteChannel === "whatsapp" || inviteChannel === "sms" ? "*" : ""}</label>
+                    <input className="input-field" type="text" placeholder="+212 6..." required={inviteChannel === "whatsapp" || inviteChannel === "sms"} value={invitePhone} onChange={e => setInvitePhone(e.target.value)} />
                   </div>
                   <div className="form-group">
                     <label className="form-label">Ville au Maroc</label>
@@ -753,8 +803,8 @@ export default function Dashboard({ lang, user }) {
                   </div>
                 </div>
                 <div style={{ marginTop: "0.75rem" }}>
-                  <button type="submit" className="btn btn-primary" style={{ padding: "0.75rem 1.5rem", width: "100%" }} disabled={inviteLoading}>
-                    ✉️ {inviteLoading ? "Envoi de l'invitation en cours..." : "Envoyer l'invitation à mon conjoint"}
+                  <button type="submit" className="btn btn-primary" style={{ padding: "0.75rem 1.5rem", width: "100%", background: inviteChannel === "whatsapp" ? "#25D366" : undefined, borderColor: inviteChannel === "whatsapp" ? "#25D366" : undefined }} disabled={inviteLoading}>
+                    {inviteChannel === "whatsapp" ? "💬 Préparer l'invitation WhatsApp" : inviteChannel === "sms" ? "📱 Envoyer par SMS & E-mail" : "✉️ Envoyer l'invitation par E-mail"}
                   </button>
                 </div>
               </form>

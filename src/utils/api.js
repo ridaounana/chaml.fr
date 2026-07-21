@@ -145,10 +145,10 @@ export const changePassword = (currentPassword, newPassword) =>
     body: { currentPassword, newPassword }
   });
 
-export const inviteSpouse = (email, firstName, lastName, phone, city) => 
+export const inviteSpouse = (email, firstName, lastName, phone, city, channel = "email") => 
   request("/api/dossier/invite-spouse", {
     method: "POST",
-    body: { email, firstName, lastName, phone, city }
+    body: { email, firstName, lastName, phone, city, channel }
   });
 
 export const acceptInvite = (coupleId, email, password) => 
