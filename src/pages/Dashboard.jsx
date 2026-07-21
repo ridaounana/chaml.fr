@@ -61,23 +61,65 @@ export default function Dashboard({ lang, user }) {
 
   const handleInviteSpouseSubmit = (e) => {
     e.preventDefault();
+
+    // Save draft form to localStorage so it persists across Stripe payment or upgrade modal
+    const inviteDraft = {
+      firstName: inviteFirstName,
+      lastName: inviteLastName,
+      email: inviteEmail,
+      phone: invitePhone,
+      city: inviteCity,
+      channel: inviteChannel
+    };
+    try {
+      localStorage.setItem("chaml_pending_spouse_invite", JSON.stringify(inviteDraft));
+    } catch (e) {
+      console.warn("Failed to save draft to localStorage", e);
+    }
+
     if (couple && !couple.isPremium) {
       setShowUpgradeModal(true);
       return;
     }
-    if (!inviteEmail || !inviteFirstName || !inviteLastName) {
-      setInviteError("Veuillez remplir les champs obligatoires (*).");
+    if (!inviteFirstName || !inviteLastName) {
+      setInviteError("Veuillez saisir le prénom et le nom du conjoint.");
       return;
     }
+    if (inviteChannel === "email" && !inviteEmail) {
+      setInviteError("Veuillez saisir l'adresse e-mail du conjoint.");
+      return;
+    }
+    if ((inviteChannel === "whatsapp" || inviteChannel === "sms") && !invitePhone) {
+      setInviteError("Veuillez saisir le numéro de téléphone pour WhatsApp ou SMS.");
+      return;
+    }
+
     setInviteLoading(true);
     setInviteError("");
     setInviteSuccess("");
     setWhatsappUrlResult("");
+
     inviteSpouse(inviteEmail, inviteFirstName, inviteLastName, invitePhone, inviteCity, inviteChannel)
       .then(res => {
-        if (res.whatsappUrl && inviteChannel === "whatsapp") {
+        // Clear saved draft on success
+        localStorage.removeItem("chaml_pending_spouse_invite");
+
+        if (inviteChannel === "whatsapp" && res.whatsappUrl) {
           setWhatsappUrlResult(res.whatsappUrl);
           setInviteSuccess(getTranslation(lang, "invite_whatsapp_success"));
+          // Auto-open WhatsApp Web/App in a new tab directly!
+          try {
+            window.open(res.whatsappUrl, "_blank");
+          } catch (err) {
+            console.warn("Popup blocked, user can click WhatsApp launcher button below:", err);
+          }
+        } else if (inviteChannel === "sms" && res.smsUrl) {
+          setInviteSuccess("L'invitation SMS a été préparée sur votre téléphone !");
+          try {
+            window.location.href = res.smsUrl;
+          } catch (err) {
+            console.warn("Native SMS launch error:", err);
+          }
         } else {
           setInviteSuccess("L'invitation a été envoyée avec succès à votre conjoint(e) !");
         }
@@ -120,6 +162,22 @@ export default function Dashboard({ lang, user }) {
 
   useEffect(() => {
     loadDossierData();
+
+    // Restore pending spouse invitation form state from localStorage if present
+    try {
+      const savedInvite = localStorage.getItem("chaml_pending_spouse_invite");
+      if (savedInvite) {
+        const parsed = JSON.parse(savedInvite);
+        if (parsed.firstName) setInviteFirstName(parsed.firstName);
+        if (parsed.lastName) setInviteLastName(parsed.lastName);
+        if (parsed.email) setInviteEmail(parsed.email);
+        if (parsed.phone) setInvitePhone(parsed.phone);
+        if (parsed.city) setInviteCity(parsed.city);
+        if (parsed.channel) setInviteChannel(parsed.channel);
+      }
+    } catch (e) {
+      console.warn("Failed to restore pending invite state:", e);
+    }
 
     // Check Stripe return URL params for instant activation
     const urlParams = new URLSearchParams(window.location.search);
@@ -789,8 +847,8 @@ export default function Dashboard({ lang, user }) {
                   </div>
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Adresse E-mail du conjoint* (Lien envoyé ici)</label>
-                  <input className="input-field" type="email" placeholder="conjoint.maroc@gmail.com" required value={inviteEmail} onChange={e => setInviteEmail(e.target.value)} />
+                  <label className="form-label">Adresse E-mail du conjoint {inviteChannel === "email" ? "*" : "(Optionnel)"}</label>
+                  <input className="input-field" type="email" placeholder="conjoint.maroc@gmail.com" required={inviteChannel === "email"} value={inviteEmail} onChange={e => setInviteEmail(e.target.value)} />
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
                   <div className="form-group">

@@ -1734,9 +1734,23 @@ app.post("/api/dossier/invite-spouse", authenticateUser, async (req, res) => {
   }
 
   const { email, firstName, lastName, phone, city, channel = "email" } = req.body;
-  if (!email || !firstName || !lastName) {
-    return res.status(400).json({ error: "Email, first name, and last name are required." });
+  if (!firstName || !lastName) {
+    return res.status(400).json({ error: "Prénom et nom requis." });
   }
+
+  if (channel === "email" && !email) {
+    return res.status(400).json({ error: "L'adresse e-mail est requise pour l'envoi par e-mail." });
+  }
+
+  const cleanPhone = (phone || "").replace(/[^\d+]/g, "");
+  if ((channel === "whatsapp" || channel === "sms") && !cleanPhone) {
+    return res.status(400).json({ error: "Le numéro de téléphone est requis pour l'envoi par WhatsApp ou SMS." });
+  }
+
+  // Use real email or auto-generated unique placeholder email for WhatsApp/SMS
+  const targetEmail = (email && email.trim()) 
+    ? email.trim() 
+    : `spouse_${cleanPhone.replace("+", "")}_${Date.now()}@chaml.local`;
 
   try {
     const coupleRes = await query("SELECT is_premium FROM couples WHERE id = $1", [req.user.coupleId]);
@@ -1751,9 +1765,11 @@ app.post("/api/dossier/invite-spouse", authenticateUser, async (req, res) => {
     }
 
     // Check if email already exists in users table
-    const emailCheck = await query("SELECT id FROM users WHERE email = $1", [email]);
-    if (emailCheck.rows.length > 0) {
-      return res.status(400).json({ error: "Cette adresse e-mail est déjà utilisée." });
+    if (email && email.trim()) {
+      const emailCheck = await query("SELECT id FROM users WHERE email = $1", [targetEmail]);
+      if (emailCheck.rows.length > 0) {
+        return res.status(400).json({ error: "Cette adresse e-mail est déjà utilisée." });
+      }
     }
 
     const userId = `user_ma_${Date.now()}`;
@@ -1764,7 +1780,7 @@ app.post("/api/dossier/invite-spouse", authenticateUser, async (req, res) => {
       VALUES ($1, $2, 'INVITATION_PENDING', 'beneficiaire', $3, $4, $5, $6, $7, true, false)
     `, [
       userId, 
-      email, 
+      targetEmail, 
       req.user.coupleId, 
       encryptPII(firstName), 
       encryptPII(lastName), 
@@ -1772,7 +1788,7 @@ app.post("/api/dossier/invite-spouse", authenticateUser, async (req, res) => {
       encryptPII(city || "")
     ]);
 
-    await logAction("Spouse Invited", `Invited spouse ${email} via ${channel} to join couple: ${req.user.coupleId}`, req.user.email);
+    await logAction("Spouse Invited", `Invited spouse ${targetEmail} via ${channel} to join couple: ${req.user.coupleId}`, req.user.email);
 
     // Fetch inviter's real decrypted name
     const inviterRes = await query("SELECT first_name, last_name FROM users WHERE id = $1", [req.user.id]);
@@ -1784,15 +1800,13 @@ app.post("/api/dossier/invite-spouse", authenticateUser, async (req, res) => {
       }
     }
 
-    const inviteUrl = `https://www.chaml.fr/?inviteCoupleId=${req.user.coupleId}&inviteEmail=${encodeURIComponent(email)}`;
-    const cleanPhone = (phone || "").replace(/[^\d+]/g, "");
+    const inviteUrl = `https://www.chaml.fr/?inviteCoupleId=${req.user.coupleId}&inviteEmail=${encodeURIComponent(targetEmail)}`;
     const waText = `Bonjour ${firstName}, ${inviterName} vous invite à le/la rejoindre sur Chaml.fr pour préparer votre dossier de regroupement familial.\n\nCliquez sur ce lien pour activer votre accès :\n${inviteUrl}`;
-    const whatsappUrl = cleanPhone 
-      ? `https://wa.me/${cleanPhone.replace("+", "")}?text=${encodeURIComponent(waText)}` 
-      : `https://wa.me/?text=${encodeURIComponent(waText)}`;
+    const whatsappUrl = `https://wa.me/${cleanPhone.replace("+", "")}?text=${encodeURIComponent(waText)}`;
+    const smsUrl = `sms:${cleanPhone}?body=${encodeURIComponent(waText)}`;
 
-    // Send real invitation email if email or default channel
-    if (isSMTPAvailable && (channel === "email" || channel === "whatsapp" || channel === "sms")) {
+    // Send real invitation email ONLY if channel is email or sms AND email is valid (not placeholder)
+    if (isSMTPAvailable && (channel === "email" || channel === "sms") && !targetEmail.endsWith("@chaml.local")) {
       try {
         const configRes = await query("SELECT * FROM site_config WHERE id = 1");
         const c = configRes.rows[0];
@@ -1906,7 +1920,7 @@ app.post("/api/dossier/invite-spouse", authenticateUser, async (req, res) => {
       }
     }
 
-    res.json({ success: true, channel, whatsappUrl, inviteUrl });
+    res.json({ success: true, channel, whatsappUrl, smsUrl, inviteUrl });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

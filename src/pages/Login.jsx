@@ -110,9 +110,9 @@ export default function Login({
     const inviteEmail = params.get("inviteEmail");
     const googleRegister = params.get("google_register");
 
-    if (inviteCoupleId && inviteEmail) {
+    if (inviteCoupleId) {
       setView("accept_invite");
-      setFrEmail(inviteEmail);
+      setFrEmail(inviteEmail && !inviteEmail.endsWith("@chaml.local") ? inviteEmail : "");
       setPendingCoupleId(inviteCoupleId);
     } else if (googleRegister === "true") {
       setView("register");
@@ -738,7 +738,14 @@ export default function Login({
 
             <div className="form-group">
               <label className="form-label">{getTranslation(lang, "invite_email_lbl")}</label>
-              <input className="input-field" type="email" value={frEmail} disabled />
+              <input 
+                className="input-field" 
+                type="email" 
+                required 
+                placeholder="votre.email@gmail.com"
+                value={frEmail} 
+                onChange={e => setFrEmail(e.target.value)} 
+              />
             </div>
 
             <div className="form-group">
