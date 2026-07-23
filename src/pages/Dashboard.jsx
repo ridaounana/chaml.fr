@@ -90,8 +90,8 @@ export default function Dashboard({ lang, user }) {
       setInviteError("Veuillez saisir l'adresse e-mail du conjoint.");
       return;
     }
-    if ((inviteChannel === "whatsapp" || inviteChannel === "sms") && !invitePhone) {
-      setInviteError("Veuillez saisir le numéro de téléphone pour WhatsApp ou SMS.");
+    if (inviteChannel === "whatsapp" && !invitePhone) {
+      setInviteError("Veuillez saisir le numéro de téléphone pour WhatsApp.");
       return;
     }
 
@@ -113,13 +113,6 @@ export default function Dashboard({ lang, user }) {
             window.open(res.whatsappUrl, "_blank");
           } catch (err) {
             console.warn("Popup blocked, user can click WhatsApp launcher button below:", err);
-          }
-        } else if (inviteChannel === "sms" && res.smsUrl) {
-          setInviteSuccess("L'invitation SMS a été préparée sur votre téléphone !");
-          try {
-            window.location.href = res.smsUrl;
-          } catch (err) {
-            console.warn("Native SMS launch error:", err);
           }
         } else {
           setInviteSuccess("L'invitation a été envoyée avec succès à votre conjoint(e) !");
@@ -897,14 +890,6 @@ export default function Dashboard({ lang, user }) {
                     >
                       {getTranslation(lang, "invite_channel_whatsapp")}
                     </button>
-                    <button
-                      type="button"
-                      className={`btn ${inviteChannel === "sms" ? "btn-primary" : "btn-secondary"}`}
-                      style={{ flex: 1, padding: "0.5rem", fontSize: "0.82rem", fontWeight: "bold" }}
-                      onClick={() => { setInviteChannel("sms"); setWhatsappUrlResult(""); }}
-                    >
-                      {getTranslation(lang, "invite_channel_sms")}
-                    </button>
                   </div>
                 </div>
 
@@ -924,8 +909,8 @@ export default function Dashboard({ lang, user }) {
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
                   <div className="form-group">
-                    <label className="form-label">Téléphone {inviteChannel === "whatsapp" || inviteChannel === "sms" ? "*" : ""}</label>
-                    <input className="input-field" type="text" placeholder="+212 6..." required={inviteChannel === "whatsapp" || inviteChannel === "sms"} value={invitePhone} onChange={e => setInvitePhone(e.target.value)} />
+                    <label className="form-label">Téléphone {inviteChannel === "whatsapp" ? "*" : ""}</label>
+                    <input className="input-field" type="text" placeholder="+212 6..." required={inviteChannel === "whatsapp"} value={invitePhone} onChange={e => setInvitePhone(e.target.value)} />
                   </div>
                   <div className="form-group">
                     <label className="form-label">Ville au Maroc</label>
@@ -934,7 +919,7 @@ export default function Dashboard({ lang, user }) {
                 </div>
                 <div style={{ marginTop: "0.75rem" }}>
                   <button type="submit" className="btn btn-primary" style={{ padding: "0.75rem 1.5rem", width: "100%", background: inviteChannel === "whatsapp" ? "#25D366" : undefined, borderColor: inviteChannel === "whatsapp" ? "#25D366" : undefined }} disabled={inviteLoading}>
-                    {inviteChannel === "whatsapp" ? "💬 Préparer l'invitation WhatsApp" : inviteChannel === "sms" ? "📱 Envoyer par SMS & E-mail" : "✉️ Envoyer l'invitation par E-mail"}
+                    {inviteChannel === "whatsapp" ? "💬 Préparer l'invitation WhatsApp" : "✉️ Envoyer l'invitation par E-mail"}
                   </button>
                 </div>
               </form>

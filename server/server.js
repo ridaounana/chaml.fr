@@ -1743,11 +1743,11 @@ app.post("/api/dossier/invite-spouse", authenticateUser, async (req, res) => {
   }
 
   const cleanPhone = (phone || "").replace(/[^\d+]/g, "");
-  if ((channel === "whatsapp" || channel === "sms") && !cleanPhone) {
-    return res.status(400).json({ error: "Le numéro de téléphone est requis pour l'envoi par WhatsApp ou SMS." });
+  if (channel === "whatsapp" && !cleanPhone) {
+    return res.status(400).json({ error: "Le numéro de téléphone est requis pour l'envoi par WhatsApp." });
   }
 
-  // Use real email or auto-generated unique placeholder email for WhatsApp/SMS
+  // Use real email or auto-generated unique placeholder email for WhatsApp
   const targetEmail = (email && email.trim()) 
     ? email.trim() 
     : `spouse_${cleanPhone.replace("+", "")}_${Date.now()}@chaml.local`;
@@ -1803,10 +1803,9 @@ app.post("/api/dossier/invite-spouse", authenticateUser, async (req, res) => {
     const inviteUrl = `https://www.chaml.fr/?inviteCoupleId=${req.user.coupleId}&inviteEmail=${encodeURIComponent(targetEmail)}`;
     const waText = `Bonjour ${firstName}, ${inviterName} vous invite à le/la rejoindre sur Chaml.fr pour préparer votre dossier de regroupement familial.\n\nCliquez sur ce lien pour activer votre accès :\n${inviteUrl}`;
     const whatsappUrl = `https://wa.me/${cleanPhone.replace("+", "")}?text=${encodeURIComponent(waText)}`;
-    const smsUrl = `sms:${cleanPhone}?body=${encodeURIComponent(waText)}`;
 
-    // Send real invitation email ONLY if channel is email or sms AND email is valid (not placeholder)
-    if (isSMTPAvailable && (channel === "email" || channel === "sms") && !targetEmail.endsWith("@chaml.local")) {
+    // Send real invitation email ONLY if channel is email AND email is valid (not placeholder)
+    if (isSMTPAvailable && channel === "email" && !targetEmail.endsWith("@chaml.local")) {
       try {
         const configRes = await query("SELECT * FROM site_config WHERE id = 1");
         const c = configRes.rows[0];
@@ -1920,7 +1919,7 @@ app.post("/api/dossier/invite-spouse", authenticateUser, async (req, res) => {
       }
     }
 
-    res.json({ success: true, channel, whatsappUrl, smsUrl, inviteUrl });
+    res.json({ success: true, channel, whatsappUrl, inviteUrl });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
