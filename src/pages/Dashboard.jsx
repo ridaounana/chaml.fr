@@ -5,6 +5,7 @@ import AlertBanner from "../components/AlertBanner";
 import { FranceFlag, MoroccoFlag } from "../components/Flag";
 import { getDossier, uploadDocument, deleteDocument, submitDossier, reopenDossier, getDownloadUrl, inviteSpouse, cancelInvite, verifyStripeSession } from "../utils/api";
 import { encryptFile, decryptFile } from "../utils/crypto";
+import { PDFDocument, rgb } from "pdf-lib";
 
 export default function Dashboard({ lang, user }) {
   const [dossier, setDossier] = useState(null);
@@ -35,6 +36,25 @@ export default function Dashboard({ lang, user }) {
   // Upgrade Modal & Stripe Payment state
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [upgradeLoading, setUpgradeLoading] = useState(false);
+
+  // CERFA 11436*05 state hooks
+  const [showCerfaModal, setShowCerfaModal] = useState(false);
+  const [cerfaLoading, setCerfaLoading] = useState(false);
+  const [cerfaError, setCerfaError] = useState("");
+  const [cerfaSponsorBirthDate, setCerfaSponsorBirthDate] = useState("");
+  const [cerfaSponsorBirthPlace, setCerfaSponsorBirthPlace] = useState("");
+  const [cerfaSponsorNationality, setCerfaSponsorNationality] = useState("");
+  const [cerfaSpouseBirthDate, setCerfaSpouseBirthDate] = useState("");
+  const [cerfaSpouseBirthPlace, setCerfaSpouseBirthPlace] = useState("");
+  const [cerfaSpouseNationality, setCerfaSpouseNationality] = useState("");
+  const [cerfaMarriageDate, setCerfaMarriageDate] = useState("");
+  const [cerfaMarriagePlace, setCerfaMarriagePlace] = useState("");
+  const [cerfaRoomsCount, setCerfaRoomsCount] = useState("3");
+  const [cerfaHousingType, setCerfaHousingType] = useState("Appartement");
+  const [cerfaLivingSurface, setCerfaLivingSurface] = useState("");
+  const [cerfaGeographicZone, setCerfaGeographicZone] = useState("A");
+  const [cerfaAverageSalary, setCerfaAverageSalary] = useState("");
+  const [cerfaDoneAt, setCerfaDoneAt] = useState("");
 
   const handleUpgradeToPremium = () => {
     setUpgradeLoading(true);
@@ -148,6 +168,133 @@ export default function Dashboard({ lang, user }) {
       .catch(err => {
         alert("Erreur lors de l'annulation : " + err.message);
       });
+  };
+
+  const handleOpenCerfaModal = () => {
+    // Attempt to extract defaults from couple profile
+    setCerfaSponsorBirthDate(couple?.demandeur?.birthDate || "");
+    setCerfaSponsorBirthPlace(couple?.demandeur?.birthPlace || "");
+    setCerfaSponsorNationality(couple?.demandeur?.nationality || "Française");
+    
+    setCerfaSpouseBirthDate(couple?.beneficiaire?.birthDate || "");
+    setCerfaSpouseBirthPlace(couple?.beneficiaire?.birthPlace || "");
+    setCerfaSpouseNationality(couple?.beneficiaire?.nationality || "Marocaine");
+
+    setCerfaMarriageDate(couple?.marriageDate || "");
+    setCerfaMarriagePlace(couple?.marriagePlace || "");
+
+    setCerfaRoomsCount(couple?.roomsCount || "3");
+    setCerfaHousingType(couple?.housingType || "Appartement");
+    setCerfaGeographicZone(couple?.geographicZone || "A");
+    setCerfaLivingSurface(couple?.livingSurface || "65");
+    setCerfaAverageSalary(couple?.averageSalary || "1800");
+
+    setCerfaDoneAt(couple?.demandeur?.city || "Paris");
+
+    setCerfaError("");
+    setCerfaLoading(false);
+    setShowCerfaModal(true);
+  };
+
+  const handleDownloadCerfaSubmit = async (e) => {
+    e.preventDefault();
+    setCerfaLoading(true);
+    setCerfaError("");
+
+    try {
+      // 1. Fetch blank PDF template bytes
+      const response = await fetch("/cerfa_11436-05.pdf");
+      if (!response.ok) {
+        throw new Error("Impossible de charger le modèle CERFA vierge (assurez-vous que /cerfa_11436-05.pdf est disponible dans public/).");
+      }
+      const existingPdfBytes = await response.arrayBuffer();
+
+      // 2. Load the PDF document
+      const pdfDoc = await PDFDocument.load(existingPdfBytes);
+      const pages = pdfDoc.getPages();
+
+      if (pages.length < 5) {
+        throw new Error("Le fichier CERFA est incomplet (doit contenir au moins 5 pages).");
+      }
+
+      const page3 = pages[2]; // Cadre A (Le Demandeur) & Cadre B (Le Conjoint)
+      const page4 = pages[3]; // Cadre C & Cadre D (Le Logement)
+      const page5 = pages[4]; // Cadre E (Ressources) & Cadre F (Signature)
+
+      // 3. Define ink configurations
+      const color = rgb(0.05, 0.2, 0.6); // Sleek blue ink
+      const font = await pdfDoc.embedFont("Helvetica");
+
+      const drawText = (page, text, x, y, size = 9) => {
+        if (!text) return;
+        page.drawText(text.toString(), {
+          x,
+          y,
+          size,
+          font,
+          color
+        });
+      };
+
+      // ----------------------------------------------------
+      // PAGE 3 INJECTIONS
+      // ----------------------------------------------------
+      // Cadre A - Le Demandeur (Sponsor)
+      drawText(page3, couple?.demandeur?.lastName || "", 120, 680);
+      drawText(page3, couple?.demandeur?.firstName || "", 120, 655);
+      drawText(page3, cerfaSponsorBirthDate, 120, 630);
+      drawText(page3, cerfaSponsorBirthPlace, 320, 630);
+      drawText(page3, cerfaSponsorNationality, 440, 630);
+      drawText(page3, couple?.demandeur?.address || "", 120, 580);
+      drawText(page3, couple?.demandeur?.phone || "", 120, 545);
+      drawText(page3, couple?.demandeur?.email || "", 320, 545);
+
+      // Cadre B - Le Conjoint (Spouse in Morocco)
+      drawText(page3, couple?.beneficiaire?.last_name || couple?.beneficiaire?.lastName || "", 120, 428);
+      drawText(page3, couple?.beneficiaire?.first_name || couple?.beneficiaire?.firstName || "", 120, 404);
+      drawText(page3, cerfaSpouseBirthDate, 120, 378);
+      drawText(page3, cerfaSpouseBirthPlace, 320, 378);
+      drawText(page3, cerfaSpouseNationality, 440, 378);
+      drawText(page3, couple?.beneficiaire?.city || "", 120, 348);
+      drawText(page3, cerfaMarriageDate, 120, 318);
+      drawText(page3, cerfaMarriagePlace, 320, 318);
+
+      // ----------------------------------------------------
+      // PAGE 4 INJECTIONS
+      // ----------------------------------------------------
+      // Cadre D - Le Logement
+      drawText(page4, cerfaLivingSurface, 260, 260);
+      drawText(page4, cerfaRoomsCount, 440, 260);
+      drawText(page4, cerfaHousingType, 260, 230);
+      drawText(page4, cerfaGeographicZone, 440, 230);
+
+      // ----------------------------------------------------
+      // PAGE 5 INJECTIONS
+      // ----------------------------------------------------
+      // Cadre E - Les Ressources
+      drawText(page5, `${cerfaAverageSalary} €`, 350, 650);
+
+      // Cadre F - Fait à ... Le ...
+      drawText(page5, cerfaDoneAt, 380, 180);
+      drawText(page5, new Date().toLocaleDateString("fr-FR"), 200, 180);
+
+      // 4. Save and trigger direct browser download
+      const pdfBytes = await pdfDoc.save();
+      const blob = new Blob([pdfBytes], { type: "application/pdf" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `cerfa_11436-05_pre_rempli.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      setShowCerfaModal(false);
+    } catch (err) {
+      console.error(err);
+      setCerfaError(err.message || "Erreur lors de la génération du fichier PDF.");
+    } finally {
+      setCerfaLoading(false);
+    }
   };
 
   const loadDossierData = () => {
@@ -766,6 +913,37 @@ export default function Dashboard({ lang, user }) {
         </div>
       </div>
 
+      {/* 📋 CERFA 11436*05 Interactive PDF Generator Card */}
+      <div className="glass-card" style={{ padding: "1.5rem", marginBottom: "1.5rem", border: "1px solid var(--border-card)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1.25rem", background: "rgba(13, 148, 136, 0.03)" }}>
+        <div style={{ flex: 1, minWidth: "280px" }}>
+          <h3 style={{ margin: 0, fontSize: "1.1rem", display: "flex", alignItems: "center", gap: "0.5rem", color: "var(--accent)" }}>
+            📋 Demande de Regroupement Familial (CERFA n° 11436*05)
+          </h3>
+          <p style={{ margin: "0.4rem 0 0 0", fontSize: "0.83rem", color: "var(--text-muted)", lineHeight: "1.5" }}>
+            Générez et téléchargez instantanément le formulaire officiel CERFA pré-rempli avec les informations de votre dossier.
+          </p>
+        </div>
+        <div>
+          {couple?.isPremium ? (
+            <button 
+              className="btn btn-primary"
+              onClick={handleOpenCerfaModal}
+              style={{ fontWeight: "bold", padding: "0.75rem 1.25rem", display: "inline-flex", alignItems: "center", gap: "0.5rem" }}
+            >
+              📝 Remplir & Télécharger
+            </button>
+          ) : (
+            <button 
+              className="btn btn-secondary"
+              onClick={() => setShowUpgradeModal(true)}
+              style={{ fontWeight: "bold", padding: "0.75rem 1.25rem", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: "0.5rem", background: "rgba(239, 68, 68, 0.08)", color: "var(--danger)", border: "1px solid rgba(239, 68, 68, 0.2)" }}
+            >
+              🔒 Premium : Générer le CERFA
+            </button>
+          )}
+        </div>
+      </div>
+
       {/* Dual Columns Checklists */}
       <div className="dashboard-grid">
         {renderChecklist(
@@ -1066,6 +1244,218 @@ export default function Dashboard({ lang, user }) {
                 Peut-être plus tard
               </button>
             </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* 📝 Interactive CERFA Form Modal */}
+      {showCerfaModal && createPortal(
+        <div 
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: "100vw",
+            height: "100vh",
+            background: "rgba(15, 23, 42, 0.85)", // Dark backdrop
+            backdropFilter: "blur(8px)",
+            WebkitBackdropFilter: "blur(8px)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 99999,
+            padding: "1rem",
+            boxSizing: "border-box"
+          }}
+          onClick={() => setShowCerfaModal(false)}
+        >
+          <div 
+            className="glass-card" 
+            style={{
+              maxWidth: "650px",
+              width: "100%",
+              maxHeight: "90vh",
+              overflowY: "auto",
+              padding: "2rem",
+              position: "relative",
+              display: "flex",
+              flexDirection: "column",
+              gap: "1.5rem",
+              margin: "auto",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
+              boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.5)"
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button 
+              onClick={() => setShowCerfaModal(false)}
+              style={{
+                position: "absolute",
+                top: "1.25rem",
+                right: "1.25rem",
+                background: "rgba(255,255,255,0.05)",
+                border: "1px solid var(--border-card)",
+                borderRadius: "50%",
+                width: "2.2rem",
+                height: "2.2rem",
+                color: "var(--text-main)",
+                fontSize: "1.2rem",
+                cursor: "pointer",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center"
+              }}
+            >
+              ×
+            </button>
+
+            <div>
+              <h2 style={{ fontSize: "1.4rem", color: "var(--accent)", margin: 0, display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                📋 Remplir la demande de Regroupement Familial
+              </h2>
+              <p style={{ color: "var(--text-muted)", fontSize: "0.83rem", marginTop: "0.4rem" }}>
+                Complétez ou validez les informations ci-dessous. Le PDF officiel CERFA n° 11436*05 sera généré et téléchargé instantanément.
+              </p>
+            </div>
+
+            {cerfaError && (
+              <div style={{ background: "var(--danger-bg)", color: "var(--danger)", padding: "0.75rem 1rem", borderRadius: "0.5rem", fontSize: "0.85rem", fontWeight: 600 }}>
+                ⚠️ {cerfaError}
+              </div>
+            )}
+
+            <form onSubmit={handleDownloadCerfaSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+              
+              {/* Section 1: Demandeur (Sponsor) */}
+              <div style={{ borderBottom: "1px solid var(--border-card)", paddingBottom: "1rem" }}>
+                <h4 style={{ margin: "0 0 0.75rem 0", color: "var(--text-main)", fontSize: "0.92rem", display: "flex", alignItems: "center", gap: "0.3rem" }}>
+                  🇫🇷 Cadre A : Le Demandeur (Sponsor en France)
+                </h4>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
+                  <div className="form-group">
+                    <label className="form-label">Date de naissance</label>
+                    <input className="input-field" type="text" placeholder="JJ/MM/AAAA" required value={cerfaSponsorBirthDate} onChange={e => setCerfaSponsorBirthDate(e.target.value)} />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Lieu de naissance (Ville / Pays)</label>
+                    <input className="input-field" type="text" placeholder="ex: Paris, France" required value={cerfaSponsorBirthPlace} onChange={e => setCerfaSponsorBirthPlace(e.target.value)} />
+                  </div>
+                </div>
+                <div className="form-group" style={{ marginTop: "0.5rem" }}>
+                  <label className="form-label">Nationalité</label>
+                  <input className="input-field" type="text" required value={cerfaSponsorNationality} onChange={e => setCerfaSponsorNationality(e.target.value)} />
+                </div>
+              </div>
+
+              {/* Section 2: Bénéficiaire (Spouse) */}
+              <div style={{ borderBottom: "1px solid var(--border-card)", paddingBottom: "1rem" }}>
+                <h4 style={{ margin: "0 0 0.75rem 0", color: "var(--text-main)", fontSize: "0.92rem", display: "flex", alignItems: "center", gap: "0.3rem" }}>
+                  🇲🇦 Cadre B : Le Conjoint (Bénéficiaire au Maroc)
+                </h4>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
+                  <div className="form-group">
+                    <label className="form-label">Date de naissance</label>
+                    <input className="input-field" type="text" placeholder="JJ/MM/AAAA" required value={cerfaSpouseBirthDate} onChange={e => setCerfaSpouseBirthDate(e.target.value)} />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Lieu de naissance (Ville / Pays)</label>
+                    <input className="input-field" type="text" placeholder="ex: Casablanca, Maroc" required value={cerfaSpouseBirthPlace} onChange={e => setCerfaSpouseBirthPlace(e.target.value)} />
+                  </div>
+                </div>
+                <div className="form-group" style={{ marginTop: "0.5rem" }}>
+                  <label className="form-label">Nationalité</label>
+                  <input className="input-field" type="text" required value={cerfaSpouseNationality} onChange={e => setCerfaSpouseNationality(e.target.value)} />
+                </div>
+              </div>
+
+              {/* Section 3: Mariage */}
+              <div style={{ borderBottom: "1px solid var(--border-card)", paddingBottom: "1rem" }}>
+                <h4 style={{ margin: "0 0 0.75rem 0", color: "var(--text-main)", fontSize: "0.92rem", display: "flex", alignItems: "center", gap: "0.3rem" }}>
+                  💍 Infos Mariage
+                </h4>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
+                  <div className="form-group">
+                    <label className="form-label">Date du mariage</label>
+                    <input className="input-field" type="text" placeholder="JJ/MM/AAAA" required value={cerfaMarriageDate} onChange={e => setCerfaMarriageDate(e.target.value)} />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Lieu du mariage (Ville / Pays)</label>
+                    <input className="input-field" type="text" placeholder="ex: Rabat, Maroc" required value={cerfaMarriagePlace} onChange={e => setCerfaMarriagePlace(e.target.value)} />
+                  </div>
+                </div>
+              </div>
+
+              {/* Section 4: Logement et ressources */}
+              <div style={{ borderBottom: "1px solid var(--border-card)", paddingBottom: "1rem" }}>
+                <h4 style={{ margin: "0 0 0.75rem 0", color: "var(--text-main)", fontSize: "0.92rem", display: "flex", alignItems: "center", gap: "0.3rem" }}>
+                  🏠 Cadre D & E : Logement & Ressources
+                </h4>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
+                  <div className="form-group">
+                    <label className="form-label">Surface Habitable (m²)</label>
+                    <input className="input-field" type="number" required value={cerfaLivingSurface} onChange={e => setCerfaLivingSurface(e.target.value)} />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Nombre de pièces</label>
+                    <input className="input-field" type="number" required value={cerfaRoomsCount} onChange={e => setCerfaRoomsCount(e.target.value)} />
+                  </div>
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem", marginTop: "0.5rem" }}>
+                  <div className="form-group">
+                    <label className="form-label">Type de Logement</label>
+                    <select className="input-field" value={cerfaHousingType} onChange={e => setCerfaHousingType(e.target.value)}>
+                      <option value="Appartement">Appartement</option>
+                      <option value="Maison Individuelle">Maison Individuelle</option>
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Zone géographique OFII</label>
+                    <select className="input-field" value={cerfaGeographicZone} onChange={e => setCerfaGeographicZone(e.target.value)}>
+                      <option value="A">Zone A</option>
+                      <option value="B">Zone B</option>
+                      <option value="C">Zone C</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="form-group" style={{ marginTop: "0.5rem" }}>
+                  <label className="form-label">Revenu Net Moyen Mensuel (€)</label>
+                  <input className="input-field" type="number" required value={cerfaAverageSalary} onChange={e => setCerfaAverageSalary(e.target.value)} />
+                </div>
+              </div>
+
+              {/* Section 5: Signature */}
+              <div>
+                <h4 style={{ margin: "0 0 0.75rem 0", color: "var(--text-main)", fontSize: "0.92rem" }}>
+                  ✍️ Cadre F : Signature
+                </h4>
+                <div className="form-group">
+                  <label className="form-label">Fait à (Ville de signature en France)</label>
+                  <input className="input-field" type="text" required value={cerfaDoneAt} onChange={e => setCerfaDoneAt(e.target.value)} />
+                </div>
+              </div>
+
+              <div style={{ display: "flex", gap: "0.75rem", marginTop: "1rem" }}>
+                <button 
+                  type="button" 
+                  className="btn btn-secondary" 
+                  style={{ flex: 1, padding: "0.85rem" }}
+                  onClick={() => setShowCerfaModal(false)}
+                >
+                  Annuler
+                </button>
+                <button 
+                  type="submit" 
+                  className="btn btn-primary" 
+                  style={{ flex: 2, padding: "0.85rem", fontWeight: "bold" }}
+                  disabled={cerfaLoading}
+                >
+                  {cerfaLoading ? "Génération du PDF..." : "📥 Télécharger le CERFA"}
+                </button>
+              </div>
+            </form>
           </div>
         </div>,
         document.body
