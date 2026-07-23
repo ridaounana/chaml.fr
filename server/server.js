@@ -1271,6 +1271,12 @@ app.post("/api/dossier/submit", authenticateUser, async (req, res) => {
           const isAr = lang === "ar";
           const isEn = lang === "en";
 
+          const protocol = req.headers["x-forwarded-proto"] || req.protocol;
+          const host = req.headers["x-forwarded-host"] || req.get("host");
+          let fallbackUrl = `${protocol}://${host}`;
+          if (host.includes("localhost:5000")) fallbackUrl = "http://localhost:5173";
+          const clientUrl = process.env.CLIENT_URL || fallbackUrl;
+
           const subject = isAr 
             ? "🚀 Chaml.fr - تأكيد تقديم ملفكم بنجاح (الجمع العائلي)"
             : isEn
@@ -1278,10 +1284,10 @@ app.post("/api/dossier/submit", authenticateUser, async (req, res) => {
             : "🚀 Chaml.fr - Confirmation de soumission de votre dossier (Regroupement Familial)";
 
           const textMsg = isAr
-            ? `مرحباً ${firstName}،\n\nتهانينا! تم تأكيد وتقديم ملفكم الخاص بالجمع العائلي بنجاح على منصة Chaml.fr.\n\nالخطوات التالية الموصى بها:\n1. تقديم طلبكم الرسمي على بوابة الدولة: https://administration-etrangers-en-france.interieur.gouv.fr (ANEF) أو إرساله عبر البريد المضمون إلى مكتب الهجرة (OFII).\n2. تحميل ملخص ملفكم والوثائق الموثقة من لوحة التحكم الخاصة بكم.\n\nرابط لوحة التحكم: https://chaml.fr/?view=login\n\nفريق Chaml.fr`
+            ? `مرحباً ${firstName}،\n\nتهانينا! تم تأكيد وتقديم ملفكم الخاص بالجمع العائلي بنجاح على منصة Chaml.fr.\n\nالخطوات التالية الموصى بها:\n1. تقديم طلبكم الرسمي على بوابة الدولة: https://administration-etrangers-en-france.interieur.gouv.fr (ANEF) ou transmettez votre dossier par courrier AR à l'OFII.\n2. تحميل ملخص ملفكم والوثائق الموثقة من لوحة التحكم الخاصة بكم.\n\nرابط لوحة التحكم: ${clientUrl}/?view=login\n\nفريق Chaml.fr`
             : isEn
-            ? `Hello ${firstName},\n\nCongratulations! Your family reunification application has been successfully marked as submitted on Chaml.fr.\n\nRecommended Next Steps:\n1. File your official application on the state portal: https://administration-etrangers-en-france.interieur.gouv.fr (ANEF) or mail your file via registered mail to your territorial OFII office.\n2. Download your certified summary and documents from your dashboard.\n\nDashboard link: https://chaml.fr/?view=login\n\nBest regards,\nThe Chaml.fr Team`
-            : `Bonjour ${firstName},\n\nFélicitations ! Votre dossier de regroupement familial a été marqué comme soumis avec succès sur Chaml.fr.\n\nProchaines étapes recommandées :\n1. Déposez votre demande officielle sur le portail ANEF (https://administration-etrangers-en-france.interieur.gouv.fr) ou transmettez votre dossier par courrier AR à l'OFII de votre département.\n2. Téléchargez votre fiche récapitulative et vos pièces justificatives certifiées depuis votre tableau de bord.\n\nAccéder au Tableau de Bord : https://chaml.fr/?view=login\n\nCordialement,\nL'équipe Chaml.fr`;
+            ? `Hello ${firstName},\n\nCongratulations! Your family reunification application has been successfully marked as submitted on Chaml.fr.\n\nRecommended Next Steps:\n1. File your official application on the state portal: https://administration-etrangers-en-france.interieur.gouv.fr (ANEF) or mail your file via registered mail to your territorial OFII office.\n2. Download your certified summary and documents from your dashboard.\n\nDashboard link: ${clientUrl}/?view=login\n\nBest regards,\nThe Chaml.fr Team`
+            : `Bonjour ${firstName},\n\nFélicitations ! Votre dossier de regroupement familial a été marqué comme soumis avec succès sur Chaml.fr.\n\nProchaines étapes recommandées :\n1. Déposez votre demande officielle sur le portail ANEF (https://administration-etrangers-en-france.interieur.gouv.fr) ou transmettez votre dossier par courrier AR à l'OFII de votre département.\n2. Téléchargez votre fiche récapitulative et vos pièces justificatives certifiées depuis votre tableau de bord.\n\nAccéder au Tableau de Bord : ${clientUrl}/?view=login\n\nCordialement,\nL'équipe Chaml.fr`;
 
           const dir = isAr ? "rtl" : "ltr";
           const textAlign = isAr ? "right" : "left";
@@ -1363,7 +1369,7 @@ app.post("/api/dossier/submit", authenticateUser, async (req, res) => {
 
                           <!-- Call To Action Buttons -->
                           <div style="text-align: center; margin: 32px 0 24px 0;">
-                            <a href="https://chaml.fr/?view=login" target="_blank" style="background-color: #0d9488; color: #ffffff; padding: 14px 28px; border-radius: 8px; font-weight: bold; font-size: 15px; text-decoration: none; display: inline-block; box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3); margin-bottom: 12px;">
+                            <a href="${clientUrl}/?view=login" target="_blank" style="background-color: #0d9488; color: #ffffff; padding: 14px 28px; border-radius: 8px; font-weight: bold; font-size: 15px; text-decoration: none; display: inline-block; box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3); margin-bottom: 12px;">
                               🚀 ${isAr ? "الدخول إلى لوحة التحكم Chaml.fr" : isEn ? "Access My Chaml.fr Dashboard" : "Accéder à mon Tableau de Bord Chaml.fr"}
                             </a>
                             <br />
@@ -1800,7 +1806,13 @@ app.post("/api/dossier/invite-spouse", authenticateUser, async (req, res) => {
       }
     }
 
-    const inviteUrl = `https://www.chaml.fr/?inviteCoupleId=${req.user.coupleId}&inviteEmail=${encodeURIComponent(targetEmail)}`;
+    const protocol = req.headers["x-forwarded-proto"] || req.protocol;
+    const host = req.headers["x-forwarded-host"] || req.get("host");
+    let fallbackUrl = `${protocol}://${host}`;
+    if (host.includes("localhost:5000")) fallbackUrl = "http://localhost:5173";
+    const clientUrl = process.env.CLIENT_URL || fallbackUrl;
+
+    const inviteUrl = `${clientUrl}/?inviteCoupleId=${req.user.coupleId}&inviteEmail=${encodeURIComponent(targetEmail)}`;
     const waText = `Bonjour ${firstName}, ${inviterName} vous invite à le/la rejoindre sur Chaml.fr pour préparer votre dossier de regroupement familial.\n\nCliquez sur ce lien pour activer votre accès :\n${inviteUrl}`;
     const whatsappUrl = `https://wa.me/${cleanPhone.replace("+", "")}?text=${encodeURIComponent(waText)}`;
 
