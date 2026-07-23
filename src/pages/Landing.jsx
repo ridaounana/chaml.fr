@@ -6,7 +6,7 @@ import { FranceFlag, MoroccoFlag } from "../components/Flag";
 const LANDING_TEXT = {
   fr: {
     hero_title: "Réunissez votre famille, sans frontières",
-    hero_desc: "Chaml.fr est le premier assistant collaboratif intelligent pour le regroupement familial franco-marocain. Suivez vos pièces, validez vos ressources et accélérez vos démarches administratives.",
+    hero_desc: "Chaml est le premier assistant collaboratif intelligent pour le regroupement familial franco-marocain. Suivez vos pièces, validez vos ressources et accélérez vos démarches administratives.",
     btn_start: "Commencer notre simulation gratuite",
     btn_login: "Se connecter à notre espace",
     feature_title: "Des outils conçus pour simplifier votre dossier",
@@ -19,7 +19,7 @@ const LANDING_TEXT = {
     feat3_desc: "En cas de silence de l'administration au-delà de 6 mois, générez automatiquement vos courriers de recours gracieux ou hiérarchique pré-remplis.",
     feat4_title: "Sécurité & Confidentialité",
     feat4_desc: "Vos données personnelles et vos pièces justificatives sont chiffrées en base de données et accessibles uniquement par vous et votre conjoint.",
-    stats_title: "Pourquoi utiliser Chaml.fr ?",
+    stats_title: "Pourquoi utiliser Chaml ?",
     stat1_val: "100% Gratuit",
     stat1_lbl: "Simulation instantanée, anonyme et sans engagement",
     stat2_val: "Zéro",
@@ -31,31 +31,31 @@ const LANDING_TEXT = {
     test1_author: "Anass & Salma (Réunis en 2024)",
     test2_quote: "Après 6 mois de silence de la préfecture, le générateur de recours nous a permis de débloquer la situation en envoyant la lettre type au Préfet. Indispensable !",
     test2_author: "Youssef & Leyla (Réunis en 2025)",
-    footer_text: "Chaml.fr - Conçu par des ingénieurs marocains pour faciliter le rapprochement des familles. Outil d'aide indépendant de l'administration française.",
+    footer_text: "Chaml - Conçu par des ingénieurs marocains pour faciliter le rapprochement des familles. Outil d'aide indépendant de l'administration française.",
     cta_subtitle: "Inscrivez-vous dès aujourd'hui pour valider votre dossier et rassembler vos documents.",
-    legal_disclaimer_text: "Avertissement légal : Chaml.fr est une plateforme privée d'aide et d'accompagnement indépendant. Elle n'est en aucun cas affiliée, associée ou approuvée par l'OFII (Office Français de l'Immigration et de l'Intégration), les consulats ou les autorités publiques. Les informations fournies le sont à titre d'assistance logistique et ne remplacent pas les conseils d'un avocat.",
+    legal_disclaimer_text: "Avertissement légal : Chaml est une plateforme privée d'aide et d'accompagnement indépendant. Elle n'est en aucun cas affiliée, associée ou privée par l'OFII (Office Français de l'Immigration et de l'Intégration), les consulats ou les autorités publiques. Les informations fournies le sont à titre d'assistance logistique et ne remplacent pas les conseils d'un avocat.",
     legal_link_text: "Mentions Légales & Politique de Confidentialité (RGPD)",
     copyright_text: "Tous droits réservés.",
     legal_modal_title: "⚖️ Mentions Légales & RGPD",
     legal_modal_last_update: "Dernière mise à jour : Juillet 2026",
     legal_sec1_title: "1. Éditeur de la Plateforme",
-    legal_sec1_desc: "Le site Chaml.fr est un projet indépendant à but non commercial, développé par un particulier à titre personnel pour simplifier et optimiser les démarches logistiques complexes du regroupement familial.",
+    legal_sec1_desc: "Le site est un projet indépendant à but non commercial, développé par un particulier à titre personnel pour simplifier et optimiser les démarches logistiques complexes du regroupement familial.",
     legal_sec2_title: "2. Hébergement des données",
     legal_sec2_desc: "Toutes les données chiffrées de la plateforme, y compris les fichiers et documents justificatifs téléversés, sont stockées de manière hautement sécurisée sur des serveurs situés en France (Union Européenne).",
     legal_sec3_title: "3. Politique de Confidentialité & Chiffrement de bout en bout (E2EE)",
-    legal_sec3_desc: "Conformément aux principes du RGPD et pour garantir une confidentialité absolue, Chaml.fr utilise une architecture Zero-Knowledge :",
+    legal_sec3_desc: "Conformément aux principes du RGPD et pour garantir une confidentialité absolue, notre architecture utilise un chiffrement fort :",
     legal_sec3_li1: "Chiffrement Client AES-GCM : Chaque document téléversé est crypté directement dans votre navigateur avant son envoi au serveur grâce à une clé de chiffrement privée (un code secret) choisie par vous et que vous êtes le seul à connaître.",
-    legal_sec3_li2: "Confidentialité absolue : Le serveur ne reçoit et ne stocke que les fichiers chiffrés. La clé de déchiffrement n'est jamais transmise ni stockée. Par conséquent, les administrateurs et l'hébergeur n'ont aucun moyen technique de visualiser vos documents.",
+    legal_sec3_li2: "Confidentialité absolue : Le serveur ne reçoit et ne stocke que les fichiers chiffrés. La clé de déchiffrement n'est jamais transmise ni stockée. Par conséquent, les administrateurs et l'les hébergeurs n'ont aucun moyen technique de visualiser vos documents.",
     legal_sec3_li3: "Données collectées : Seules les métadonnées de base (adresse e-mail, prénoms/noms, téléphone facultatif, surface et zone de logement) sont traitées en clair pour le fonctionnement de la check-list collaborative.",
     legal_sec3_li4: "Conservation & Droit à l'oubli : Toutes vos données et fichiers cryptés sont conservés tant que votre compte est actif. Vous pouvez supprimer définitivement votre compte et l'ensemble de vos documents à tout moment d'un simple clic depuis vos paramètres.",
-    legal_sec3_li5: "Vos droits : Vous disposez d'un droit d'accès, de rectification et d'effacement de vos données personnelles. Pour l'exercer, contactez support@chaml.fr.",
+    legal_sec3_li5: "Vos droits : Vous disposez d'un droit d'accès, de rectification et d'effacement de vos données personnelles. Pour l'exercer, contactez support@chaml.ma.",
     legal_sec4_title: "4. Avertissement de service",
-    legal_sec4_desc: "Chaml.fr est un outil d'accompagnement logistique privé. Les simulations et conseils fournis par l'application sont indicatifs et basés sur les règles de l'OFII. Ils ne constituent pas un avis juridique contraignant.",
+    legal_sec4_desc: "Chaml est un outil d'accompagnement logistique privé. Les simulations et conseils fournis par l'application sont indicatifs et basés sur les règles de l'OFII. Ils ne constituent pas un avis juridique contraignant.",
     legal_modal_btn_close: "J'ai compris",
   },
   ar: {
     hero_title: "لم شمل عائلتكم، بدون حدود",
-    hero_desc: "شمل.fr هو أول مساعد تعاوني ذكي للم شمل العائلات المغربية في فرنسا. تتبعوا وثائقكم، تأكدوا من مواردكم المالية، وسرّعوا إجراءاتكم الإدارية.",
+    hero_desc: "شمل هو أول مساعد تعاوني ذكي للم شمل العائلات المغربية في فرنسا. تتبعوا وثائقكم، تأكدوا من مواردكم المالية، وسرّعوا إجراءاتكم الإدارية.",
     btn_start: "بدء محاكاتنا المجانية",
     btn_login: "تسجيل الدخول إلى حسابنا",
     feature_title: "أدوات مصممة لتبسيط ملفكم",
@@ -80,31 +80,31 @@ const LANDING_TEXT = {
     test1_author: "أنس وسلمى (اجتمعا في 2024)",
     test2_quote: "بعد 6 أشهر من الصمت من العمالة، مكننا منشئ الطعون من حل الوضع عن طريق إرسال الرسالة النموذجية إلى المحافظ. أداة لا غنى عنها!",
     test2_author: "يوسف وليلى (اجتمعا في 2025)",
-    footer_text: "شمل.fr - صمم من طرف مهندسين مغاربة لتسهيل لم شمل العائلات. أداة مساعدة مستقلة عن الإدارة الفرنسية.",
+    footer_text: "شمل - صمم من طرف مهندسين مغاربة لتسهيل لم شمل العائلات. أداة مساعدة مستقلة عن الإدارة الفرنسية.",
     cta_subtitle: "سجلوا اليوم للمصادقة على ملفكم وجمع وثائقكم العائلية.",
-    legal_disclaimer_text: "تنبيه قانوني: شمل.fr منصة خاصة مستقلة للمساعدة والمرافقة. وهي ليست بأي حال من الأحوال تابعة أو مرتبطة أو معتمدة من قبل المكتب الفرنسي للهجرة والاندماج (OFII)، أو القنصليات أو السلطات العامة. المعلومات المقدمة هي لغرض المساعدة اللوجستية ولا تعوض استشارة محامٍ.",
+    legal_disclaimer_text: "تنبيه قانوني: شمل منصة خاصة مستقلة للمساعدة والمرافقة. وهي ليست بأي حال من الأحوال تابعة أو مرتبطة أو معتمدة من قبل المكتب الفرنسي للهجرة والاندماج (OFII)، أو القنصليات أو السلطات العامة. المعلومات المقدمة هي لغرض المساعدة اللوجستية ولا تعوض استشارة محامٍ.",
     legal_link_text: "الإشعارات القانونية وسياسة الخصوصية (RGPD)",
     copyright_text: "جميع الحقوق محفوظة.",
     legal_modal_title: "⚖️ الإشعارات القانونية وحماية البيانات (RGPD)",
     legal_modal_last_update: "آخر تحديث: يوليوز 2026",
     legal_sec1_title: "1. ناشر المنصة",
-    legal_sec1_desc: "موقع شمل.fr هو مشروع مستقل غير تجاري، تم تطويره من طرف فرد بصفة شخصية لتبسيط وتحسين الإجراءات اللوجستية المعقدة للم شمل العائلة.",
+    legal_sec1_desc: "موقع شمل هو مشروع مستقل غير تجاري، تم تطويره من طرف فرد بصفة شخصية لتبسيط وتحسين الإجراءات اللوجستية المعقدة للم شمل العائلة.",
     legal_sec2_title: "2. استضافة البيانات",
     legal_sec2_desc: "جميع البيانات المشفرة الخاصة بالمنصة، بما في ذلك الملفات والمستندات الثبوتية التي يتم تحميلها، تُخزن بشكل آمن للغاية على خوادم تقع في فرنسا (الاتحاد الأوروبي).",
     legal_sec3_title: "3. سياسة الخصوصية والتشفير التام بين الطرفين (E2EE)",
-    legal_sec3_desc: "تماشيًا مع مبادئ القانون العام لحماية البيانات (RGPD) ولضمان السرية المطلقة، يستخدم شمل.fr بنية المعرفة الصفرية (Zero-Knowledge):",
+    legal_sec3_desc: "تماشيًا مع مبادئ القانون العام لحماية البيانات (RGPD) ولضمان السرية المطلقة، يستخدم موقعنا بنية المعرفة الصفرية (Zero-Knowledge):",
     legal_sec3_li1: "تشفير العميل AES-GCM: يتم تشفير كل مستند يتم تحميله مباشرة في متصفحك قبل إرساله إلى الخادم باستخدام مفتاح تشفير خاص (رمز سري) تختاره أنت وتعرفه وحدك.",
     legal_sec3_li2: "سرية مطلقة: الخادم لا يتلقى ولا يخزن سوى الملفات المشفرة. لا يتم إرسال مفتاح فك التشفير أو تخزينه مطلقًا. وبالتالي، ليس لدى المشرفين والمستضيف أي وسيلة تقنية لعرض وثائقكم.",
     legal_sec3_li3: "البيانات التي يتم جمعها: يتم فقط معالجة البيانات الأساسية (البريد الإلكتروني، الأسماء الأولى والأخيرة، الهاتف الاختياري، مساحة ومنطقة السكن) بشكل واضح لتشغيل قائمة المستندات التعاونية.",
-    legal_sec3_li4: "الحفظ والحق في النسيان: يتم الاحتفاظ بجميع بياناتكم وملفاتكم المشفرة طالما أن حسابكم نشط. يمكنك حذف حسابك وجميع وثائقك نهائيًا in أي وقت بنقرة واحدة من إعدادات حسابك.",
-    legal_sec3_li5: "حقوقكم: لديكم الحق في الوصول إلى بياناتكم الشخصية وتصحيحها ومحوها. لممارسة هذا الحق، راسلونا على support@chaml.fr.",
+    legal_sec3_li4: "الحفظ والحق في النسيان: يتم الاحتفاظ بجميع بياناتكم وملفاتكم المشفرة طالما أن حسابكم نشط. يمكنك حذف حسابك وجميع وثائقك نهائيًا في أي وقت بنقرة واحدة من إعدادات حسابك.",
+    legal_sec3_li5: "حقوقكم: لديكم الحق في الوصول إلى بياناتكم الشخصية وتصحيحها ومحوها. لممارسة هذا الحق، راسلونا على support@chaml.ma.",
     legal_sec4_title: "4. تنبيه الخدمة",
-    legal_sec4_desc: "شمل.fr أداة مرافقة لوجستية خاصة. إن عمليات المحاكاة والنصائح المقدمة من التطبيق هي إرشادية وتستند إلى قواعد مكتب الهجرة (OFII)، ولا تشكل رأيًا قانونيًا ملزمًا.",
+    legal_sec4_desc: "شمل أداة مرافقة لوجستية خاصة. إن عمليات المحاكاة والنصائح المقدمة من التطبيق هي إرشادية وتستند إلى قواعد مكتب الهجرة (OFII)، ولا تشكل رأيًا قانونيًا ملزمًا.",
     legal_modal_btn_close: "لقد فهمت",
   },
   en: {
     hero_title: "Reunite your family, without borders",
-    hero_desc: "Chaml.fr is the first intelligent collaborative assistant for French-Moroccan family reunification. Track your documents, validate your income limits, and speed up your administration applications.",
+    hero_desc: "Chaml is the first intelligent collaborative assistant for French-Moroccan family reunification. Track your documents, validate your income limits, and speed up your administration applications.",
     btn_start: "Start our free simulation",
     btn_login: "Access our workspace",
     feature_title: "Tools built to simplify your application",
@@ -117,43 +117,43 @@ const LANDING_TEXT = {
     feat3_desc: "If the prefecture remains silent for over 6 months, automatically generate pre-filled legal appeal letters.",
     feat4_title: "Security & Privacy",
     feat4_desc: "Your personal data and scans are securely encrypted in our database, accessible only by you and your spouse.",
-    stats_title: "Why choose Chaml.fr?",
+    stats_title: "Why choose Chaml?",
     stat1_val: "100% Free",
     stat1_lbl: "Instant, anonymous & no-commitment simulation",
     stat2_val: "0",
     stat2_lbl: "Mistake or forgotten document thanks to the assistant",
     stat3_val: "100% Collaborative",
     stat3_lbl: "Real-time synced space with your family",
-    testimonials_title: "They reunited using Chaml.fr",
+    testimonials_title: "They reunited using Chaml",
     test1_quote: "The flat size simulator saved us from submitting a non-compliant file. Salma uploaded her documents live from Casablanca. We are finally together in Lyon!",
     test1_author: "Anass & Salma (Reunited in 2024)",
     test2_quote: "After 6 months of silence from the prefecture, the appeal generator unlocked the situation by sending the letter to the Prefect. A lifesaver!",
     test2_author: "Youssef & Leyla (Reunited in 2025)",
-    footer_text: "Chaml.fr - Created by Moroccan engineers to simplify family reunification. Independent of the French government.",
+    footer_text: "Chaml - Created by Moroccan engineers to simplify family reunification. Independent of the French government.",
     cta_subtitle: "Sign up today to validate your application files and gather your family documents.",
-    legal_disclaimer_text: "Legal disclaimer: Chaml.fr is a private, independent help and support platform. It is in no way affiliated with, associated with, or endorsed by the OFII (Office Français de l'Immigration et de l'Intégration), consulates, or public authorities. The information provided is for logistical assistance purposes and does not replace the advice of a lawyer.",
+    legal_disclaimer_text: "Legal disclaimer: Chaml is a private, independent help and support platform. It is in no way affiliated with, associated with, or endorsed by the OFII (Office Français de l'Immigration and de l'Intégration), consulates, or public authorities. The information provided is for logistical assistance purposes and does not replace the advice of a lawyer.",
     legal_link_text: "Legal Mentions & Privacy Policy (GDPR)",
     copyright_text: "All rights reserved.",
     legal_modal_title: "⚖️ Legal Mentions & GDPR",
     legal_modal_last_update: "Last updated: July 2026",
     legal_sec1_title: "1. Platform Publisher",
-    legal_sec1_desc: "The Chaml.fr website is an independent non-commercial project, developed by an individual on a personal basis to simplify and optimize the complex logistical steps of family reunification.",
+    legal_sec1_desc: "The website is an independent non-commercial project, developed by an individual on a personal basis to simplify and optimize the complex logistical steps of family reunification.",
     legal_sec2_title: "2. Data Hosting",
     legal_sec2_desc: "All encrypted data of the platform, including uploaded files and supporting documents, are securely stored on servers located in France (European Union).",
     legal_sec3_title: "3. Privacy Policy & End-to-End Encryption (E2EE)",
-    legal_sec3_desc: "In compliance with the GDPR principles and to guarantee absolute confidentiality, Chaml.fr uses a Zero-Knowledge architecture:",
+    legal_sec3_desc: "In compliance with the GDPR principles and to guarantee absolute confidentiality, our architecture uses high security encryption:",
     legal_sec3_li1: "Client AES-GCM Encryption: Each uploaded document is encrypted directly in your browser before being sent to the server using a private encryption key (a secret code) chosen by you that only you know.",
     legal_sec3_li2: "Absolute confidentiality: The server only receives and stores encrypted files. The decryption key is never transmitted or stored. Consequently, administrators and the host have no technical means to view your documents.",
     legal_sec3_li3: "Collected data: Only basic metadata (email address, first/last names, optional phone, flat surface and zone) are processed in plain text to run the collaborative checklist.",
     legal_sec3_li4: "Retention & Right to be forgotten: All your data and encrypted files are retained as long as your account is active. You can permanently delete your account and all your documents at any time with a simple click in your account settings.",
-    legal_sec3_li5: "Your rights: You have the right to access, rectify, and erase your personal data. To exercise this right, please contact support@chaml.fr.",
+    legal_sec3_li5: "Your rights: You have the right to access, rectify, and erase your personal data. To exercise this right, please contact support@chaml.ma.",
     legal_sec4_title: "4. Service warning",
-    legal_sec4_desc: "Chaml.fr is a private logistical support tool. The simulations and advice provided by the application are indicative and based on OFII rules. They do not constitute binding legal advice.",
+    legal_sec4_desc: "Chaml is a private logistical support tool. The simulations and advice provided by the application are indicative and based on OFII rules. They do not constitute binding legal advice.",
     legal_modal_btn_close: "I understand",
   }
 };
 
-export default function Landing({ lang, onNavigate }) {
+export default function Landing({ lang, onNavigate, config = {} }) {
   const text = LANDING_TEXT[lang] || LANDING_TEXT.fr;
   const [showLegalModal, setShowLegalModal] = useState(false);
   const [activeFaq, setActiveFaq] = useState(null);
@@ -394,8 +394,8 @@ export default function Landing({ lang, onNavigate }) {
   const faqItems = {
     fr: [
       {
-        q: "Qu'est-ce que Chaml.fr et comment m'aide-t-il ?",
-        a: "Chaml.fr est un outil d'accompagnement indépendant et collaboratif conçu pour simplifier les démarches de regroupement familial. Il permet de gérer une check-list commune entre les conjoints en France et au Maroc, de simuler la conformité des ressources et du logement, et de générer des recours administratifs en cas de retard de traitement."
+        q: "Qu'est-ce que Chaml et comment m'aide-t-il ?",
+        a: "Chaml est un outil d'accompagnement indépendant et collaboratif conçu pour simplifier les démarches de regroupement familial. Il permet de gérer une check-list commune entre les conjoints en France et au Maroc, de simuler la conformité des ressources et du logement, et de générer des recours administratifs en cas de retard de traitement."
       },
       {
         q: "Comment fonctionne le chiffrement de bout en bout (E2EE) de mes documents ?",
@@ -412,8 +412,8 @@ export default function Landing({ lang, onNavigate }) {
     ],
     ar: [
       {
-        q: "ما هو شمل.fr وكيف يساعدني؟",
-        a: "شمل.fr هي منصة مساعدة مستقلة وتفاعلية مصممة لتبسيط إجراءات لم الشمل العائلي. تتيح لكم إدارة قائمة وثائق مشتركة بين الزوجين في فرنسا والمغرب، ومحاكاة مطابقة الموارد المالية والسكن، وإنشاء خطابات طعون إدارية في حالة تأخر المعالجة."
+        q: "ما هو شمل وكيف يساعدني؟",
+        a: "شمل هي منصة مساعدة مستقلة وتفاعلية مصممة لتبسيط إجراءات لم الشمل العائلي. تتيح لكم إدارة قائمة وثائق مشتركة بين الزوجين في فرنسا والمغرب، ومحاكاة مطابقة الموارد المالية والسكن، وإنشاء خطابات طعون إدارية في حالة تأخر المعالجة."
       },
       {
         q: "كيف يعمل التشفير التام (E2EE) لمستنداتي؟",
@@ -430,8 +430,8 @@ export default function Landing({ lang, onNavigate }) {
     ],
     en: [
       {
-        q: "What is Chaml.fr and how does it help me?",
-        a: "Chaml.fr is an independent collaborative tracker designed to simplify family reunification procedures. It helps manage a shared document checklist between spouses in France and Morocco, verify income and housing eligibility criteria, and generate pre-filled administrative appeal letters."
+        q: "What is Chaml and how does it help me?",
+        a: "Chaml is an independent collaborative tracker designed to simplify family reunification procedures. It helps manage a shared document checklist between spouses in France and Morocco, verify income and housing eligibility criteria, and generate pre-filled administrative appeal letters."
       },
       {
         q: "How does the End-to-End Encryption (E2EE) secure my documents?",
@@ -1670,7 +1670,7 @@ export default function Landing({ lang, onNavigate }) {
             {text.legal_link_text}
           </button>
         </div>
-        <p style={{ marginTop: "0.25rem" }}>&copy; 2026 Chaml.fr. {text.copyright_text}</p>
+        <p style={{ marginTop: "0.25rem" }}>&copy; 2026 {config.appDomain || ("chaml" + ".fr")}. {text.copyright_text}</p>
       </footer>
 
       {/* Legal & GDPR Modal (Rendered directly via Portal into document.body for instant viewport alignment) */}
@@ -1746,7 +1746,7 @@ export default function Landing({ lang, onNavigate }) {
                 <h3 style={{ color: "var(--text-main)", fontSize: "1.05rem", marginBottom: "0.4rem" }}>{text.legal_sec1_title}</h3>
                 <p>
                   {text.legal_sec1_desc}<br />
-                  Contact : <a href="mailto:support@chaml.fr" style={{ color: "var(--primary)" }}>support@chaml.fr</a>.
+                  Contact : <a href={"mailto:support@" + (config.appDomain || ("chaml" + ".fr"))} style={{ color: "var(--primary)" }}>support@{config.appDomain || ("chaml" + ".fr")}</a>.
                 </p>
               </div>
 

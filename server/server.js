@@ -79,7 +79,7 @@ app.post("/api/payment/webhook", express.raw({ type: "*/*" }), async (req, res) 
   if (event.type === "checkout.session.completed") {
     const session = event.data.object;
     const coupleId = session.metadata?.coupleId;
-    const userEmail = session.metadata?.userEmail || "system@chaml.fr";
+    const userEmail = session.metadata?.userEmail || "system@chaml.local";
 
     if (coupleId) {
       try {
@@ -353,7 +353,7 @@ const seedDatabase = async () => {
       
       console.log("================================================================");
       console.log("🛡️  INITIAL ADMINISTRATOR ACCOUNT CREATED");
-      console.log("👉 Email: admin@chaml.fr");
+      console.log("👉 Email: admin@chaml.local");
       console.log(`👉 Temporary Password: ${randomAdminPass}`);
       console.log("👉 PLEASE LOG IN AND CHANGE THIS PASSWORD IMMEDIATELY!");
       console.log("================================================================");
@@ -361,7 +361,7 @@ const seedDatabase = async () => {
       const adminHash = await bcrypt.hash(randomAdminPass, 10);
       await query(`
         INSERT INTO users (id, email, password_hash, role, first_name, last_name, is_approved, is_email_verified)
-        VALUES ('admin_01', 'admin@chaml.fr', $1, 'admin', $2, $3, true, true)
+        VALUES ('admin_01', 'admin@chaml.local', $1, 'admin', $2, $3, true, true)
       `, [adminHash, encryptPII("Chaml"), encryptPII("Admin")]);
     }
 
@@ -396,6 +396,15 @@ app.post("/api/payment/create-checkout-session", authenticateUser, async (req, r
     const coupleId = req.user.coupleId;
     const userEmail = req.user.email;
 
+    const configRes = await query("SELECT app_domain FROM site_config WHERE id = 1");
+    const appDomain = configRes.rows[0]?.app_domain || "chaml" + ".fr";
+    
+    const protocol = req.headers["x-forwarded-proto"] || req.protocol;
+    const host = req.headers["x-forwarded-host"] || req.get("host");
+    let fallbackUrl = `${protocol}://${host}`;
+    if (host.includes("localhost:5000")) fallbackUrl = "http://localhost:5173";
+    const clientUrl = appDomain ? `https://${appDomain}` : (process.env.CLIENT_URL || fallbackUrl);
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       allow_promotion_codes: true,
@@ -413,8 +422,8 @@ app.post("/api/payment/create-checkout-session", authenticateUser, async (req, r
         },
       ],
       mode: "payment",
-      success_url: `${process.env.CLIENT_URL || "http://localhost:5173"}/?payment=success&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.CLIENT_URL || "http://localhost:5173"}/?payment=cancel`,
+      success_url: `${clientUrl}/?payment=success&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${clientUrl}/?payment=cancel`,
       metadata: {
         coupleId: coupleId,
         userEmail: userEmail,
@@ -618,6 +627,7 @@ app.get("/api/config", async (req, res) => {
     res.json({
       appName: c.app_name,
       appLogo: c.app_logo,
+      appDomain: c.app_domain || "chaml" + ".fr",
       smicValue: Number(c.smic_value),
       surfaceZoneA: Number(c.surface_zone_a),
       surfaceZoneB: Number(c.surface_zone_b),
@@ -768,20 +778,20 @@ app.post("/api/auth/register", async (req, res) => {
       const mailOptions = {
         from: `"${c.smtp_sender_name}" <${c.smtp_sender_email}>`,
         to: email,
-        subject: "Chaml.fr - Activez votre compte de regroupement familial",
-        text: `Bonjour ${firstName},\n\nMerci de vous être inscrit sur Chaml.fr.\n\nVeuillez activer votre dossier de regroupement familial partagé en cliquant sur le lien suivant :\n${activationUrl}\n\nUne fois l'e-mail validé, l'administrateur pourra approuver l'accès à votre tableau de bord.\n\nCordialement,\nL'équipe Chaml.fr`,
+        subject: "Chaml - Activez votre compte de regroupement familial",
+        text: `Bonjour ${firstName},\n\nMerci de vous être inscrit sur Chaml.\n\nVeuillez activer votre dossier de regroupement familial partagé en cliquant sur le lien suivant :\n${activationUrl}\n\nUne fois l'e-mail validé, l'administrateur pourra approuver l'accès à votre tableau de bord.\n\nCordialement,\nL'équipe Chaml`,
         html: `
           <div style="font-family: Arial, sans-serif; line-height: 1.6; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
-            <h2 style="color: #0d9488; text-align: center;">🕌 Bienvenue sur Chaml.fr</h2>
+            <h2 style="color: #0d9488; text-align: center;">🕌 Bienvenue sur Chaml</h2>
             <p>Bonjour <strong>${firstName} ${lastName}</strong>,</p>
-            <p>Merci d'avoir créé votre compte sur Chaml.fr, votre tracker collaboratif de regroupement familial.</p>
+            <p>Merci d'avoir créé votre compte sur Chaml, votre tracker collaboratif de regroupement familial.</p>
             <p>Pour activer votre dossier et commencer à préparer votre regroupement, veuillez cliquer sur le bouton ci-dessous :</p>
             <div style="text-align: center; margin: 30px 0;">
               <a href="${activationUrl}" style="background-color: #0d9488; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Activer mon compte</a>
             </div>
             <p style="font-size: 0.85rem; color: #64748b;">Si le bouton ne fonctionne pas, copiez-collez le lien suivant dans votre navigateur :<br/>${activationUrl}</p>
             <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;"/>
-            <p style="font-size: 0.85rem; text-align: center; color: #94a3b8;">L'équipe Chaml.fr - Reuniting your family, without borders</p>
+            <p style="font-size: 0.85rem; text-align: center; color: #94a3b8;">L'équipe Chaml - Reuniting your family, without borders</p>
           </div>
         `
       };
@@ -904,17 +914,17 @@ app.post("/api/auth/forgot-password", async (req, res) => {
     const clientUrl = process.env.CLIENT_URL || fallbackUrl;
     const resetLink = `${clientUrl}/?auth_view=reset_password&token=${token}`;
 
-    const subject = "Réinitialisation de votre mot de passe - Chaml.fr";
-    const text = `Bonjour,\n\nVous avez demandé la réinitialisation de votre mot de passe sur Chaml.fr.\n\nVeuillez cliquer sur le lien suivant pour choisir un nouveau mot de passe (valable 1 heure) :\n${resetLink}\n\nSi vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet e-mail.\n\nCordialement,\nL'équipe Chaml.fr`;
+    const subject = "Réinitialisation de votre mot de passe - Chaml";
+    const text = `Bonjour,\n\nVous avez demandé la réinitialisation de votre mot de passe sur Chaml.\n\nVeuillez cliquer sur le lien suivant pour choisir un nouveau mot de passe (valable 1 heure) :\n${resetLink}\n\nSi vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet e-mail.\n\nCordialement,\nL'équipe Chaml`;
     const html = `<p>Bonjour,</p>
-                  <p>Vous avez demandé la réinitialisation de votre mot de passe sur <strong>Chaml.fr</strong>.</p>
+                  <p>Vous avez demandé la réinitialisation de votre mot de passe sur <strong>Chaml</strong>.</p>
                   <p>Veuillez cliquer sur le bouton ci-dessous pour choisir un nouveau mot de passe (ce lien est valable 1 heure) :</p>
                   <p style="margin: 2rem 0;">
                     <a href="${resetLink}" style="background: #0d9488; color: white; padding: 0.8rem 1.5rem; text-decoration: none; border-radius: 0.5rem; font-weight: bold;">Réinitialiser mon mot de passe</a>
                   </p>
                   <p>Si le bouton ne fonctionne pas, copiez-collez ce lien dans votre navigateur :<br/>${resetLink}</p>
                   <p>Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet e-mail en toute sécurité.</p>
-                  <p>Cordialement,<br/>L'équipe Chaml.fr</p>`;
+                  <p>Cordialement,<br/>L'équipe Chaml</p>`;
 
     await sendSystemEmail(user.email, subject, text, html);
     await logAction("Password Reset Requested", `Token generated for: ${user.email}`, user.email);
@@ -975,7 +985,9 @@ app.get("/api/auth/verify-email", async (req, res) => {
     if (host.includes("localhost:5000")) {
       fallbackUrl = "http://localhost:5173";
     }
-    const clientUrl = process.env.CLIENT_URL || fallbackUrl;
+    const configRes = await query("SELECT app_domain FROM site_config WHERE id = 1");
+    const appDomain = configRes.rows[0]?.app_domain;
+    const clientUrl = appDomain ? `https://${appDomain}` : (process.env.CLIENT_URL || fallbackUrl);
     res.redirect(`${clientUrl}/?verified=true`);
   } catch (err) {
     res.status(500).send("Erreur lors de la validation de l'e-mail: " + err.message);
@@ -1027,13 +1039,13 @@ app.post("/api/auth/resend-verification-email", async (req, res) => {
 
     await sendSystemEmail(
       user.email,
-      "Chaml.fr - Activez votre compte de regroupement familial",
-      `Bonjour ${user.first_name},\n\nVeuillez activer votre dossier Chaml.fr en cliquant sur ce lien :\n${activationUrl}`,
+      "Chaml - Activez votre compte de regroupement familial",
+      `Bonjour ${user.first_name},\n\nVeuillez activer votre dossier Chaml en cliquant sur ce lien :\n${activationUrl}`,
       `
         <div style="font-family: Arial, sans-serif; line-height: 1.6; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
-          <h2 style="color: #0d9488; text-align: center;">🕌 Bienvenue sur Chaml.fr</h2>
+          <h2 style="color: #0d9488; text-align: center;">🕌 Bienvenue sur Chaml</h2>
           <p>Bonjour <strong>${user.first_name} ${user.last_name}</strong>,</p>
-          <p>Voici votre nouveau lien de confirmation pour activer votre compte sur Chaml.fr :</p>
+          <p>Voici votre nouveau lien de confirmation pour activer votre compte sur Chaml :</p>
           <div style="text-align: center; margin: 30px 0;">
             <a href="${activationUrl}" style="background-color: #0d9488; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Activer mon compte</a>
           </div>
@@ -1278,16 +1290,16 @@ app.post("/api/dossier/submit", authenticateUser, async (req, res) => {
           const clientUrl = process.env.CLIENT_URL || fallbackUrl;
 
           const subject = isAr 
-            ? "🚀 Chaml.fr - تأكيد تقديم ملفكم بنجاح (الجمع العائلي)"
+            ? "🚀 Chaml - تأكيد تقديم ملفكم بنجاح (الجمع العائلي)"
             : isEn
-            ? "🚀 Chaml.fr - Application Submission Confirmation (Family Reunification)"
-            : "🚀 Chaml.fr - Confirmation de soumission de votre dossier (Regroupement Familial)";
+            ? "🚀 Chaml - Application Submission Confirmation (Family Reunification)"
+            : "🚀 Chaml - Confirmation de soumission de votre dossier (Regroupement Familial)";
 
           const textMsg = isAr
-            ? `مرحباً ${firstName}،\n\nتهانينا! تم تأكيد وتقديم ملفكم الخاص بالجمع العائلي بنجاح على منصة Chaml.fr.\n\nالخطوات التالية الموصى بها:\n1. تقديم طلبكم الرسمي على بوابة الدولة: https://administration-etrangers-en-france.interieur.gouv.fr (ANEF) ou transmettez votre dossier par courrier AR à l'OFII.\n2. تحميل ملخص ملفكم والوثائق الموثقة من لوحة التحكم الخاصة بكم.\n\nرابط لوحة التحكم: ${clientUrl}/?view=login\n\nفريق Chaml.fr`
+            ? `مرحباً ${firstName}،\n\nتهانينا! تم تأكيد وتقديم ملفكم الخاص بالجمع العائلي بنجاح على منصة Chaml.\n\nالخطوات التالية الموصى بها:\n1. تقديم طلبكم الرسمي على بوابة الدولة: https://administration-etrangers-en-france.interieur.gouv.fr (ANEF) ou transmettez votre dossier par courrier AR à l'OFII.\n2. تحميل ملخص ملفكم والوثائق الموثقة من لوحة التحكم الخاصة بكم.\n\nرابط لوحة التحكم: ${clientUrl}/?view=login\n\nفريق Chaml`
             : isEn
-            ? `Hello ${firstName},\n\nCongratulations! Your family reunification application has been successfully marked as submitted on Chaml.fr.\n\nRecommended Next Steps:\n1. File your official application on the state portal: https://administration-etrangers-en-france.interieur.gouv.fr (ANEF) or mail your file via registered mail to your territorial OFII office.\n2. Download your certified summary and documents from your dashboard.\n\nDashboard link: ${clientUrl}/?view=login\n\nBest regards,\nThe Chaml.fr Team`
-            : `Bonjour ${firstName},\n\nFélicitations ! Votre dossier de regroupement familial a été marqué comme soumis avec succès sur Chaml.fr.\n\nProchaines étapes recommandées :\n1. Déposez votre demande officielle sur le portail ANEF (https://administration-etrangers-en-france.interieur.gouv.fr) ou transmettez votre dossier par courrier AR à l'OFII de votre département.\n2. Téléchargez votre fiche récapitulative et vos pièces justificatives certifiées depuis votre tableau de bord.\n\nAccéder au Tableau de Bord : ${clientUrl}/?view=login\n\nCordialement,\nL'équipe Chaml.fr`;
+            ? `Hello ${firstName},\n\nCongratulations! Your family reunification application has been successfully marked as submitted on Chaml.\n\nRecommended Next Steps:\n1. File your official application on the state portal: https://administration-etrangers-en-france.interieur.gouv.fr (ANEF) or mail your file via registered mail to your territorial OFII office.\n2. Download your certified summary and documents from your dashboard.\n\nDashboard link: ${clientUrl}/?view=login\n\nBest regards,\nThe Chaml Team`
+            : `Bonjour ${firstName},\n\nFélicitations ! Votre dossier de regroupement familial a été marqué comme soumis avec succès sur Chaml.\n\nProchaines étapes recommandées :\n1. Déposez votre demande officielle sur le portail ANEF (https://administration-etrangers-en-france.interieur.gouv.fr) ou transmettez votre dossier par courrier AR à l'OFII de votre département.\n2. Téléchargez votre fiche récapitulative et vos pièces justificatives certifiées depuis votre tableau de bord.\n\nAccéder au Tableau de Bord : ${clientUrl}/?view=login\n\nCordialement,\nL'équipe Chaml`;
 
           const dir = isAr ? "rtl" : "ltr";
           const textAlign = isAr ? "right" : "left";
@@ -1309,7 +1321,7 @@ app.post("/api/dossier/submit", authenticateUser, async (req, res) => {
                       <tr>
                         <td style="background: linear-gradient(135deg, #0f172a 0%, #0d9488 100%); padding: 32px 28px; text-align: center;">
                           <div style="font-size: 32px; margin-bottom: 6px;">🕌</div>
-                          <h1 style="color: #ffffff; font-size: 24px; font-weight: 800; margin: 0; tracking: 0.5px;">Chaml.fr</h1>
+                          <h1 style="color: #ffffff; font-size: 24px; font-weight: 800; margin: 0; tracking: 0.5px;">Chaml</h1>
                           <p style="color: #99f6e4; font-size: 13px; margin: 4px 0 0 0; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">
                             ${isAr ? "المنصة المستقلة للم الشمل العائلي" : isEn ? "Family Reunification Platform" : "Plateforme de Regroupement Familial"}
                           </p>
@@ -1336,10 +1348,10 @@ app.post("/api/dossier/submit", authenticateUser, async (req, res) => {
 
                           <p style="font-size: 15px; line-height: 1.6; color: #334155;">
                             ${isAr 
-                              ? "يسرنا إبلاغكم بأن جميع الوثائق المطلوبة لملفكم قد تم فحصها وتوثيقها، وتم تسجيل تقديم ملفكم بنجاح على منصة Chaml.fr." 
+                              ? "يسرنا إبلاغكم بأن جميع الوثائق المطلوبة لملفكم قد تم فحصها وتوثيقها، وتم تسجيل تقديم ملفكم بنجاح على منصة Chaml." 
                               : isEn 
-                              ? "We are pleased to inform you that all required documents for your application have been verified, certified, and officially marked as submitted on Chaml.fr." 
-                              : "Nous avons le plaisir de vous informer que toutes les pièces justificatives de votre dossier ont été vérifiées, certifiées et enregistrées comme <strong>soumises</strong> sur la plateforme Chaml.fr."}
+                              ? "We are pleased to inform you that all required documents for your application have been verified, certified, and officially marked as submitted on Chaml." 
+                              : "Nous avons le plaisir de vous informer que toutes les pièces justificatives de votre dossier ont été vérifiées, certifiées et enregistrées comme <strong>soumises</strong> sur la plateforme Chaml."}
                           </p>
 
                           <!-- Instructions Box -->
@@ -1361,7 +1373,7 @@ app.post("/api/dossier/submit", authenticateUser, async (req, res) => {
                                 ${isAr 
                                   ? "يمكنك تحميل كشف الحساب الموثق وجميع مستنداتك المشفرة مباشرة من لوحة التحكم الخاصة بك في أي وقت." 
                                   : isEn 
-                                  ? "Download your certified summary sheet and encrypted documents directly from your Chaml.fr dashboard at any time." 
+                                  ? "Download your certified summary sheet and encrypted documents directly from your Chaml dashboard at any time." 
                                   : "Téléchargez votre fiche récapitulative certifiée et l'ensemble de vos documents chiffrés directement depuis votre espace client."}
                               </li>
                             </ul>
@@ -1370,7 +1382,7 @@ app.post("/api/dossier/submit", authenticateUser, async (req, res) => {
                           <!-- Call To Action Buttons -->
                           <div style="text-align: center; margin: 32px 0 24px 0;">
                             <a href="${clientUrl}/?view=login" target="_blank" style="background-color: #0d9488; color: #ffffff; padding: 14px 28px; border-radius: 8px; font-weight: bold; font-size: 15px; text-decoration: none; display: inline-block; box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3); margin-bottom: 12px;">
-                              🚀 ${isAr ? "الدخول إلى لوحة التحكم Chaml.fr" : isEn ? "Access My Chaml.fr Dashboard" : "Accéder à mon Tableau de Bord Chaml.fr"}
+                              🚀 ${isAr ? "الدخول إلى لوحة التحكم Chaml" : isEn ? "Access My Chaml Dashboard" : "Accéder à mon Tableau de Bord Chaml"}
                             </a>
                             <br />
                             <a href="https://administration-etrangers-en-france.interieur.gouv.fr" target="_blank" style="color: #0d9488; font-size: 13px; font-weight: bold; text-decoration: underline; display: inline-block; margin-top: 6px;">
@@ -1389,7 +1401,7 @@ app.post("/api/dossier/submit", authenticateUser, async (req, res) => {
                       <!-- Footer -->
                       <tr>
                         <td style="background-color: #f8fafc; border-top: 1px solid #e2e8f0; padding: 24px 28px; text-align: center; font-size: 12px; color: #64748b; line-height: 1.6;">
-                          <p style="margin: 0 0 6px 0; font-weight: bold; color: #334155;">Chaml.fr</p>
+                          <p style="margin: 0 0 6px 0; font-weight: bold; color: #334155;">Chaml</p>
                           <p style="margin: 0 0 12px 0;">
                             ${isAr 
                               ? "منصة مرافقة معاملة الجمع العائلي في فرنسا" 
@@ -1399,13 +1411,13 @@ app.post("/api/dossier/submit", authenticateUser, async (req, res) => {
                           </p>
                           <p style="margin: 0; font-size: 11px; color: #94a3b8;">
                             ${isAr 
-                              ? "تم إرسال هذا البريد الإلكتروني تلقائياً نتيجة تقديم ملفكم. للمساعدة، يرجى التواصل مع support@chaml.fr" 
+                              ? "تم إرسال هذا البريد الإلكتروني تلقائياً نتيجة تقديم ملفكم. للمساعدة، يرجى التواصل مع support@Chaml" 
                               : isEn 
-                              ? "This email was automatically generated following your application submission. For assistance, contact support@chaml.fr" 
-                              : "Cet e-mail a été généré automatiquement suite à la soumission de votre dossier. Pour toute assistance, contactez support@chaml.fr"}
+                              ? "This email was automatically generated following your application submission. For assistance, contact support@Chaml" 
+                              : "Cet e-mail a été généré automatiquement suite à la soumission de votre dossier. Pour toute assistance, contactez support@Chaml"}
                           </p>
                           <p style="margin: 10px 0 0 0; font-size: 11px; color: #cbd5e1;">
-                            © 2026 Chaml.fr. Tous droits réservés.
+                            © 2026 Chaml. Tous droits réservés.
                           </p>
                         </td>
                       </tr>
@@ -1576,8 +1588,8 @@ app.post("/api/admin/couples/approve", authenticateUser, requireAdmin, async (re
       try {
         await sendSystemEmail(
           email,
-          "Chaml.fr - Votre dossier de regroupement familial a été validé ! 🎉",
-          `Bonjour ${first_name},\n\nExcellente nouvelle ! Votre dossier de regroupement familial a été validé par notre équipe.\n\nNotez que pour des raisons de confidentialité et de sécurité RGPD, toutes vos pièces justificatives cryptées seront définitivement supprimées de nos serveurs 30 jours après cette approbation.\n\nL'équipe Chaml.fr`,
+          "Chaml - Votre dossier de regroupement familial a été validé ! 🎉",
+          `Bonjour ${first_name},\n\nExcellente nouvelle ! Votre dossier de regroupement familial a été validé par notre équipe.\n\nNotez que pour des raisons de confidentialité et de sécurité RGPD, toutes vos pièces justificatives cryptées seront définitivement supprimées de nos serveurs 30 jours après cette approbation.\n\nL'équipe Chaml`,
           `
             <div style="font-family: Arial, sans-serif; line-height: 1.6; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
               <h2 style="color: #0d9488; text-align: center;">🎉 Dossier Validé !</h2>
@@ -1589,7 +1601,7 @@ app.post("/api/admin/couples/approve", authenticateUser, requireAdmin, async (re
                 Pour garantir la sécurité absolue de vos données, <strong>toutes vos pièces justificatives cryptées seront définitivement détruites</strong> de nos serveurs dans un délai de 30 jours. Pensez à conserver vos copies locales.
               </div>
               <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;"/>
-              <p style="font-size: 0.85rem; text-align: center; color: #94a3b8;">L'équipe Chaml.fr - Reuniting your family, without borders</p>
+              <p style="font-size: 0.85rem; text-align: center; color: #94a3b8;">L'équipe Chaml - Reuniting your family, without borders</p>
             </div>
           `
         );
@@ -1662,15 +1674,16 @@ app.post("/api/admin/couples/submitted-date", authenticateUser, requireAdmin, as
 
 // Save Admin Settings configuration
 app.post("/api/admin/settings", authenticateUser, requireAdmin, async (req, res) => {
-  const { appName, appLogo, smicValue, surfaceZoneA, surfaceZoneB, surfaceZoneC, smtpConfig } = req.body;
+  const { appName, appLogo, smicValue, surfaceZoneA, surfaceZoneB, surfaceZoneC, smtpConfig, appDomain } = req.body;
   try {
     await query(`
       UPDATE site_config
       SET app_name = $1, app_logo = $2, smic_value = $3, surface_zone_a = $4, surface_zone_b = $5, surface_zone_c = $6,
-          smtp_host = $7, smtp_port = $8, smtp_user = $9, smtp_password = $10, smtp_protocol = $11, smtp_sender_name = $12, smtp_sender_email = $13
+          smtp_host = $7, smtp_port = $8, smtp_user = $9, smtp_password = $10, smtp_protocol = $11, smtp_sender_name = $12, smtp_sender_email = $13,
+          app_domain = $14
       WHERE id = 1
     `, [appName, appLogo, Number(smicValue), Number(surfaceZoneA), Number(surfaceZoneB), Number(surfaceZoneC),
-        smtpConfig.host, Number(smtpConfig.port), smtpConfig.user, smtpConfig.password, smtpConfig.protocol, smtpConfig.senderName, smtpConfig.senderEmail]);
+        smtpConfig.host, Number(smtpConfig.port), smtpConfig.user, smtpConfig.password, smtpConfig.protocol, smtpConfig.senderName, smtpConfig.senderEmail, appDomain]);
 
     await logAction("Admin Settings Saved", `Updated app settings configuration`, req.user.email);
     await checkSMTP();
@@ -1813,7 +1826,7 @@ app.post("/api/dossier/invite-spouse", authenticateUser, async (req, res) => {
     const clientUrl = process.env.CLIENT_URL || fallbackUrl;
 
     const inviteUrl = `${clientUrl}/?inviteCoupleId=${req.user.coupleId}&inviteEmail=${encodeURIComponent(targetEmail)}`;
-    const waText = `Bonjour ${firstName}, ${inviterName} vous invite à le/la rejoindre sur Chaml.fr pour préparer votre dossier de regroupement familial.\n\nCliquez sur ce lien pour activer votre accès :\n${inviteUrl}`;
+    const waText = `Bonjour ${firstName}, ${inviterName} vous invite à le/la rejoindre sur Chaml pour préparer votre dossier de regroupement familial.\n\nCliquez sur ce lien pour activer votre accès :\n${inviteUrl}`;
     const whatsappUrl = `https://wa.me/${cleanPhone.replace("+", "")}?text=${encodeURIComponent(waText)}`;
 
     // Send real invitation email ONLY if channel is email AND email is valid (not placeholder)
@@ -1837,8 +1850,8 @@ app.post("/api/dossier/invite-spouse", authenticateUser, async (req, res) => {
         const mailOptions = {
           from: `"${c.smtp_sender_name}" <${c.smtp_sender_email}>`,
           to: email,
-          subject: `🕌 Chaml.fr - ${inviterName} vous invite à rejoindre votre dossier conjoint`,
-          text: `Bonjour ${firstName},\n\nVotre conjoint(e) ${inviterName} vous invite à le/la rejoindre sur Chaml.fr pour préparer votre dossier de regroupement familial.\n\nVeuillez accepter l'invitation et choisir votre mot de passe en cliquant sur le lien suivant :\n${inviteUrl}\n\nUne fois votre mot de passe créé, vous aurez accès immédiatement à votre tableau de bord.\n\nCordialement,\nL'équipe Chaml.fr`,
+          subject: `🕌 Chaml - ${inviterName} vous invite à rejoindre votre dossier conjoint`,
+          text: `Bonjour ${firstName},\n\nVotre conjoint(e) ${inviterName} vous invite à le/la rejoindre sur Chaml pour préparer votre dossier de regroupement familial.\n\nVeuillez accepter l'invitation et choisir votre mot de passe en cliquant sur le lien suivant :\n${inviteUrl}\n\nUne fois votre mot de passe créé, vous aurez accès immédiatement à votre tableau de bord.\n\nCordialement,\nL'équipe Chaml`,
           html: `
             <!DOCTYPE html>
             <html lang="fr" dir="ltr">
@@ -1856,7 +1869,7 @@ app.post("/api/dossier/invite-spouse", authenticateUser, async (req, res) => {
                       <tr>
                         <td style="background: linear-gradient(135deg, #0f172a 0%, #0d9488 100%); padding: 32px 28px; text-align: center;">
                           <div style="font-size: 32px; margin-bottom: 6px;">🕌</div>
-                          <h1 style="color: #ffffff; font-size: 24px; font-weight: 800; margin: 0;">Chaml.fr</h1>
+                          <h1 style="color: #ffffff; font-size: 24px; font-weight: 800; margin: 0;">Chaml</h1>
                           <p style="color: #99f6e4; font-size: 13px; margin: 4px 0 0 0; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">
                             Plateforme de Regroupement Familial
                           </p>
@@ -1873,7 +1886,7 @@ app.post("/api/dossier/invite-spouse", authenticateUser, async (req, res) => {
                               💌 Invitation Reçue
                             </span>
                             <h2 style="color: #065f46; font-size: 20px; margin: 6px 0 0 0; font-weight: 800;">
-                              Rejoignez votre conjoint(e) sur Chaml.fr
+                              Rejoignez votre conjoint(e) sur Chaml
                             </h2>
                           </div>
 
@@ -1882,7 +1895,7 @@ app.post("/api/dossier/invite-spouse", authenticateUser, async (req, res) => {
                           </p>
 
                           <p style="font-size: 15px; line-height: 1.6; color: #334155;">
-                            Votre conjoint(e) <strong>${inviterName}</strong> vous invite à rejoindre son dossier conjoint sur Chaml.fr afin de collaborer et rassembler vos pièces justificatives pour votre demande de regroupement familial.
+                            Votre conjoint(e) <strong>${inviterName}</strong> vous invite à rejoindre son dossier conjoint sur Chaml afin de collaborer et rassembler vos pièces justificatives pour votre demande de regroupement familial.
                           </p>
 
                           <!-- Call To Action Button -->
@@ -1903,14 +1916,14 @@ app.post("/api/dossier/invite-spouse", authenticateUser, async (req, res) => {
                       <!-- Footer -->
                       <tr>
                         <td style="background-color: #f8fafc; border-top: 1px solid #e2e8f0; padding: 24px 28px; text-align: center; font-size: 12px; color: #64748b; line-height: 1.6;">
-                          <p style="margin: 0 0 6px 0; font-weight: bold; color: #334155;">Chaml.fr</p>
+                          <p style="margin: 0 0 6px 0; font-weight: bold; color: #334155;">Chaml</p>
                           <p style="margin: 0 0 12px 0;">Plateforme d'accompagnement au regroupement familial en France</p>
                           <p style="margin: 0; font-size: 11px; color: #94a3b8;">
                             Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :<br />
                             <a href="${inviteUrl}" style="color: #0d9488;">${inviteUrl}</a>
                           </p>
                           <p style="margin: 10px 0 0 0; font-size: 11px; color: #cbd5e1;">
-                            © 2026 Chaml.fr. Tous droits réservés.
+                            © 2026 Chaml. Tous droits réservés.
                           </p>
                         </td>
                       </tr>
@@ -2023,21 +2036,21 @@ const startAutoDestructCron = () => {
         try {
           await sendSystemEmail(
             email,
-            "Chaml.fr - Alerte de suppression définitive de vos pièces justificatives",
-            `Bonjour ${first_name},\n\nConformément à nos engagements de confidentialité, toutes vos pièces justificatives cryptées associées à votre dossier seront définitivement supprimées de nos serveurs dans 5 jours.\n\nSi vous ne les avez pas sauvegardées localement, veuillez vous connecter et le faire dès maintenant.\n\nL'équipe Chaml.fr`,
+            "Chaml - Alerte de suppression définitive de vos pièces justificatives",
+            `Bonjour ${first_name},\n\nConformément à nos engagements de confidentialité, toutes vos pièces justificatives cryptées associées à votre dossier seront définitivement supprimées de nos serveurs dans 5 jours.\n\nSi vous ne les avez pas sauvegardées localement, veuillez vous connecter et le faire dès maintenant.\n\nL'équipe Chaml`,
             `
               <div style="font-family: Arial, sans-serif; line-height: 1.6; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
                 <h2 style="color: #ef4444; text-align: center;">⚠️ Alerte de Suppression (RGPD)</h2>
                 <p>Bonjour <strong>${first_name}</strong>,</p>
                 <p>Conformément à notre engagement de confidentialité et à la réglementation RGPD, nous vous rappelons que votre dossier de regroupement familial a été validé il y a 25 jours.</p>
-                <p>Par conséquent, <strong>tous vos documents justificatifs cryptés téléversés sur Chaml.fr seront définitivement supprimés dans 5 jours</strong>.</p>
+                <p>Par conséquent, <strong>tous vos documents justificatifs cryptés téléversés sur Chaml seront définitivement supprimés dans 5 jours</strong>.</p>
                 <p>Si vous n'avez pas encore téléchargé et enregistré les copies décryptées de vos fichiers sur votre ordinateur, nous vous invitons à le faire dès maintenant.</p>
                 <div style="text-align: center; margin: 30px 0;">
-                  <a href="https://chaml.fr/dashboard" style="background-color: #ef4444; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Accéder à mon espace</a>
+                  <a href="https://Chaml/dashboard" style="background-color: #ef4444; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Accéder à mon espace</a>
                 </div>
                 <p style="font-size: 0.82rem; color: #64748b; font-style: italic;">Après suppression, ces fichiers seront irrécupérables car nous ne stockons aucun historique ni sauvegarde en clair.</p>
                 <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;"/>
-                <p style="font-size: 0.85rem; text-align: center; color: #94a3b8;">L'équipe Chaml.fr - Reuniting your family, without borders</p>
+                <p style="font-size: 0.85rem; text-align: center; color: #94a3b8;">L'équipe Chaml - Reuniting your family, without borders</p>
               </div>
             `
           );
@@ -2087,7 +2100,7 @@ const startAutoDestructCron = () => {
           
           await query(
             "INSERT INTO audit_logs (action, details, user_email) VALUES ($1, $2, $3)",
-            ["Auto-Destruct Purge", `Auto-deleted ${deletedCount} files for completed couple ${coupleId} (30 days threshold)`, "system-cron@chaml.fr"]
+            ["Auto-Destruct Purge", `Auto-deleted ${deletedCount} files for completed couple ${coupleId} (30 days threshold)`, "system-cron@chaml.local"]
           );
           console.log(`🗑️ Purged ${deletedCount} files for completed couple ${coupleId}`);
         }

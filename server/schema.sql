@@ -18,7 +18,8 @@ CREATE TABLE IF NOT EXISTS site_config (
   smtp_password VARCHAR(255) DEFAULT '',
   smtp_protocol VARCHAR(10) DEFAULT 'TLS',
   smtp_sender_name VARCHAR(100) DEFAULT 'Chaml Team',
-  smtp_sender_email VARCHAR(100) DEFAULT 'noreply@chaml.ma'
+  smtp_sender_email VARCHAR(100) DEFAULT 'noreply@chaml.ma',
+  app_domain VARCHAR(255) DEFAULT 'chaml' || '.fr'
 );
 
 -- Table: couples

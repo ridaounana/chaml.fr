@@ -284,6 +284,7 @@ export default function App() {
             <Landing 
               lang={lang} 
               onNavigate={(view) => setAuthView(view)} 
+              config={config}
             />
           ) : (
             <Login 

@@ -781,10 +781,10 @@ export default function Dashboard({ lang, user }) {
                       onClick={() => {
                         const element = document.createElement("a");
                         const file = new Blob([
-                          `--- CLÉ DU DOSSIER CONJOINT CHAML.FR ---\n`,
-                          `Dossier ID : ${couple ? couple.id : "Chaml"}\n`,
+                          `--- CLÉ DU DOSSIER CONJOINT ${config.appName.toUpperCase()} ---\n`,
+                          `Dossier ID : ${couple ? couple.id : config.appName}\n`,
                           `Clé Secrète : ${e2eeKey}\n\n`,
-                          `Transmettez cette clé secrète à votre conjoint(e) pour qu'il/elle puisse déchiffrer vos documents sur Chaml.fr.\n`
+                          `Transmettez cette clé secrète à votre conjoint(e) pour qu'il/elle puisse déchiffrer vos documents sur notre plateforme.\n`
                         ], {type: 'text/plain'});
                         element.href = URL.createObjectURL(file);
                         element.download = `cle-dossier-chaml.txt`;
@@ -971,7 +971,7 @@ export default function Dashboard({ lang, user }) {
                 🔗 Lien direct d'invitation :
               </div>
               <div style={{ fontSize: "0.78rem", color: "var(--text-muted)", wordBreak: "break-all", background: "var(--bg-main)", padding: "0.5rem", borderRadius: "0.25rem", border: "1px solid var(--border-card)" }}>
-                {`https://www.chaml.fr/?inviteCoupleId=${couple.id}&inviteEmail=${encodeURIComponent(couple.beneficiaire.email || "")}`}
+                {`https://${config.appDomain || window.location.host}/?inviteCoupleId=${couple.id}&inviteEmail=${encodeURIComponent(couple.beneficiaire.email || "")}`}
               </div>
             </div>
 
@@ -980,7 +980,7 @@ export default function Dashboard({ lang, user }) {
                 className="btn btn-primary"
                 style={{ padding: "0.75rem 1rem", fontSize: "0.88rem", fontWeight: "bold" }}
                 onClick={() => {
-                  const link = `https://www.chaml.fr/?inviteCoupleId=${couple.id}&inviteEmail=${encodeURIComponent(couple.beneficiaire.email || "")}`;
+                  const link = `https://${config.appDomain || window.location.host}/?inviteCoupleId=${couple.id}&inviteEmail=${encodeURIComponent(couple.beneficiaire.email || "")}`;
                   navigator.clipboard.writeText(link);
                   setCopiedInviteLinkSuccess(true);
                   setTimeout(() => setCopiedInviteLinkSuccess(false), 2500);
@@ -993,9 +993,9 @@ export default function Dashboard({ lang, user }) {
                 className="btn"
                 style={{ background: "#25D366", color: "white", padding: "0.75rem 1rem", fontSize: "0.88rem", fontWeight: "bold", border: "none" }}
                 onClick={() => {
-                  const link = `https://www.chaml.fr/?inviteCoupleId=${couple.id}&inviteEmail=${encodeURIComponent(couple.beneficiaire.email || "")}`;
+                  const link = `https://${config.appDomain || window.location.host}/?inviteCoupleId=${couple.id}&inviteEmail=${encodeURIComponent(couple.beneficiaire.email || "")}`;
                   const cleanPhone = (couple.beneficiaire.phone || "").replace(/[^\d+]/g, "").replace("+", "");
-                  const text = `Bonjour ${couple.beneficiaire.first_name || couple.beneficiaire.firstName || ""}, vous êtes invité(e) à rejoindre notre dossier conjoint de regroupement familial sur Chaml.fr !\n\nCliquez sur ce lien pour configurer votre mot de passe :\n${link}`;
+                  const text = `Bonjour ${couple.beneficiaire.first_name || couple.beneficiaire.firstName || ""}, vous êtes invité(e) à rejoindre notre dossier conjoint de regroupement familial ! \n\nCliquez sur ce lien pour configurer votre mot de passe :\n${link}`;
                   const waUrl = cleanPhone 
                     ? `https://wa.me/${cleanPhone}?text=${encodeURIComponent(text)}`
                     : `https://wa.me/?text=${encodeURIComponent(text)}`;

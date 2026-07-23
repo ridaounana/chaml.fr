@@ -49,7 +49,7 @@ export const TRANSLATIONS = {
     unverified_resend_success: "Un nouvel e-mail de vérification a été envoyé à {email}.",
     
     invite_title: "Créer votre mot de passe conjoint",
-    invite_welcome: "Bienvenue sur Chaml.fr ! Votre conjoint(e) vous a invité(e) à rejoindre son dossier de regroupement familial partagé.",
+    invite_welcome: "Bienvenue ! Votre conjoint(e) vous a invité(e) à rejoindre son dossier de regroupement familial partagé.",
     invite_email_lbl: "Adresse E-mail (Conjoint invité)",
     invite_pass_lbl: "Choisissez votre mot de passe*",
     invite_btn: "✓ Activer mon compte & se connecter",
@@ -511,7 +511,7 @@ export const TRANSLATIONS = {
     unverified_resend_success: "A new verification email was sent to {email}.",
 
     invite_title: "Create Joint Account Password",
-    invite_welcome: "Welcome to Chaml.fr! Your spouse invited you to join their shared family reunification file.",
+    invite_welcome: "Welcome! Your spouse invited you to join their shared family reunification file.",
     invite_email_lbl: "Email Address (Invited Spouse)",
     invite_pass_lbl: "Choose your password*",
     invite_btn: "✓ Activate my account & log in",

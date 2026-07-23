@@ -388,7 +388,7 @@ export default function Login({
                   className="input-field"
                   type="email"
                   required
-                  placeholder="conjoint@chaml.fr"
+                  placeholder="conjoint@chaml.local"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
@@ -552,7 +552,7 @@ export default function Login({
                 <input 
                   className="input-field" 
                   type="email" 
-                  placeholder="conjoint@chaml.fr" 
+                  placeholder="conjoint@chaml.local" 
                   value={frEmail} 
                   onChange={e => setFrEmail(e.target.value)} 
                   required 
@@ -800,7 +800,7 @@ export default function Login({
               color: "var(--text-muted)"
             }}>
               ⚙️ <strong>Note administrative :</strong><br />
-              Connectez-vous en tant qu'administrateur avec le compte <strong>admin@chaml.fr</strong> (mot de passe temporaire s'affiche dans les logs de la console du serveur) pour approuver ce nouveau dossier dans l'onglet "Gestion des Comptes".
+              Connectez-vous en tant qu'administrateur avec le compte <strong>admin@chaml.local</strong> (mot de passe temporaire s'affiche dans les logs de la console du serveur) pour approuver ce nouveau dossier dans l'onglet "Gestion des Comptes".
             </div>
 
             <button 
@@ -839,7 +839,7 @@ export default function Login({
                   className="input-field"
                   type="email"
                   required
-                  placeholder="anass@chaml.fr"
+                  placeholder="anass@chaml.local"
                   value={forgotEmail}
                   onChange={(e) => setForgotEmail(e.target.value)}
                 />

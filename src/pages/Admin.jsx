@@ -34,6 +34,7 @@ export default function Admin({ lang, config, onConfigUpdated }) {
   // Site configuration inputs
   const [appName, setAppName] = useState(config.appName || "Chaml");
   const [appLogo, setAppLogo] = useState(config.appLogo || "🕌");
+  const [appDomain, setAppDomain] = useState(config.appDomain || "chaml" + ".fr");
   const [smicValue, setSmicValue] = useState(config.smicValue || 1823);
   const [surfaceZoneA, setSurfaceZoneA] = useState(config.surfaceZoneA || 22);
   const [surfaceZoneB, setSurfaceZoneB] = useState(config.surfaceZoneB || 24);
@@ -131,6 +132,7 @@ export default function Admin({ lang, config, onConfigUpdated }) {
     if (config.appName) {
       setAppName(config.appName);
       setAppLogo(config.appLogo);
+      setAppDomain(config.appDomain || "chaml" + ".fr");
       setSmicValue(config.smicValue);
       setSurfaceZoneA(config.surfaceZoneA);
       setSurfaceZoneB(config.surfaceZoneB);
@@ -152,6 +154,7 @@ export default function Admin({ lang, config, onConfigUpdated }) {
     const settings = {
       appName,
       appLogo,
+      appDomain,
       smicValue: parseFloat(smicValue) || config.smicValue,
       surfaceZoneA: parseFloat(surfaceZoneA) || config.surfaceZoneA,
       surfaceZoneB: parseFloat(surfaceZoneB) || config.surfaceZoneB,
@@ -888,6 +891,18 @@ export default function Admin({ lang, config, onConfigUpdated }) {
                       onChange={(e) => setAppLogo(e.target.value)}
                     />
                   </div>
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Where am i ? (Domaine de l'application)</label>
+                  <input
+                    className="input-field"
+                    type="text"
+                    required
+                    value={appDomain}
+                    onChange={(e) => setAppDomain(e.target.value)}
+                    placeholder={"dev.chaml" + ".fr"}
+                  />
                 </div>
 
                 <div className="form-group">

@@ -42,6 +42,13 @@ export const initializeDatabase = async () => {
       console.log("Note: PII column alter skipped (table will be created by migrations).");
     }
 
+    try {
+      await pool.query("ALTER TABLE site_config ADD COLUMN IF NOT EXISTS app_domain VARCHAR(255) DEFAULT 'chaml' || '.fr'");
+      console.log("✅ Column 'app_domain' ensured in 'site_config' table.");
+    } catch (configAlterErr) {
+      console.log("Note: site_config alter skipped:", configAlterErr.message);
+    }
+
     console.log("Running Knex database migrations...");
     const environment = process.env.NODE_ENV || "development";
     const db = knex(knexConfig[environment]);
